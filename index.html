@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OT Calculator (Native Date)</title>
+  <style>
+    body { font-family: 'Sarabun', sans-serif; padding: 2rem; background: #f5f5f5; }
+    .container { max-width: 400px; margin: auto; background: white; padding: 2rem; border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    label, select, input[type="date"] { display: block; width: 100%; margin-top: 1rem; font-size: 1rem; padding: 0.7rem;
+      border: 1px solid #ccc; border-radius: 6px; }
+    button { width: 100%; margin-top: 1.5rem; padding: 1rem; font-size: 1.1rem; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    #result, #selectedDate { margin-top: 1rem; text-align: center; font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🕒 คำนวณเวลา OT</h2>
+
+    <label for="workDate">เลือกวันที่:</label>
+    <input type="date" id="workDate" />
+    <div id="selectedDate">ยังไม่ได้เลือกวันที่</div>
+
+    <label>ประเภทวัน:</label>
+    <div style="display: flex; gap: 1rem;">
+      <label><input type="radio" name="type" value="weekday" checked> จันทร์–ศุกร์</label>
+      <label><input type="radio" name="type" value="weekend"> เสาร์–อาทิตย์</label>
+    </div>
+
+    <label for="startTime">เวลาเข้า:</label>
+    <select id="startTime"></select>
+    <label for="endTime">เวลาออก:</label>
+    <select id="endTime"></select>
+
+    <button onclick="calculateOT()">คำนวณ OT</button>
+    <div id="result"></div>
+  </div>
+
+<script>
+  document.getElementById("workDate").addEventListener("change", function () {
+    const date = new Date(this.value);
+    if (!isNaN(date)) {
+      const d = date.getDate().toString().padStart(2, "0");
+      const m = (date.getMonth() + 1).toString().padStart(2, "0");
+      const y = (date.getFullYear() + 543).toString();
+      document.getElementById("selectedDate").innerText = `คุณเลือก: ${d}/${m}/${y}`;
+
+      const day = date.getDay();
+      document.querySelector(`input[value='${(day === 0 || day === 6) ? "weekend" : "weekday"}']`).checked = true;
+    }
+  });
+
+  function generateCustomTimeOptions() {
+    const timeList = [
+      "00:30","01:00","01:30","02:00","02:30","03:00","03:30","04:00","04:30","05:00",
+      "05:30","06:00","06:30","07:00","07:30","08:00","08:30","09:00","09:30","10:00",
+      "10:30","11:00","11:30","12:00","13:00","13:30","14:00","14:30","15:00","15:30",
+      "16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00","20:30",
+      "21:00","21:30","22:00","22:30","23:00","23:30"
+    ];
+    const selects = [document.getElementById("startTime"), document.getElementById("endTime")];
+    const options = timeList.map(t => `<option value="${t}">${t}</option>`).join("");
+    selects.forEach(select => select.innerHTML = options);
+  }
+
+  function toMinutes(time) {
+    const [h, m] = time.split(":").map(Number);
+    return h * 60 + m;
+  }
+
+  function calculateOT() {
+    const start = document.getElementById('startTime').value;
+    const end = document.getElementById('endTime').value;
+    const type = document.querySelector('input[name="type"]:checked').value;
+    const startMin = toMinutes(start);
+    const endMin = toMinutes(end);
+    if (endMin <= startMin) {
+      document.getElementById('result').innerText = "❌ เวลาออกต้องมากกว่าเวลาเข้า";
+      return;
+    }
+    let totalMinutes = endMin - startMin;
+    let result = `เข้า: ${start} | ออก: ${end}`;
+    if (startMin <= 720 && endMin >= 780) totalMinutes -= 60;
+    if (endMin >= 1170) totalMinutes -= 30;
+    if (type === "weekday") {
+      let otMinutes = totalMinutes - 480;
+      if (otMinutes <= 0) {
+        document.getElementById('result').innerText = "✅ ไม่มี OT";
+        return;
+      }
+      result += `\n⏱️ OT: ${Math.floor(otMinutes / 60)} ชั่วโมง ${otMinutes % 60} นาที`;
+    } else {
+      result += `\nเวลาทำงานรวม: ${Math.floor(totalMinutes / 60)} ชั่วโมง ${totalMinutes % 60} นาที`;
+    }
+    document.getElementById('result').innerText = result;
+  }
+
+  window.onload = function () {
+    generateCustomTimeOptions();
+  };
+</script>
+</body>
+</html>
