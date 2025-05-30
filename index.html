@@ -1,41 +1,99 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>OT Calculator (Native Date)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f9c419"/>
+  <title>คำนวณเวลา OT - EGAT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Sarabun', sans-serif; padding: 2rem; background: #f5f5f5; }
-    .container { max-width: 400px; margin: auto; background: white; padding: 2rem; border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    label, select, input[type="date"] { display: block; width: 100%; margin-top: 1rem; font-size: 1rem; padding: 0.7rem;
-      border: 1px solid #ccc; border-radius: 6px; }
-    button { width: 100%; margin-top: 1.5rem; padding: 1rem; font-size: 1.1rem; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; }
-    #result, #selectedDate { margin-top: 1rem; text-align: center; font-size: 1.2rem; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: #f5f5f5;
+      padding: 2rem;
+      margin: 0;
+    }
+    .container {
+      max-width: 400px;
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      margin: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-top: 6px solid #f9c419;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #002f6c;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #002f6c;
+    }
+    select, input[type="date"], input[type="text"] {
+      width: 100%;
+      padding: 0.7rem;
+      margin-top: 0.3rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 1rem;
+      background: #002f6c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 1.2rem;
+      white-space: pre-wrap;
+      color: #002f6c;
+    }
+    .radio-inline {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    .radio-inline label {
+      font-weight: normal;
+      color: #002f6c;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>🕒 คำนวณเวลา OT</h2>
+<div class="container">
+  <h2>🕒 คำนวณเวลา OT</h2>
+  <label for="workDate">เลือกวันที่:</label>
+  <input type="date" id="workDate" />
+  
 
-    <label for="workDate">เลือกวันที่:</label>
-    <input type="date" id="workDate" />
-    <div id="selectedDate">ยังไม่ได้เลือกวันที่</div>
-
-    <label>ประเภทวัน:</label>
-    <div style="display: flex; gap: 1rem;">
-      <label><input type="radio" name="type" value="weekday" checked> จันทร์–ศุกร์</label>
-      <label><input type="radio" name="type" value="weekend"> เสาร์–อาทิตย์</label>
-    </div>
-
-    <label for="startTime">เวลาเข้า:</label>
-    <select id="startTime"></select>
-    <label for="endTime">เวลาออก:</label>
-    <select id="endTime"></select>
-
-    <button onclick="calculateOT()">คำนวณ OT</button>
-    <div id="result"></div>
+  <label>ประเภทวัน:</label>
+  <div class="radio-inline">
+    <label><input type="radio" name="type" value="weekday" checked> จันทร์–ศุกร์</label>
+    <label><input type="radio" name="type" value="weekend"> เสาร์–อาทิตย์</label>
   </div>
+
+  <label for="startTime">เวลาเข้า:</label>
+  <select id="startTime"></select>
+
+  <label for="endTime">เวลาออก:</label>
+  <select id="endTime"></select>
+
+  <button onclick="calculateOT()">คำนวณ OT</button>
+
+  <div id="result"></div>
+</div>
 
 <script>
   document.getElementById("workDate").addEventListener("change", function () {
@@ -44,8 +102,6 @@
       const d = date.getDate().toString().padStart(2, "0");
       const m = (date.getMonth() + 1).toString().padStart(2, "0");
       const y = (date.getFullYear() + 543).toString();
-      document.getElementById("selectedDate").innerText = `คุณเลือก: ${d}/${m}/${y}`;
-
       const day = date.getDay();
       document.querySelector(`input[value='${(day === 0 || day === 6) ? "weekend" : "weekday"}']`).checked = true;
     }
