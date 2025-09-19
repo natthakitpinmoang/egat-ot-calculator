@@ -1,160 +1,377 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#f9c419"/>
-  <title>คำนวณเวลา OT - EGAT</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Sarabun', sans-serif;
-      background: #f5f5f5;
-      padding: 2rem;
-      margin: 0;
-    }
-    .container {
-      max-width: 400px;
-      background: white;
-      padding: 2rem;
-      border-radius: 16px;
-      margin: auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      border-top: 6px solid #f9c419;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-      color: #002f6c;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-      color: #002f6c;
-    }
-    select, input[type="date"], input[type="text"] {
-      width: 100%;
-      padding: 0.7rem;
-      margin-top: 0.3rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-    }
-    button {
-      width: 100%;
-      padding: 1rem;
-      background: #002f6c;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      margin-top: 1.5rem;
-      cursor: pointer;
-    }
-    #result {
-      margin-top: 1.5rem;
-      text-align: center;
-      font-size: 1.2rem;
-      white-space: pre-wrap;
-      color: #002f6c;
-    }
-    .radio-inline {
-      display: flex;
-      gap: 1rem;
-      margin-top: 0.5rem;
-    }
-    .radio-inline label {
-      font-weight: normal;
-      color: #002f6c;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EGAT Tools – OT & Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --brand:#002f6c; --accent:#f9c419; --soft:#f5f7fb; --muted:#6b7280; --radius:14px; }
+
+  *{ box-sizing:border-box }
+  body{ margin:0; background:#eef2f7; font-family:'Sarabun',system-ui,-apple-system,Segoe UI; color:#0f172a; }
+  .app{ min-height:100vh; display:flex; }
+
+  /* Sidebar */
+  .sidebar{ width:230px; background:#fff; border-right:1px solid #e5e7eb; padding:12px; display:flex; flex-direction:column; gap:10px; transition:width .18s ease; }
+  .sidebar.collapsed{ width:68px; }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:800; color:var(--brand); padding:10px 12px; border:2px solid var(--accent); border-radius:12px; background:linear-gradient(180deg,#fff,#fffbe6); justify-content:space-between; }
+  .brand .left{display:flex; align-items:center; gap:10px}
+  .brand .dot{width:10px; height:10px; background:var(--accent); border-radius:50%}
+  .collapse-btn{ all:unset; cursor:pointer; padding:4px 6px; border-radius:8px; color:#1f2937; }
+  .collapse-btn:hover{ background:#f3f4f6 }
+  .menu{ display:flex; flex-direction:column; gap:8px; margin-top:6px; }
+  .menu a{ display:flex; gap:10px; align-items:center; text-decoration:none; color:#111827; padding:10px 12px; border-radius:10px; }
+  .menu a:hover{ background:#f3f4f6 }
+  .menu a.active{ background:#e7efff; color:var(--brand); font-weight:700; }
+  .icon{ width:22px; height:22px; display:inline-grid; place-items:center; border-radius:7px; background:#eef2ff; color:var(--brand); font-weight:700; flex:0 0 22px; }
+  .label{ white-space:nowrap }
+  .sidebar.collapsed .label{ display:none }
+  .sidebar.collapsed .brand .left span.txt{ display:none }
+
+  /* Content */
+  .content{ flex:1; padding:28px; display:flex; justify-content:center; }
+  .card{ width:min(860px,100%); background:#fff; border-radius:var(--radius); border-top:6px solid var(--accent); box-shadow:0 8px 18px rgba(2,6,23,.06); padding:24px 24px 28px; }
+  h2{ margin:0 0 14px 0; color:var(--brand) }
+
+  /* Form */
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  label{font-weight:700; color:var(--brand)}
+  input, select, button{ font-family:inherit; font-size:16px }
+  input[type="date"], select{ width:100%; padding:.7rem .8rem; border:1px solid #d1d5db; border-radius:8px; margin-top:6px; }
+  .radio-line{display:flex; gap:18px; margin-top:6px; color:#1f2937}
+  .actions{display:flex; gap:10px; align-items:center; margin-top:10px}
+  .primary{ background:var(--brand); color:#fff; border:none; padding:12px 16px; border-radius:10px; cursor:pointer; font-weight:700; }
+  #result{margin-top:14px; color:#0f172a; font-size:1.02rem}
+
+  /* Result */
+  .result-wrap{display:flex; flex-direction:column; gap:10px; margin-top:.6rem}
+  .result-head{display:flex; justify-content:space-between; align-items:center; padding:.5rem .8rem; background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px;}
+  .result-head .meta{font-size:.95rem; color:#475569}
+  .result-section{background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:.7rem .8rem}
+  .result-title{font-weight:800; color:var(--brand); display:flex; align-items:center; gap:.5rem; margin-bottom:.4rem}
+  .result-title .i{font-size:1.05rem}
+  .rows{display:flex; flex-direction:column; gap:6px}
+  .row{display:grid; grid-template-columns:140px 74px 1fr; gap:8px; align-items:center; padding:.45rem .5rem; border-radius:10px; border:1px dashed #e5e7eb}
+  @media (max-width:560px){ .row{ grid-template-columns:1fr 60px 1fr; } }
+  .time{font-variant-numeric:tabular-nums}
+  .rate{justify-self:center; font-weight:800; padding:.2rem .5rem; border-radius:999px; font-size:.9rem}
+  .rate.x1{background:#ecfeff; color:#0e7490; border:1px solid #a5f3fc}
+  .rate.x15{background:#eef2ff; color:var(--brand); border:1px solid #c7d2fe}
+  .rate.x3{background:#fff1f2; color:#be123c; border:1px solid #fecdd3}
+  .dur{text-align:right; font-variant-numeric:tabular-nums}
+  .breaks{display:flex; flex-wrap:wrap; gap:6px}
+  .break-chip{background:#f1f5f9; color:#334155; border:1px solid #e2e8f0; border-radius:999px; padding:.2rem .55rem; font-size:.9rem}
+  .total-box{display:grid; gap:6px; background:linear-gradient(180deg,#fbfdff,#f7fbff); border:1px solid #dbeafe; border-radius:12px; padding:.7rem .8rem}
+  .total-line{display:flex; justify-content:space-between; font-weight:800}
+  .total-line .k{color:#0f172a}
+  .total-line .v{font-variant-numeric:tabular-nums}
+  .total-line.em{border-top:1px dashed #cbd5e1; padding-top:.5rem; color:var(--brand)}
+
+  /* Calculator */
+  .calc{ width:min(520px,100%); margin:14px auto 0; background:#fbfcff; border:1px solid #e5e7eb; border-radius:16px; padding:18px; box-shadow:0 8px 18px rgba(2,6,23,.06); }
+  .calc-display{ width:100%; height:82px; border:1px solid #d1d5db; border-radius:12px; padding:14px 16px; font-size:28px; text-align:right; background:#fff; }
+  .keys{ margin-top:14px; display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .keys button{ padding:16px 0; border:1px solid #d1d5db; background:#fff; border-radius:12px; cursor:pointer; font-weight:700; font-size:18px; }
+  .keys button.op{background:#eef2ff; color:#000}
+  .keys button.eq{background:var(--brand); color:#fff}
+
+  .view{display:none}
+  .view.active{display:block}
+</style>
 </head>
 <body>
-<div class="container">
-  <h2>🕒 คำนวณเวลา OT</h2>
-  <label for="workDate">เลือกวันที่:</label>
-  <input type="date" id="workDate" />
-  
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="left"><span class="dot"></span><span class="txt">EGAT Tools</span></div>
+      <button class="collapse-btn" id="btnToggle" title="พับ/กาง แถบข้าง">≡</button>
+    </div>
+    <nav class="menu" id="menu">
+      <a href="?view=ot"   data-view="ot"   class="active"><span class="icon">⏱️</span><span class="label">คำนวณเวลา OT</span></a>
+      <a href="?view=calc" data-view="calc"><span class="icon">🧮</span><span class="label">เครื่องคิดเลข</span></a>
+    </nav>
+  </aside>
 
-  <label>ประเภทวัน:</label>
-  <div class="radio-inline">
-    <label><input type="radio" name="type" value="weekday" checked> จันทร์–ศุกร์</label>
-    <label><input type="radio" name="type" value="weekend"> เสาร์–อาทิตย์</label>
-  </div>
+  <!-- Content -->
+  <main class="content">
+    <!-- OT -->
+    <section id="view-ot" class="view">
+      <div class="card">
+        <h2>คำนวณเวลา OT</h2>
+        <div class="grid">
+          <div>
+            <label>เลือกวันที่</label>
+            <input type="date" id="workDate" autocomplete="off">
+          </div>
+          <div>
+            <label>ประเภทวัน</label>
+            <div class="radio-line">
+              <label><input type="radio" name="type" value="weekday" checked> จันทร์–ศุกร์</label>
+              <label><input type="radio" name="type" value="weekend"> เสาร์–อาทิตย์</label>
+            </div>
+          </div>
+          <div>
+            <label>เวลาเข้า</label>
+            <select id="startTime"></select>
+          </div>
+          <div>
+            <label>เวลาออก</label>
+            <select id="endTime"></select>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="primary" id="btnCalc">คำนวณ OT</button>
+        </div>
+        <div id="result"></div>
+      </div>
+    </section>
 
-  <label for="startTime">เวลาเข้า:</label>
-  <select id="startTime"></select>
-
-  <label for="endTime">เวลาออก:</label>
-  <select id="endTime"></select>
-
-  <button onclick="calculateOT()">คำนวณ OT</button>
-
-  <div id="result"></div>
+    <!-- Calculator -->
+    <section id="view-calc" class="view">
+      <div class="card">
+        <h2>เครื่องคิดเลข</h2>
+        <div class="calc">
+          <input id="calcDisplay" class="calc-display" type="text" readonly value="0">
+          <div class="keys">
+            <button class="op" data-k="C">C</button>
+            <button class="op" data-k="BS">⌫</button>
+            <button class="op" data-k="%">%</button>
+            <button class="op" data-k="/">÷</button>
+            <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+            <button class="op" data-k="*">×</button>
+            <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+            <button class="op" data-k="-">−</button>
+            <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+            <button class="op" data-k="+">+</button>
+            <button data-k="0" style="grid-column:span 2">0</button>
+            <button data-k=".">.</button>
+            <button class="eq" data-k="=">=</button>
+          </div>
+          <div class="note-sub" style="text-align:center;margin-top:10px">
+            พิมพ์จากคีย์บอร์ด: 0–9, + − × ÷ % ., Enter (=), Backspace, Esc/Delete (C)
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 </div>
 
 <script>
-  document.getElementById("workDate").addEventListener("change", function () {
-    const date = new Date(this.value);
-    if (!isNaN(date)) {
-      const d = date.getDate().toString().padStart(2, "0");
-      const m = (date.getMonth() + 1).toString().padStart(2, "0");
-      const y = (date.getFullYear() + 543).toString();
-      const day = date.getDay();
-      document.querySelector(`input[value='${(day === 0 || day === 6) ? "weekend" : "weekday"}']`).checked = true;
-    }
+  /* ===== Constants ===== */
+  const WORKDAY_MINUTES = 8*60;          // 480
+  const LUNCH_BREAK_MIN = 60;            // 12:00–13:00
+  const DINNER_BREAK_MIN = 30;           // 19:30–20:00
+
+  /* ===== Sidebar ===== */
+  const sidebar   = document.getElementById('sidebar');
+  const btnToggle = document.getElementById('btnToggle');
+  if(localStorage.getItem('egat_sidebar_collapsed')==='1') sidebar.classList.add('collapsed');
+  btnToggle.addEventListener('click', ()=>{
+    sidebar.classList.toggle('collapsed');
+    localStorage.setItem('egat_sidebar_collapsed', sidebar.classList.contains('collapsed')?'1':'0');
   });
 
-  function generateCustomTimeOptions() {
-    const timeList = [
-      "00:30","01:00","01:30","02:00","02:30","03:00","03:30","04:00","04:30","05:00",
-      "05:30","06:00","06:30","07:00","07:30","08:00","08:30","09:00","09:30","10:00",
-      "10:30","11:00","11:30","12:00","13:00","13:30","14:00","14:30","15:00","15:30",
-      "16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00","20:30",
-      "21:00","21:30","22:00","22:30","23:00","23:30"
-    ];
-    const selects = [document.getElementById("startTime"), document.getElementById("endTime")];
-    const options = timeList.map(t => `<option value="${t}">${t}</option>`).join("");
-    selects.forEach(select => select.innerHTML = options);
+  /* ===== Routing ===== */
+  const params = new URLSearchParams(location.search);
+  const currentView = (params.get('view') || 'ot').toLowerCase();
+  document.querySelectorAll('#menu a').forEach(a=>a.classList.toggle('active', a.dataset.view === currentView));
+  function show(viewId){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-' + viewId).classList.add('active');
+  }
+  show(currentView);
+
+  /* ===== Calculator ===== */
+  (function(){
+    if(currentView !== 'calc') return;
+    const disp = document.getElementById('calcDisplay');
+    let buf = '0';
+    const set = v => disp.value = v;
+
+    const safeEval = s => {
+      try{
+        if(!/^[0-9.+\-*/%() ]+$/.test(s)) return 'Error';
+        const val = Function('"use strict";return ('+s+')')();
+        return (val===Infinity || Number.isNaN(val)) ? 'Error' : String(val);
+      }catch{ return 'Error'; }
+    };
+
+    function push(ch){
+      if(ch==='C'){ buf='0'; set(buf); return; }
+      if(ch==='BS'){ buf = buf.length>1 ? buf.slice(0,-1) : '0'; set(buf); return; }
+      if(ch==='='){ const out=safeEval(buf); set(out); buf=(out==='Error')?'0':out; return; }
+      if(ch==='x'||ch==='X') ch='*'; if(ch==='÷') ch='/';
+      if(buf==='0' && /[0-9.]/.test(ch)) buf=ch; else buf+=ch;
+      set(buf);
+    }
+
+    document.querySelectorAll('.keys button').forEach(b=>{
+      b.addEventListener('click',()=> push(b.dataset.k || b.textContent.trim()));
+    });
+    window.addEventListener('keydown', e=>{
+      const k=e.key;
+      if(/[0-9]/.test(k)) { push(k); return; }
+      if(['+','-','*','/','x','X','%','.'].includes(k)) { push(k); return; }
+      if(k==='Enter' || k==='NumpadEnter'){ e.preventDefault(); push('='); return; }
+      if(k==='Backspace'){ e.preventDefault(); push('BS'); return; }
+      if(k==='Escape' || k==='Delete'){ e.preventDefault(); push('C'); return; }
+    });
+  })();
+
+  /* ===== Time helpers ===== */
+  const MIN = (h,m)=>h*60+m;
+  const toMinutes = t => { const [h,m]=t.split(':').map(Number); return h*60+m; };
+  const fmt = mins => `${Math.floor(mins/60)} ชั่วโมง ${mins%60} นาที`;
+
+  function optionsHalfHour(){
+    const t=[];
+    for(let h=0; h<24; h++){ for(const m of [0,30]){
+      if(h===0 && m===0) continue;
+      const s=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; t.push(s);
+    }}
+    return t;
+  }
+  function fillTimeSelects(){
+    const opts = optionsHalfHour().map(s=>`<option value="${s}">${s}</option>`).join('');
+    document.getElementById('startTime').innerHTML = opts;
+    document.getElementById('endTime').innerHTML   = opts;
+    document.getElementById('startTime').value = '07:30';
+    document.getElementById('endTime').value   = '20:00';
   }
 
-  function toMinutes(time) {
-    const [h, m] = time.split(":").map(Number);
-    return h * 60 + m;
+  /* ===== Row HTML ===== */
+  function rowHTML(range, rateClass, rateText, mins){
+    return `<div class="row">
+      <div class="time">${range}</div>
+      <div class="rate ${rateClass}">${rateText}</div>
+      <div class="dur">${fmt(mins)}</div>
+    </div>`;
   }
 
-  function calculateOT() {
+  /* ===== จ–ศ: คำนวณ ×1.5 (เปลี่ยนเป็นโครงข้อมูล) ===== */
+  function computeWeekday15(startMin,endMin){
+    const sessions=[[MIN(0,0),MIN(8,0)],[MIN(17,0),MIN(24,0)]];
+    let total15=0, rowsHTML='', breaks=[];
+    for(const [s,e] of sessions){
+      const from=Math.max(startMin,s), to=Math.min(endMin,e), ov=Math.max(0,to-from);
+      if(ov>0){
+        const f=`${String((from/60|0)).padStart(2,'0')}:${String(from%60).padStart(2,'0')}`;
+        const t=`${String((to/60|0)).padStart(2,'0')}:${String(to%60).padStart(2,'0')}`;
+        rowsHTML += rowHTML(`${f}–${t}`,'x15','×1.5',ov);
+        total15 += ov;
+      }
+    }
+    if(endMin>=MIN(19,30)){ total15=Math.max(0,total15-DINNER_BREAK_MIN); breaks.push('หักพัก 30 นาที (19:30–20:00)'); }
+    return { rowsHTML, breaks, total15 };
+  }
+
+  /* ===== ส–อ: คำนวณ ===== */
+  function computeWeekend(startMin,endMin,totalMinutes){
+    const sess=[[MIN(0,0),MIN(8,0),3],[MIN(8,0),MIN(17,0),1],[MIN(17,0),MIN(24,0),3]];
+    let rowsHTML='', totals={1:0,3:0}, breaks=[];
+    for(const [s,e,r] of sess){
+      const from=Math.max(startMin,s), to=Math.min(endMin,e), ov=Math.max(0,to-from);
+      if(ov>0){
+        const f=`${String((from/60|0)).padStart(2,'0')}:${String(from%60).padStart(2,'0')}`;
+        const t=`${String((to/60|0)).padStart(2,'0')}:${String(to%60).padStart(2,'0')}`;
+        rowsHTML += rowHTML(`${f}–${t}`, r===3?'x3':'x1', `×${r}`, ov);
+        totals[r]=(totals[r]||0)+ov;
+      }
+    }
+    const L1=MIN(12,0), L2=MIN(13,0);
+    if(Math.max(0,Math.min(endMin,L2)-Math.max(startMin,L1))>0){
+      totals[1]=Math.max(0,(totals[1]||0)-LUNCH_BREAK_MIN); breaks.push('หักพัก 1 ชั่วโมง (12:00–13:00)');
+    }
+    if(endMin>=MIN(19,30)){ totals[3]=Math.max(0,(totals[3]||0)-DINNER_BREAK_MIN); breaks.push('หักพัก 30 นาที (19:30–20:00)'); }
+    return { rowsHTML, breaks, totals, totalMinutes };
+  }
+
+  /* ===== OT Calculator ===== */
+  function calculateOT(){
     const start = document.getElementById('startTime').value;
-    const end = document.getElementById('endTime').value;
-    const type = document.querySelector('input[name="type"]:checked').value;
-    const startMin = toMinutes(start);
-    const endMin = toMinutes(end);
-    if (endMin <= startMin) {
-      document.getElementById('result').innerText = "❌ เวลาออกต้องมากกว่าเวลาเข้า";
+    const end   = document.getElementById('endTime').value;
+    const type  = document.querySelector('input[name="type"]:checked').value;
+    const startMin = toMinutes(start), endMin = toMinutes(end);
+    if(endMin<=startMin){ document.getElementById('result').innerText='❌ เวลาออกต้องมากกว่าเวลาเข้า'; return; }
+
+    // เวลาทำงานรวม (หักพักที่ทับช่วง)
+    let totalMinutes=endMin-startMin;
+    if(Math.max(0,Math.min(endMin,MIN(13,0))-Math.max(startMin,MIN(12,0)))>0) totalMinutes-=LUNCH_BREAK_MIN;
+    if(endMin>=MIN(19,30)) totalMinutes-=DINNER_BREAK_MIN;
+
+    const dayText = (type==='weekday') ? 'จันทร์–ศุกร์' : 'เสาร์–อาทิตย์';
+    const head = `
+      <div class="result-head">
+        <div class="tt">สรุปการคำนวณ</div>
+        <div class="meta">เข้า: ${start} • ออก: ${end} • ประเภท: ${dayText}</div>
+      </div>`;
+
+    /* ---------- Weekday ---------- */
+    if(type==='weekday'){
+      const ot = totalMinutes - WORKDAY_MINUTES;
+      if(ot<=0){ document.getElementById('result').innerText='✅ ไม่มี OT'; return; }
+
+      const wk15 = computeWeekday15(startMin,endMin);
+      const body = `
+        <div class="result-section">
+          <div class="result-title"><span class="i">🔔</span>ช่วงเวลาที่นับเป็น OT ×1.5 (จ–ศ)</div>
+          <div class="rows">${wk15.rowsHTML || '<div class="note-sub">ไม่มีช่วงเวลาที่ทับ</div>'}</div>
+          ${wk15.breaks.length?`<div class="breaks" style="margin-top:.5rem">${wk15.breaks.map(b=>`<span class="break-chip">${b}</span>`).join('')}</div>`:''}
+        </div>
+        <div class="result-section">
+          <div class="result-title"><span class="i">🧾</span>สรุป OT</div>
+          <div class="total-box">
+            <div class="total-line"><span class="k">รวม ×1.5</span><span class="v">${fmt(wk15.total15)}</span></div>
+            <div class="total-line em"><span class="k">⏱️ เวลาทำงานรวม</span><span class="v">${fmt(ot)}</span></div>
+          </div>
+        </div>`;
+      document.getElementById('result').innerHTML = `<div class="result-wrap">${head}${body}</div>`;
       return;
     }
-    let totalMinutes = endMin - startMin;
-    let result = `เข้า: ${start} | ออก: ${end}`;
-    if (startMin <= 720 && endMin >= 780) totalMinutes -= 60;
-    if (endMin >= 1170) totalMinutes -= 30;
-    if (type === "weekday") {
-      let otMinutes = totalMinutes - 480;
-      if (otMinutes <= 0) {
-        document.getElementById('result').innerText = "✅ ไม่มี OT";
-        return;
-      }
-      result += `\n⏱️ OT: ${Math.floor(otMinutes / 60)} ชั่วโมง ${otMinutes % 60} นาที`;
-    } else {
-      result += `\nเวลาทำงานรวม: ${Math.floor(totalMinutes / 60)} ชั่วโมง ${totalMinutes % 60} นาที`;
-    }
-    document.getElementById('result').innerText = result;
+
+    /* ---------- Weekend (ส–อ) ---------- */
+    const wk = computeWeekend(startMin,endMin,totalMinutes);
+    const body = `
+      <div class="result-section">
+        <div class="result-title"><span class="i">🔔</span>ช่วงเวลาที่นับงานและเรตค่าตอบแทน (ส–อ)</div>
+        <div class="rows">${wk.rowsHTML || '<div class="note-sub">ไม่มีช่วงเวลาที่ทับ</div>'}</div>
+        ${wk.breaks.length?`<div class="breaks" style="margin-top:.5rem">${wk.breaks.map(b=>`<span class="break-chip">${b}</span>`).join('')}</div>`:''}
+        <div class="result-title" style="margin-top:.7rem"><span class="i">🧾</span>สรุป OT (ส–อ)</div>
+        <div class="total-box">
+          <div class="total-line"><span class="k">รวม ×3</span><span class="v">${fmt(wk.totals[3]||0)}</span></div>
+          <div class="total-line"><span class="k">รวม ×1</span><span class="v">${fmt(wk.totals[1]||0)}</span></div>
+          <div class="total-line em"><span class="k">⏱️ เวลาทำงานรวม</span><span class="v">${fmt(wk.totalMinutes)}</span></div>
+        </div>
+      </div>`;
+    document.getElementById('result').innerHTML = `<div class="result-wrap">${head}${body}</div>`;
   }
 
-  window.onload = function () {
-    generateCustomTimeOptions();
-  };
+  /* ===== Init OT page ===== */
+  function resetOT(){
+    fillTimeSelects();
+    document.getElementById('workDate').value = '';
+    document.querySelector('input[name="type"][value="weekday"]').checked = true;
+    document.getElementById('result').innerHTML = '';
+  }
+
+  if(currentView==='ot'){
+    resetOT();
+    document.getElementById('btnCalc').addEventListener('click', calculateOT);
+    document.getElementById('workDate').addEventListener('change',e=>{
+      const d=new Date(e.target.value);
+      if(!isNaN(d)) {
+        const day=d.getDay();
+        document.querySelector(`input[name="type"][value="${(day===0||day===6)?'weekend':'weekday'}"]`).checked=true;
+      }
+    });
+    window.addEventListener('pageshow', () => resetOT());
+  } else {
+    window.addEventListener('pageshow', () => {
+      const d=document.getElementById('calcDisplay'); if(d) d.value='0';
+    });
+  }
 </script>
 </body>
 </html>
