@@ -2,129 +2,677 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>EGAT Tools – OT & Calculator</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
+<!-- 🟢 Mobile App Config -->
+<meta name="theme-color" content="#00306e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EGAT OT">
+
+<title>ระบบคำนวณ OT (EGAT)</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{ --brand:#002f6c; --accent:#f9c419; --soft:#f5f7fb; --muted:#6b7280; --radius:14px; }
+  :root{ 
+      /* Color Palette */
+      --brand: #00306e;       /* EGAT Blue */
+      --brand-dark: #002352;
+      --brand-light: #ebf5ff;
+      --accent: #f59e0b;      /* Amber */
+      --accent-light: #fffbeb;
+      --success: #10b981; 
+      --danger: #ef4444; 
+      --danger-soft: #fef2f2;
+      
+      /* UI Colors */
+      --bg-body: #f8fafc;     
+      --bg-card: #ffffff;
+      --bg-input-zone: #f1f5f9; 
+      --text-main: #334155;   
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      
+      --radius: 20px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  }
 
   *{ box-sizing:border-box }
-  body{ margin:0; background:#eef2f7; font-family:'Sarabun',system-ui,-apple-system,Segoe UI; color:#0f172a; }
+  body{ margin:0; background:var(--bg-body); font-family:'Sarabun',system-ui,-apple-system,Segoe UI; color:var(--text-main); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
   .app{ min-height:100vh; display:flex; }
 
-  /* Sidebar */
-  .sidebar{ width:230px; background:#fff; border-right:1px solid #e5e7eb; padding:12px; display:flex; flex-direction:column; gap:10px; transition:width .18s ease; }
-  .sidebar.collapsed{ width:68px; }
-  .brand{ display:flex; align-items:center; gap:10px; font-weight:800; color:var(--brand); padding:10px 12px; border:2px solid var(--accent); border-radius:12px; background:linear-gradient(180deg,#fff,#fffbe6); justify-content:space-between; }
+  /* 📱 MOBILE OPTIMIZATION */
+  /* Sidebar (Desktop Default) */
+  .sidebar{ width:250px; background:#fff; border-right:1px solid var(--border); padding:24px 16px; display:flex; flex-direction:column; gap:12px; transition:width .2s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; box-shadow: var(--shadow-sm); }
+  .sidebar.collapsed{ width:76px; }
+   
+  /* Mobile Bottom Nav Transformation */
+  @media (max-width: 768px) {
+      .app { flex-direction: column; }
+      .sidebar {
+          width: 100%;
+          height: auto;
+          min-height: 70px;
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          border-right: none;
+          border-top: 1px solid var(--border);
+          flex-direction: row; 
+          padding: 8px 0;
+          justify-content: space-around; 
+          align-items: center;
+          background: #fff;
+          box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+          padding-bottom: env(safe-area-inset-bottom);
+          z-index: 999;
+      }
+      .sidebar.collapsed { width: 100%; } 
+      
+      .brand { display: none; } 
+      .menu { 
+          flex-direction: row; 
+          width: 100%; 
+          justify-content: space-evenly; 
+          margin: 0; 
+          gap: 0; 
+      }
+      .menu-item {
+          flex-direction: column;
+          gap: 4px;
+          padding: 8px 4px;
+          border-radius: 12px;
+          font-size: 0.75rem;
+          flex: 1;
+          justify-content: center;
+          text-align: center;
+          border: none;
+          color: #94a3b8;
+      }
+      .menu-item:hover { background: transparent; color: var(--text-muted); transform: none; }
+      .menu-item.active { 
+          background: transparent; 
+          color: var(--brand); 
+          font-weight: 800;
+          box-shadow: none;
+      }
+      
+      .icon { width: 24px; height: 24px; font-size: 1.5rem; margin-bottom: 2px; }
+      .label { font-size: 0.75rem; white-space: nowrap; }
+      .arrow-icon { display: none; } 
+      .submenu { display: none !important; }
+      .badge { position: absolute; top: 4px; right: 25%; font-size: 0.6rem; padding: 2px 6px; }
+
+      .content { margin-bottom: 90px; } /* Push content up */
+      
+      /* Mobile Card */
+      .view.active { padding: 15px 12px; align-items: flex-start; }
+      .card { padding: 20px; border-radius: 20px; border-top-width: 6px; margin-bottom: 20px; }
+      h2 { font-size: 1.5rem; }
+      
+      /* Mobile Form */
+      .grid { grid-template-columns: 1fr; gap: 16px; }
+      .driver-filter-wrapper { width: 100%; margin-top: 8px; justify-content: space-between; }
+      
+      /* Mobile History */
+      .history-header-container { padding: 16px; }
+      .left-group { flex-direction: column; align-items: flex-start; gap: 4px; }
+      .history-title { font-size: 1.4rem; }
+      .month-picker-inline { font-size: 1.2rem; }
+      
+      .summary-grid { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+      .sum-card { min-height: 80px; padding: 10px; }
+      .sum-card .lbl { font-size: 0.7rem; }
+      .sum-card .val { font-size: 1.4rem; }
+
+      .total-summary-section { flex-direction: column; }
+      .summary-half:first-child { border-right: none; border-bottom: 1px dashed var(--border); }
+      
+      /* Table Scroll */
+      .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .history-table { font-size: 0.85rem; }
+      .history-table th, .history-table td { padding: 10px 8px; }
+      
+      /* Calculator */
+      .calc { width: 100%; border-radius: 24px; padding: 16px; }
+      .keys { gap: 8px; }
+      .keys button { font-size: 1.5rem; padding: 15px 0; border-radius: 12px; }
+  }
+   
+  .brand{ display:flex; align-items:center; gap:12px; font-weight:800; color:var(--brand); padding:12px; border-radius:12px; background:linear-gradient(135deg, #fff, #f8fafc); border: 1px solid var(--border); justify-content:space-between; margin-bottom: 12px; }
   .brand .left{display:flex; align-items:center; gap:10px}
-  .brand .dot{width:10px; height:10px; background:var(--accent); border-radius:50%}
-  .collapse-btn{ all:unset; cursor:pointer; padding:4px 6px; border-radius:8px; color:#1f2937; }
-  .collapse-btn:hover{ background:#f3f4f6 }
-  .menu{ display:flex; flex-direction:column; gap:8px; margin-top:6px; }
-  .menu a{ display:flex; gap:10px; align-items:center; text-decoration:none; color:#111827; padding:10px 12px; border-radius:10px; }
-  .menu a:hover{ background:#f3f4f6 }
-  .menu a.active{ background:#e7efff; color:var(--brand); font-weight:700; }
-  .icon{ width:22px; height:22px; display:inline-grid; place-items:center; border-radius:7px; background:#eef2ff; color:var(--brand); font-weight:700; flex:0 0 22px; }
-  .label{ white-space:nowrap }
-  .sidebar.collapsed .label{ display:none }
+  .brand .dot{width:10px; height:10px; background:var(--accent); border-radius:50%; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);}
+  .brand .txt { font-size: 1.1rem; letter-spacing: -0.5px; }
+   
+  .collapse-btn{ all:unset; cursor:pointer; padding:6px; border-radius:8px; color:var(--text-muted); display: grid; place-items: center; transition: all 0.2s; }
+  .collapse-btn:hover{ background:var(--bg-body); color:var(--brand); }
+   
+  .menu{ display:flex; flex-direction:column; gap:6px; margin-top:4px; }
+    
+  .menu-item { display:flex; gap:12px; align-items:center; text-decoration:none; color:var(--text-muted); padding:14px 16px; border-radius:12px; cursor: pointer; transition: all 0.2s; font-weight: 500; position: relative; }
+  .menu-item:hover { background:var(--bg-body); color: var(--brand); transform: translateX(2px); }
+  .menu-item.active { background:var(--brand-light); color:var(--brand); font-weight:700; box-shadow: inset 3px 0 0 var(--brand); }
+  
+  /* Submenu (Desktop) */
+  .submenu { display: none; flex-direction: column; gap: 4px; padding-left: 20px; margin-top: -4px; margin-bottom: 8px; }
+  .submenu.open { display: flex; animation: slideDown 0.2s ease-out; }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+  .submenu-item { display: flex; gap: 10px; align-items: center; padding: 10px 16px; border-radius: 12px; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+  .submenu-item:hover { background: var(--bg-body); color: var(--brand); }
+  .submenu-item.active { background: #f1f5f9; color: var(--brand); font-weight: 700; box-shadow: inset 2px 0 0 var(--accent); }
+    
+  .icon{ width:24px; height:24px; display:inline-grid; place-items:center; font-size: 1.2rem; flex-shrink: 0; }
+  .label{ white-space:nowrap; flex:1; overflow: hidden; text-overflow: ellipsis; }
+  .arrow-icon { font-size: 0.7em; opacity: 0.5; transition: transform 0.2s; }
+  .menu-item.expanded .arrow-icon { transform: rotate(180deg); }
+   
+  .badge { background: var(--danger); color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 99px; font-weight: 700; display: none; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3); }
+  .sidebar.collapsed .label, .sidebar.collapsed .badge, .sidebar.collapsed .arrow-icon { display:none }
   .sidebar.collapsed .brand .left span.txt{ display:none }
+  .sidebar.collapsed .submenu { display: none !important; }
 
-  /* Content */
-  .content{ flex:1; padding:28px; display:flex; justify-content:center; }
-  .card{ width:min(860px,100%); background:#fff; border-radius:var(--radius); border-top:6px solid var(--accent); box-shadow:0 8px 18px rgba(2,6,23,.06); padding:24px 24px 28px; }
-  h2{ margin:0 0 14px 0; color:var(--brand) }
+  /* Input Zone */
+  .input-zone { background-color: var(--bg-input-zone); border-radius: 16px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-  /* Form */
-  .grid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
-  label{font-weight:700; color:var(--brand)}
-  input, select, button{ font-family:inherit; font-size:16px }
-  input[type="date"], select{ width:100%; padding:.7rem .8rem; border:1px solid #d1d5db; border-radius:8px; margin-top:6px; }
-  .radio-line{display:flex; gap:18px; margin-top:6px; color:#1f2937}
-  .actions{display:flex; gap:10px; align-items:center; margin-top:10px}
-  .primary{ background:var(--brand); color:#fff; border:none; padding:12px 16px; border-radius:10px; cursor:pointer; font-weight:700; }
-  #result{margin-top:14px; color:#0f172a; font-size:1.02rem}
+  label { font-weight: 700; color: var(--text-main); font-size: 0.95rem; margin-bottom: 6px; display: block; opacity: 0.9; }
+   
+  input, select, button, textarea { font-family: inherit; font-size: 1rem; }
+  /* Prevent iOS Zoom */
+  @media screen and (max-width: 768px) { input, select, textarea, button { font-size: 16px !important; } }
+   
+  input[type="date"], input[type="text"], input[type="tel"], input[type="number"], select, input[type="month"] { 
+    width: 100%; padding: 12px 14px; 
+    border: 1px solid #cbd5e1; border-radius: 12px; background: #fff; color: var(--text-main); transition: all 0.2s; font-weight: 500;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0, 48, 110, 0.1); }
+    
+  .custom-date-input { position: relative; width: 100%; background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; display: flex; align-items: center; padding: 0; overflow: hidden; height: 48px; transition: all 0.2s; }
+  .custom-date-input:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0, 48, 110, 0.1); }
+  .real-date-input { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; padding: 0; }
+  .fake-date-display { flex: 1; padding: 0 16px; font-size: 16px; font-weight: 500; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+  .icon-cal { padding-right: 16px; color: var(--text-muted); font-size: 1.2rem; pointer-events: none; }
 
-  /* Result */
-  .result-wrap{display:flex; flex-direction:column; gap:10px; margin-top:.6rem}
-  .result-head{display:flex; justify-content:space-between; align-items:center; padding:.5rem .8rem; background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px;}
-  .result-head .meta{font-size:.95rem; color:#475569}
-  .result-section{background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:.7rem .8rem}
-  .result-title{font-weight:800; color:var(--brand); display:flex; align-items:center; gap:.5rem; margin-bottom:.4rem}
-  .result-title .i{font-size:1.05rem}
-  .rows{display:flex; flex-direction:column; gap:6px}
-  .row{display:grid; grid-template-columns:140px 74px 1fr; gap:8px; align-items:center; padding:.45rem .5rem; border-radius:10px; border:1px dashed #e5e7eb}
+  /* Time Inputs */
+  input.time-manual { border: 1px solid #cbd5e1; background-color: #fff; color: var(--brand); font-weight: 700; font-size: 1.2rem; letter-spacing: 1px; text-align: center; padding: 10px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.03); }
+  input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0, 48, 110, 0.1); }
+
+  /* Radio Line */
+  .radio-line { display: flex; width: 100%; margin-top: 0; background: #e2e8f0; border-radius: 12px; padding: 4px; gap: 4px; }
+  .radio-line label { flex: 1; margin: 0; padding: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; transition: all 0.2s; font-weight: 600; color: var(--text-muted); font-size: 0.95rem; }
+  .radio-line label:hover { background: rgba(255,255,255,0.8); color: var(--brand); }
+  .radio-line label.active { background: #fff; color: var(--brand); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  .radio-line input { display: none; }
+
+  /* Actions */
+  .actions { margin-top: 20px; }
+   
+  .primary { background: linear-gradient(135deg, var(--brand), #004e9a); color: #fff; border: none; padding: 14px; border-radius: 14px; cursor: pointer; font-weight: 700; width: 100%; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0, 47, 108, 0.2); transition: all 0.2s; }
+  .primary:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0, 47, 108, 0.25); }
+  .primary:active { transform: scale(0.98); }
+    
+  .btn-secondary { background: #f1f5f9; color: var(--text-muted); border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 700; width: auto; font-size: 1rem; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); transition: all 0.1s; }
+  .btn-secondary:hover { background: #e2e8f0; color: var(--text-main); }
+
+  /* Result Area */
+  #result{ margin-top:20px; animation: slideUp 0.3s ease-out; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .result-wrap { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); background: #fff; }
+  .result-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: #fff; border-bottom: 1px solid var(--border); }
+  .result-head .tt { font-weight: 800; color: var(--brand); font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+  .result-head .tt::before { content: ''; width: 4px; height: 18px; background: var(--accent); border-radius: 4px; display: block; }
+  .meta-pill { display: flex; align-items: center; gap: 8px; }
+  .m-date, .m-time { color: var(--text-muted); background: #f8fafc; padding: 4px 10px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; border: 1px solid var(--border); }
+  .result-section{ padding:18px; border-bottom: 1px solid var(--border); }
+  .result-section:last-child { border-bottom: none; background: #f9fafb; }
+  .result-title{ font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size: 0.95rem; }
+   
+  .row{ display:grid; grid-template-columns:130px 70px 1fr; gap:10px; align-items:center; padding:10px; border-radius:12px; border:1px solid var(--border); background: #fff; margin-bottom: 6px; transition: transform 0.1s; font-size: 0.95rem; }
+  .row:hover { border-color: var(--brand-light); transform: translateX(4px); }
   @media (max-width:560px){ .row{ grid-template-columns:1fr 60px 1fr; } }
-  .time{font-variant-numeric:tabular-nums}
-  .rate{justify-self:center; font-weight:800; padding:.2rem .5rem; border-radius:999px; font-size:.9rem}
-  .rate.x1{background:#ecfeff; color:#0e7490; border:1px solid #a5f3fc}
-  .rate.x15{background:#eef2ff; color:var(--brand); border:1px solid #c7d2fe}
-  .rate.x3{background:#fff1f2; color:#be123c; border:1px solid #fecdd3}
-  .dur{text-align:right; font-variant-numeric:tabular-nums}
-  .breaks{display:flex; flex-wrap:wrap; gap:6px}
-  .break-chip{background:#f1f5f9; color:#334155; border:1px solid #e2e8f0; border-radius:999px; padding:.2rem .55rem; font-size:.9rem}
-  .total-box{display:grid; gap:6px; background:linear-gradient(180deg,#fbfdff,#f7fbff); border:1px solid #dbeafe; border-radius:12px; padding:.7rem .8rem}
-  .total-line{display:flex; justify-content:space-between; font-weight:800}
-  .total-line .k{color:#0f172a}
-  .total-line .v{font-variant-numeric:tabular-nums}
-  .total-line.em{border-top:1px dashed #cbd5e1; padding-top:.5rem; color:var(--brand)}
+   
+  .time{ font-variant-numeric:tabular-nums; font-weight: 500; color: var(--text-main); }
+  .rate{ justify-self:center; font-weight:800; padding:3px 8px; border-radius:8px; font-size:.8rem; letter-spacing: 0.5px; }
+  .rate.x1{ background:#ecfeff; color:#0e7490; }
+  .rate.x15{ background:var(--brand-light); color:var(--brand); }
+  .rate.x3{ background:#fff1f2; color:#be123c; }
+  .dur{ text-align:right; font-variant-numeric:tabular-nums; font-weight: 600; }
+  .breaks{ display:flex; flex-wrap:wrap; gap:8px; margin-top: 10px; }
+  .break-chip{ background:#f1f5f9; color:var(--text-muted); border:1px solid var(--border); border-radius:20px; padding:3px 10px; font-size:.8rem; }
+   
+  .total-box{ display:grid; gap:6px; }
+  .total-line{ display:flex; justify-content:space-between; font-weight:600; color: var(--text-muted); font-size: 0.95rem; }
+  .total-line .v { font-weight: 800; color: var(--text-main); }
+  .total-line.em{ border-top:1px dashed var(--border); padding-top:10px; margin-top: 6px; color:var(--brand); font-size: 1.05rem; }
+
+  /* Save Buttons */
+  .btn-group { display: flex; gap: 10px; width: 100%; margin-top: 18px; }
+  .btn-save { background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 700; flex: 2; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3); font-size: 1rem; }
+  .btn-save:hover { transform: translateY(-2px); box-shadow: 0 8px 10px -2px rgba(16, 185, 129, 0.4); }
+  .btn-save:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-next { background: #fff; color: var(--text-muted); border: 2px solid var(--border); padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 700; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; font-size: 1rem; }
+  .btn-next:hover { background: #f8fafc; color: var(--text-main); border-color: var(--text-muted); }
+
+  /* History Header */
+  .history-header-container { display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch; background: linear-gradient(to right, #e2e8f0, #f8fafc); padding: 16px 20px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #cbd5e1; gap: 12px; box-shadow: inset 0 1px 2px rgba(255,255,255,0.8), 0 2px 4px rgba(0,0,0,0.05); }
+  .left-group { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px; margin-bottom: 4px; width: 100%; }
+  .right-group { margin-left: 0; width: 100%; display: flex; justify-content: flex-start; }
+  .history-title { margin: 0; font-size: 1.6rem; font-weight: 800; color: var(--brand); letter-spacing: -0.5px; cursor: default; }
+  
+  .month-picker-inline { position: relative; display: inline-flex; align-items: center; border-bottom: 2px dashed rgba(0,47,108,0.2); cursor: pointer; padding-bottom: 2px; transition: all 0.2s; }
+  .month-picker-inline:hover { border-bottom-color: var(--accent); }
+  .month-text { font-size: 1.4rem; font-weight: 700; color: var(--text-muted); }
+  .month-text:hover { color: var(--brand); }
+  .history-date-input-hidden { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; display:none; }
+
+  /* Driver Filter */
+  .driver-filter-wrapper { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #fff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 12px; box-shadow: var(--shadow-sm); transition: all 0.2s; width: 100%; }
+  .driver-filter-wrapper:hover { box-shadow: var(--shadow); border-color: var(--brand-light); }
+  .filter-label { margin: 0; font-weight: 700; color: var(--text-muted); font-size: 0.9rem; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+  .filter-select { border: none; background: transparent; padding: 4px 8px; font-weight: 700; font-size: 1rem; color: var(--brand); outline: none; cursor: pointer; min-width: 140px; }
+  .filter-select:hover { color: var(--brand-dark); }
+  
+  /* Mobile View Switcher */
+  .mobile-view-switcher { display: flex; background: #fff; border: 1px solid #border; border-radius: 12px; padding: 4px; margin-bottom: 12px; }
+  .mvs-btn { flex: 1; border: none; background: transparent; padding: 8px; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+  .mvs-btn.active { background: var(--brand-light); color: var(--brand); font-weight: 800; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+  @media (min-width: 769px) { .mobile-view-switcher { display: none; } }
+
+  /* Toolbar */
+  .history-toolbar-container { margin-top: 15px; margin-bottom: 20px; padding: 6px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 18px; display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 6px; align-items: stretch; justify-content: space-between; box-shadow: inset 0 2px 4px rgba(0,0,0,0.03); -ms-overflow-style: none; scrollbar-width: none; }
+  .history-toolbar-container::-webkit-scrollbar { display: none; }
+  
+  .tool-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 4px; border-radius: 12px; border: 1px solid transparent; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: var(--text-muted); white-space: nowrap; min-width: fit-content; }
+  .tool-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+  .tool-btn:active { transform: scale(0.98); }
+  .tool-btn.t-create { color: #0284c7; background: linear-gradient(to bottom, #fff, #f0f9ff); border-color: #bae6fd; }
+  .tool-btn.t-create:hover { background: #e0f2fe; }
+  .tool-btn.t-warn { color: #d97706; background: linear-gradient(to bottom, #fff, #fffbeb); border-color: #fcd34d; }
+  .tool-btn.t-warn:hover { background: #fef3c7; }
+  .tool-btn.t-danger { color: #e11d48; background: linear-gradient(to bottom, #fff, #fff1f2); border-color: #fecdd3; }
+  .tool-btn.t-danger:hover { background: #ffe4e6; }
+  .tool-btn.t-view { color: #475569; background: linear-gradient(to bottom, #fff, #f8fafc); border-color: #cbd5e1; }
+  .tool-btn.t-view:hover { background: #f1f5f9; }
+  .tool-divider { display:none; }
+
+  /* Summary Cards */
+  .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+  .sum-card { padding: 16px; border-radius: 16px; color: white; text-align: center; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; min-height: 100px; transition: transform 0.2s; }
+  .sum-card:hover { transform: translateY(-3px); }
+  .sum-card.c-15 { background: linear-gradient(135deg, #2563eb, #1e40af); } 
+  .sum-card.c-1 { background: linear-gradient(135deg, #06b6d4, #0e7490); }
+  .sum-card.c-3 { background: linear-gradient(135deg, #e11d48, #be123c); } 
+  .sum-card::after { content: ''; position: absolute; top: -15px; right: -15px; width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.15); pointer-events: none; }
+  .sum-card .lbl { font-size: 0.85rem; font-weight: 600; opacity: 0.9; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; }
+  .sum-card .val { font-size: 2rem; font-weight: 800; line-height: 1; margin: 2px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .sum-card .unit { font-size: 0.75rem; opacity: 0.8; font-weight: 500; }
+
+  /* Total Summary */
+  .total-summary-section { background: #fff; border: 1px solid var(--border); border-radius: 16px; margin-top: 20px; display: flex; overflow: hidden; box-shadow: var(--shadow); padding: 0; }
+  .summary-half { flex: 1; padding: 16px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+  .summary-half:first-child { border-right: 1px dashed var(--border); background: linear-gradient(to bottom right, #fff7ed, #fff); }
+  .summary-half:last-child { background: linear-gradient(to bottom right, #f0f9ff, #fff); }
+  .summary-half .lbl { font-size: 0.95rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+  .summary-half .val-group { display: flex; align-items: baseline; gap: 6px; }
+  .summary-half .val { font-size: 2rem; font-weight: 800; line-height: 1; }
+  .summary-half .unit { font-size: 0.85rem; font-weight: 600; opacity: 0.7; }
+  .summary-half.leave .val { color: var(--accent); }
+  .summary-half.ot .val { color: var(--brand); }
+
+  /* Table */
+  .table-container { border-radius: 16px; box-shadow: var(--shadow); background: #fff; border: 1px solid var(--border); margin-top: 20px; overflow-x: auto; }
+  .history-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 100%; font-size: 0.85rem; }
+  .history-table thead th { background: #f8fafc; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem; font-weight: 800; padding: 10px 8px; border-bottom: 2px solid var(--border); white-space: nowrap; }
+  .history-table td { padding: 8px 8px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); vertical-align: middle; white-space: nowrap; }
+  .history-table tr:last-child td { border-bottom: none; }
+  .history-table tbody tr:hover { background: #fdfeff; }
+  .col-center { text-align: center; }
+  .col-right { text-align: right; }
+  
+  /* Row Actions & Pills */
+  .row-actions { display: flex; align-items: center; justify-content: center; gap: 4px; }
+  .action-btn-sm { border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; transition: all 0.2s; }
+  .action-btn-sm:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .btn-view-sm { background: #e0f2fe; color: #0284c7; }
+  .btn-reset-sm { background: #fffbeb; color: #d97706; }
+  
+  .pill { display: inline-block; padding: 4px 8px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; cursor: pointer; transition: all 0.2s; user-select: none; border: 1px solid transparent; }
+  .pill:hover { transform: scale(1.05); }
+  .pill-weekday { background: #f0f9ff; color: #0369a1; border-color: #bae6fd; }
+  .pill-weekend { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+    
+  .time-range { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-main); background: #f8fafc; padding: 4px 8px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px; font-size: 0.85rem; border: 1px solid var(--border); transition: all 0.2s; }
+  .time-range:hover { background: #fff; border-color: var(--brand); color: var(--brand); box-shadow: var(--shadow-sm); }
+  .time-range.pending { background: #fff; border: 1px dashed #cbd5e1; color: #94a3b8; }
+  .time-range.pending:hover { background: #f0f9ff; border-color: #3b82f6; color: #3b82f6; }
+
+  /* Inline Edit */
+  .edit-row-wrap { display: flex; align-items: center; justify-content: center; gap: 4px; }
+  .mini-input { padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; text-align: center; font-family: inherit; font-weight: 600; color: var(--brand); font-size: 0.85rem; background: #fff; outline: none; box-shadow: var(--shadow-sm); width: 60px; }
+  .mini-input:focus { border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-light); }
+  .mini-btn { width: 26px; height: 26px; border: none; border-radius: 50%; display: grid; place-items: center; cursor: pointer; transition: all 0.2s; box-shadow: var(--shadow-sm); color: white; font-size: 0.8rem; }
+  .mini-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .mini-btn.ok { background: var(--success); } 
+  .mini-btn.cancel { background: var(--danger); } 
+
+  /* OT Badges */
+  .ot-val { cursor: pointer; font-weight: 800; padding: 2px 8px; border-radius: 6px; transition: all 0.2s; font-size: 0.85rem; display: inline-block; min-width: 36px; text-align: center; }
+  .ot-val:hover { background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transform: scale(1.1); }
+  .val-15 { color: #1e3a8a; background: #eff6ff; border: 1px solid #bfdbfe; }
+  .val-1  { color: #0e7490; background: #ecfeff; border: 1px solid #a5f3fc; }
+  .val-3  { color: #be123c; background: #fff1f2; border: 1px solid #fecdd3; }
+
+  /* Action Buttons */
+  .action-btn { border: none; width: 34px; height: 34px; border-radius: 10px; cursor: pointer; font-size: 1rem; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; margin: 0 2px; }
+  .view-btn { color: #0284c7; background: #e0f2fe; }
+  .reset-btn { color: #d97706; background: #fffbeb; }
+  .del-btn { color: #dc2626; background: #fee2e2; }
+  .btn-clear-all { background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; width: auto; padding: 6px 14px; font-size: 0.8rem; border-radius: 10px; cursor: pointer; font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+
+  /* Drivers List */
+  .driver-list-container { display: flex; flex-direction: column; gap: 8px; }
+  .driver-item-row { display: grid; grid-template-columns: 50px 1fr auto; align-items: center; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; transition: all 0.2s; }
+  .driver-item-row:hover { border-color: var(--brand-light); transform: translateX(4px); box-shadow: var(--shadow-sm); }
+  .d-index { font-weight: 800; color: #cbd5e1; font-size: 1.2rem; text-align: center; }
+  .d-info { display: flex; flex-direction: column; gap: 4px; }
+  .d-main { font-weight: 700; color: var(--text-main); font-size: 1rem; }
+  .d-sub { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 10px; }
+  .d-actions { display: flex; gap: 8px; }
 
   /* Calculator */
-  .calc{ width:min(520px,100%); margin:14px auto 0; background:#fbfcff; border:1px solid #e5e7eb; border-radius:16px; padding:18px; box-shadow:0 8px 18px rgba(2,6,23,.06); }
-  .calc-display{ width:100%; height:82px; border:1px solid #d1d5db; border-radius:12px; padding:14px 16px; font-size:28px; text-align:right; background:#fff; }
-  .keys{ margin-top:14px; display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
-  .keys button{ padding:16px 0; border:1px solid #d1d5db; background:#fff; border-radius:12px; cursor:pointer; font-weight:700; font-size:18px; }
-  .keys button.op{background:#eef2ff; color:#000}
-  .keys button.eq{background:var(--brand); color:#fff}
+  .calc { width: min(520px, 100%); margin: 14px auto 0; background: #fff; border: 1px solid var(--border); border-radius: 24px; padding: 24px; box-shadow: var(--shadow); }
+  .calc-display { width: 100%; height: 90px; border: none; border-radius: 16px; padding: 20px; font-size: 3.5rem; text-align: right; background: #f8fafc; color: var(--brand); font-weight: 700; margin-bottom: 24px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.03); }
+  .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .keys button { padding: 20px 0; border: 1px solid var(--border); background: #fff; border-radius: 16px; cursor: pointer; font-weight: 700; font-size: 1.3rem; color: var(--text-main); transition: all 0.1s; box-shadow: 0 4px 0 var(--border); margin-bottom: 4px; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
+  .keys button:active { transform: translateY(4px); box-shadow: none; margin-bottom: 0; margin-top: 4px; }
+  .keys button.op { background: #f0f9ff; color: var(--brand); border-color: #bae6fd; box-shadow: 0 4px 0 #bae6fd; }
+  .keys button.eq { background: var(--brand); color: #fff; border-color: var(--brand-dark); box-shadow: 0 4px 0 var(--brand-dark); }
+  .keys button[data-k="0"] { grid-column: span 2; aspect-ratio: auto; }
 
-  .view{display:none}
-  .view.active{display:block}
+  /* 🟢 CUSTOM MONTH PICKER STYLES */
+  .cmp-content { text-align: center; padding: 10px; }
+  .cmp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 1.4rem; font-weight: 800; color: var(--brand); }
+  .cmp-nav-btn { background: #f0f9ff; border: none; width: 44px; height: 44px; border-radius: 12px; color: var(--brand); cursor: pointer; font-size: 1.2rem; font-weight: 700; transition: all 0.2s; display:grid; place-items:center; }
+  .cmp-nav-btn:hover { background: var(--brand); color: white; }
+  .cmp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .cmp-month-btn { padding: 16px 0; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; font-size: 1.1rem; font-weight: 600; color: var(--text-main); cursor: pointer; transition: all 0.2s; }
+  .cmp-month-btn:hover { border-color: var(--brand); color: var(--brand); background: #f0f9ff; transform: translateY(-2px); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  .cmp-month-btn.active { background: var(--brand); color: white; border-color: var(--brand); box-shadow: 0 4px 8px rgba(0, 48, 110, 0.3); }
+
+  /* Modal */
+  .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+  .modal.show { display: flex; animation: fadeIn 0.2s; }
+  .modal-content { background-color: #fefefe; padding: 24px; border-radius: 20px; width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative; }
+  .close-modal { position: absolute; top: 15px; right: 20px; color: #94a3b8; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1; z-index: 10; }
+  
+  .view{display:none; animation: fadeIn 0.3s;}
+  .view.active { display: flex; justify-content: center; align-items: flex-start; flex-grow: 1; padding: 20px 20px; min-height: 100%; box-sizing: border-box; }
+  .view.active > .card { margin: 0 auto; width: 100%; max-width: 800px; }
+   
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+   
+  #emptyMsg { text-align:center; padding:60px 20px; color:var(--text-muted); display:none; }
+  #emptyMsg div { font-size: 4rem; margin-bottom: 16px; opacity: 0.5; }
 </style>
 </head>
 <body>
 <div class="app">
-  <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="brand">
       <div class="left"><span class="dot"></span><span class="txt">EGAT Tools</span></div>
       <button class="collapse-btn" id="btnToggle" title="พับ/กาง แถบข้าง">≡</button>
     </div>
     <nav class="menu" id="menu">
-      <a href="?view=ot"   data-view="ot"   class="active"><span class="icon">⏱️</span><span class="label">คำนวณเวลา OT</span></a>
-      <a href="?view=calc" data-view="calc"><span class="icon">🧮</span><span class="label">เครื่องคิดเลข</span></a>
+      <div class="menu-item active" onclick="switchView('ot')">
+        <span class="icon">⏱️</span><span class="label">คำนวณเวลา OT</span>
+      </div>
+      <!-- 🟢 UPDATED: Sidebar Menu with Submenu -->
+      <div class="menu-item-group" style="position:relative;">
+          <div class="menu-item" onclick="toggleSidebarSubmenu('history-submenu')">
+            <span class="icon">📊</span><span class="label">สรุปรายเดือน</span>
+            <span class="arrow-icon" style="margin-left:auto; font-size:0.7em; transition:0.2s;">▼</span>
+            <span class="badge" id="historyCount">0</span>
+          </div>
+          <div id="history-submenu" class="submenu">
+             <div class="submenu-item" onclick="switchView('history'); setHistoryMode('daily')">1. สรุปรายเดือน (ปกติ)</div>
+             <div class="submenu-item" onclick="switchView('history'); setHistoryMode('driver')">2. สรุป พขร. (ยอดรวม)</div>
+          </div>
+      </div>
+
+      <div class="menu-item" onclick="switchView('drivers')">
+        <span class="icon">👥</span><span class="label">รายชื่อ พขร.</span>
+      </div>
+      <div class="menu-item" onclick="switchView('calc')">
+        <span class="icon">🧮</span><span class="label">เครื่องคิดเลข</span>
+      </div>
     </nav>
   </aside>
 
-  <!-- Content -->
   <main class="content">
     <!-- OT -->
-    <section id="view-ot" class="view">
+    <section id="view-ot" class="view active">
       <div class="card">
         <h2>คำนวณเวลา OT</h2>
-        <div class="grid">
-          <div>
-            <label>เลือกวันที่</label>
-            <input type="date" id="workDate" autocomplete="off">
-          </div>
-          <div>
-            <label>ประเภทวัน</label>
-            <div class="radio-line">
-              <label><input type="radio" name="type" value="weekday" checked> จันทร์–ศุกร์</label>
-              <label><input type="radio" name="type" value="weekend"> เสาร์–อาทิตย์</label>
+          
+        <!-- Input Zone Wrapper -->
+        <div class="input-zone">
+            <div class="grid">
+                
+              <!-- Driver Selection -->
+              <div style="grid-column: 1 / -1;">
+                <label>พนักงานขับรถ (พขร.)</label>
+                <select id="driverSelect" style="width:100%; padding:12px;">
+                    <option value="">-- ไม่ระบุ --</option>
+                </select>
+              </div>
+
+              <!-- 1. เลือกวันที่ (ซ้าย) -->
+              <div>
+                <!-- Changed Label ID to update dynamically -->
+                <label id="dateLabel">เลือกวันที่</label>
+                  
+                <!-- Re-introduced Custom Wrapper for DD/MM/YYYY overlay -->
+                <div class="custom-date-input">
+                    <input type="date" id="workDate" class="real-date-input" lang="th-TH" onclick="try{this.showPicker()}catch(e){}">
+                    <div id="workDateShow" class="fake-date-display">เลือกวันที่...</div>
+                    <span class="icon-cal">📅</span>
+                </div>
+              </div>
+
+              <!-- 2. ประเภทวัน (ขวา) -->
+              <div>
+                 <label>ประเภทวัน</label>
+                 <div class="radio-line">
+                  <label>
+                      <input type="radio" name="type" value="weekday" checked> 
+                      จันทร์–ศุกร์
+                  </label>
+                  <label>
+                      <input type="radio" name="type" value="weekend"> 
+                      เสาร์–อาทิตย์
+                  </label>
+                 </div>
+              </div>
+                
+              <!-- Replaced Thai Date Text with Auto Fill Button -->
+              <div style="grid-column: 1 / -1; margin-top: 15px;">
+                  <!-- ปรับขยายขนาดปุ่มให้ใหญ่ขึ้นอีก (padding:22px, font-size:1.35rem) -->
+                  <button onclick="autoFillMonth()" class="action-btn" style="width:100%; padding:18px; background:#e0f2fe; border:2px solid #bae6fd; color:#0284c7; font-weight:800; font-size:1.2rem; border-radius:16px; display:flex; align-items:center; justify-content:center; gap:12px; box-shadow: 0 6px 12px -4px rgba(186, 230, 253, 0.6); transition: transform 0.1s;">
+                    📅 สร้างรายการอัตโนมัติ
+                  </button>
+              </div>
+
+              <!-- 3. เวลาแบบพิมพ์เอง -->
+              <div>
+                <label>เวลาเข้า (เช่น 0730)</label>
+                <input type="tel" id="startTime" class="time-manual" placeholder="07:30" maxlength="5">
+              </div>
+              <div>
+                <label>เวลาออก (เช่น 1700)</label>
+                <input type="tel" id="endTime" class="time-manual" placeholder="17:00" maxlength="5">
+              </div>
+
             </div>
-          </div>
-          <div>
-            <label>เวลาเข้า</label>
-            <select id="startTime"></select>
-          </div>
-          <div>
-            <label>เวลาออก</label>
-            <select id="endTime"></select>
-          </div>
         </div>
+        <!-- End Input Zone -->
+
         <div class="actions">
           <button class="primary" id="btnCalc">คำนวณ OT</button>
+          <!-- ปุ่ม Reset Form ถูกลบออกตามคำสั่ง -->
         </div>
         <div id="result"></div>
+           
+        <div id="saveSection" class="btn-group" style="display:none;">
+            <button class="btn-save" id="btnSaveLog">📥 บันทึกข้อมูล</button>
+            <button class="btn-next" onclick="resetFormForNext()">🔄 เริ่มใหม่</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- History -->
+    <section id="view-history" class="view">
+      <div class="card">
+        <!-- 🟢 NEW UNIFIED HEADER BAR -->
+        <div class="history-header-container">
+            <!-- 🟢 MOBILE VIEW SWITCHER -->
+            <div class="mobile-view-switcher">
+                <button class="mvs-btn active" id="mvsDaily" onclick="setHistoryMode('daily')">รายวัน</button>
+                <button class="mvs-btn" id="mvsDriver" onclick="setHistoryMode('driver')">สรุป พขร.</button>
+            </div>
+            
+            <!-- Left: Title + Date -->
+            <div class="left-group">
+                <!-- 🟢 FIX: Title Static -->
+                <h2 id="historyTitleBtn" class="history-title">สรุปรายเดือน</h2>
+                <!-- 🟢 CUSTOM TRIGGER -->
+                <div class="month-picker-inline" onclick="openCustomMonthPicker('historyMonthPicker', 'historyDateDisplay')">
+                    <span id="historyDateDisplay" class="month-text">...</span>
+                    <span style="font-size:0.8em; margin-left:4px; opacity:0.5;">▼</span>
+                </div>
+                <!-- Hidden Real Input -->
+                <input type="text" id="historyMonthPicker" class="history-date-input-hidden" onchange="renderHistory()">
+            </div>
+
+            <!-- Right: Driver Filter Dropdown -->
+            <div class="right-group">
+                <div class="driver-filter-wrapper">
+                    <label class="filter-label">👀 แสดงข้อมูลของ:</label>
+                    <select id="historyDriverFilter" class="filter-select" onchange="handleFilterChange()">
+                        <option value="">ทั้งหมด</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🟢 RESTORED: Toolbar Buttons -->
+        <div class="history-toolbar-container" id="historyToolbar">
+             <button onclick="openCreateOptionModal()" class="tool-btn t-create" title="สร้างรายการทั้งเดือน">📅 สร้าง</button>
+             <button onclick="openIncompleteModal()" class="tool-btn" style="background:#f3e8ff; border-color:#d8b4fe; color:#7e22ce;" title="ระบุว่าส่งเอกสารมาไม่ครบ">⚠️ แจ้งขาด</button>
+             
+             <div class="tool-divider"></div>
+             
+             <button onclick="openFollowUpSummary()" class="tool-btn" style="background:#fff7ed; border-color:#fed7aa; color:#ea580c;" title="สรุปรายการที่ต้องตาม">📋 สรุปตาม</button>
+             <button onclick="showAllHistory()" class="tool-btn t-view" title="ดูประวัติทั้งหมด">👁️ ดูหมด</button>
+             
+             <div class="tool-divider"></div>
+             
+             <button onclick="resetCurrentMonth()" class="tool-btn t-warn" title="เคลียร์ค่าเดือนนี้">🧹 ล้างข้อมูลเดือนนี้</button>
+             <button onclick="openDeleteModal()" class="tool-btn t-danger" title="ตัวเลือกการลบ">🗑️ ลบข้อมูล</button>
+        </div>
+           
+        <!-- Summary Grid (Sub) -->
+        <div class="summary-grid">
+            <div class="sum-card c-15">
+                <div>
+                    <div class="lbl">OT x1.5</div>
+                    <div class="unit">(วันธรรมดา)</div>
+                </div>
+                <div class="val" id="sum15">0.0</div>
+            </div>
+            <div class="sum-card c-1">
+                <div>
+                    <div class="lbl">OT x1</div>
+                    <div class="unit">(วันหยุด)</div>
+                </div>
+                <div class="val" id="sum1">0.0</div>
+            </div>
+            <div class="sum-card c-3">
+                <div>
+                    <div class="lbl">OT x3</div>
+                    <div class="unit">(วันหยุด)</div>
+                </div>
+                <div class="val" id="sum3">0.0</div>
+            </div>
+        </div>
+
+        <!-- 🟢 New Total Summary (Split) -->
+        <div class="total-summary-section">
+            <div class="summary-half leave">
+                <div class="lbl">รวมวันลา</div>
+                <div class="val-group">
+                    <span class="val" id="sumLeaveDays">0</span>
+                    <span class="unit">วัน</span>
+                </div>
+            </div>
+            <div class="summary-half ot">
+                <div class="lbl">รวมชั่วโมง OT</div>
+                <div class="val-group">
+                    <span class="val" id="sumTotal_b">0.0</span>
+                    <span class="unit">ชั่วโมง</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="history-table" id="historyTable">
+                <thead>
+                    <tr>
+                        <!-- 🟢 NEW CHECKBOX COLUMN -->
+                        <th width="5%" class="col-center">ลา</th>
+                        <!-- 🟢 Compact Column Widths -->
+                        <th width="12%">วันที่</th>
+                        <th width="10%" class="col-center">ประเภท</th>
+                        <th width="20%" class="col-center">ช่วงเวลา</th>
+                        <!-- 🟢 Split OT Columns (Distinct Colors) -->
+                        <th width="10%" class="col-center" style="background:#eff6ff; color:#1e3a8a; border-bottom-color:#bfdbfe;">x1.5</th>
+                        <th width="10%" class="col-center" style="background:#ecfeff; color:#0e7490; border-bottom-color:#a5f3fc;">x1</th>
+                        <th width="10%" class="col-center" style="background:#fff1f2; color:#be123c; border-bottom-color:#fecdd3;">x3</th>
+                         
+                        <th width="10%" class="col-center">รวม</th>
+                        <th width="18%" class="col-center">เครื่องมือ</th>
+                    </tr>
+                </thead>
+                <tbody id="historyList"></tbody>
+            </table>
+            <div id="emptyMsg" style="text-align:center; padding:40px; color:#94a3b8; display:none;">
+                <div style="font-size:3rem; margin-bottom:10px;">📭</div>
+                ยังไม่มีรายการบันทึก
+            </div>
+        </div>
+           
+      </div>
+    </section>
+
+    <!-- Drivers Management View (Updated Layout: List Rows) -->
+    <section id="view-drivers" class="view">
+      <div class="card">
+        <!-- 🟢 Flex Header: Title + Button inline -->
+        <div class="driver-header-flex" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 style="margin:0;">รายชื่อ พขร. ทั้งหมด</h2>
+            <button onclick="openAddDriverModal()" class="primary" style="width:auto; padding: 10px 20px; font-size:1rem; display:flex; align-items:center; gap:6px;">
+                <span>➕</span> เพิ่มคนใหม่
+            </button>
+        </div>
+        
+        <div id="driverListContainer" class="driver-list-container">
+            <!-- JS renders here -->
+        </div>
       </div>
     </section>
 
@@ -135,130 +683,854 @@
         <div class="calc">
           <input id="calcDisplay" class="calc-display" type="text" readonly value="0">
           <div class="keys">
-            <button class="op" data-k="C">C</button>
-            <button class="op" data-k="BS">⌫</button>
-            <button class="op" data-k="%">%</button>
-            <button class="op" data-k="/">÷</button>
-            <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
-            <button class="op" data-k="*">×</button>
-            <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
-            <button class="op" data-k="-">−</button>
-            <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
-            <button class="op" data-k="+">+</button>
-            <button data-k="0" style="grid-column:span 2">0</button>
-            <button data-k=".">.</button>
-            <button class="eq" data-k="=">=</button>
-          </div>
-          <div class="note-sub" style="text-align:center;margin-top:10px">
-            พิมพ์จากคีย์บอร์ด: 0–9, + − × ÷ % ., Enter (=), Backspace, Esc/Delete (C)
+            <button class="op" data-k="C" style="color:var(--danger)">ล้าง</button>
+            <button class="op" data-k="BS" style="color:var(--brand)">ลบ</button>
+            <button class="op" data-k="%">%</button><button class="op" data-k="/">÷</button>
+            <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button class="op" data-k="*">×</button>
+            <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="op" data-k="-">−</button>
+            <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button class="op" data-k="+">+</button>
+            <button data-k="0" style="grid-column:span 2">0</button><button data-k=".">.</button><button class="eq" data-k="=">=</button>
           </div>
         </div>
       </div>
     </section>
   </main>
+
+  <!-- Detail Modal -->
+  <div id="detailModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- 🟢 Create Option Modal -->
+  <div id="createOptionModal" class="modal">
+      <div class="modal-content" style="text-align:center;">
+          <span class="close-modal" onclick="closeCreateOptionModal()">&times;</span>
+          <h2 style="color:var(--brand); margin-bottom:20px;">📅 ต้องการสร้างรายการให้ใคร?</h2>
+          <!-- 🟢 Added Month Picker for Create -->
+          <div style="margin-bottom:15px; text-align:left; position:relative;">
+              <label style="font-weight:700; color:var(--text-muted);">เลือกเดือนที่จะสร้าง:</label>
+              <!-- Mask Input -->
+              <div style="position:relative; margin-top:5px; height:44px; border:1px solid #cbd5e1; border-radius:12px; background:#fff; display:flex; align-items:center; overflow:hidden; cursor:pointer;" onclick="openCustomMonthPicker('createTargetMonth', 'createMonthDisplay')">
+                  <div id="createMonthDisplay" style="padding:0 14px; width:100%; font-weight:700; color:var(--brand); pointer-events:none;">เลือกเดือน...</div>
+                  <input type="text" id="createTargetMonth" style="display:none;">
+              </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+              <button onclick="initiateAutoFill('single')" class="primary" style="background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd;">👤 สร้างให้ 1 คน (ที่เลือกปัจจุบัน)</button>
+              <button onclick="initiateAutoFill('all')" class="primary" style="background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0;">👥 สร้างให้ทุกคน (ตามรายชื่อที่มี)</button>
+          </div>
+          <button onclick="closeCreateOptionModal()" class="btn-next" style="margin-top:20px; width:100%;">ยกเลิก</button>
+      </div>
+  </div>
+
+  <!-- 🟢 CUSTOM MONTH PICKER MODAL -->
+  <div id="customMonthPickerModal" class="modal">
+      <div class="modal-content" style="text-align:center; max-width:320px;">
+          <span class="close-modal" onclick="closeCustomMonthPicker()">&times;</span>
+          <div class="cmp-content">
+              <div class="cmp-header">
+                  <button class="cmp-nav-btn" onclick="adjustPickerYear(-1)">❮</button>
+                  <span id="cmpYearDisplay">2568</span>
+                  <button class="cmp-nav-btn" onclick="adjustPickerYear(1)">❯</button>
+              </div>
+              <div class="cmp-grid" id="cmpMonthGrid">
+                  <!-- Months injected by JS -->
+              </div>
+          </div>
+          <button onclick="closeCustomMonthPicker()" class="btn-next" style="margin-top:20px; width:100%;">ยกเลิก</button>
+      </div>
+  </div>
+
+  <!-- Add Driver Modal (Hidden by default) -->
+  <div id="addDriverModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeAddDriverModal()">&times;</span>
+        <!-- Added hidden field for ID -->
+        <input type="hidden" id="editDriverId">
+        <h2 id="driverModalTitle" style="font-size:1.5rem; margin-bottom:20px;">เพิ่มรายชื่อ พขร. ใหม่</h2>
+        <div class="driver-form-grid">
+            <div style="grid-column:span 2;">
+                <label>ชื่อ-นามสกุล <span style="color:var(--danger)">*</span></label>
+                <input type="text" id="dName" placeholder="เช่น นายสมชาย ใจดี">
+            </div>
+            <div>
+                <label>ชื่อเล่น</label>
+                <input type="text" id="dNick" placeholder="เช่น ชาย">
+            </div>
+            <div>
+                <label>เบอร์โทรศัพท์</label>
+                <input type="tel" id="dPhone" placeholder="08x-xxx-xxxx">
+            </div>
+            <div>
+                <label>สังกัด</label>
+                <input type="text" id="dAff" placeholder="เช่น EGAT">
+            </div>
+            <div>
+                <label>แผนก</label>
+                <input type="text" id="dDept" placeholder="เช่น ยานพาหนะ">
+            </div>
+        </div>
+        <div style="margin-top:20px; display:flex; gap:10px;">
+             <!-- Changed function to unified saveDriver -->
+             <button onclick="saveDriver()" class="primary">บันทึก</button>
+             <button onclick="closeAddDriverModal()" class="btn-next" style="background:#f1f5f9; color:var(--text-main);">ยกเลิก</button>
+        </div>
+    </div>
+  </div>
+
+  <!-- 🟢 Incomplete Modal (Updated with Grid) -->
+  <div id="incompleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeIncompleteModal()">&times;</span>
+        <h2 style="font-size:1.5rem; margin-bottom:20px; color:#7e22ce;">📩 แจ้งเอกสารไม่ครบ</h2>
+        <div class="driver-form-grid" style="grid-template-columns: 1fr;">
+             <div>
+                <label>พนักงาน (พขร.)</label>
+                <select id="incDriverSelect" style="width:100%; padding:12px; background:#f8fafc;"></select>
+            </div>
+            <!-- Added Month and Grid Input -->
+            <div>
+                <label>เดือน/ปี</label>
+                <input type="month" id="incMonth" style="width:100%;" onchange="renderIncDays()">
+            </div>
+            <div>
+                <label>วันที่ขาด (จิ้มเลือกได้เลย)</label>
+                <!-- Grid Container -->
+                <div id="incDaysGrid" class="day-grid"></div>
+            </div>
+            <div>
+                <label>รายการเอกสารที่ขาด (ระบุรายละเอียด)</label>
+                <div class="quick-notes-wrapper">
+                    <div class="quick-notes-title">เลือกข้อความด่วน:</div>
+                    <div class="quick-notes">
+                        <div class="note-chip" onclick="addIncNoteText('ขาดใบ OT')">📄 ขาดใบ OT</div>
+                        <div class="note-chip" onclick="addIncNoteText('ขาดใบลา')">🏖️ ขาดใบลา</div>
+                        <div class="note-chip" onclick="addIncNoteText('ขาดใบปรับปรุงเวลา')">⏰ ขาดใบปรับปรุงเวลา</div>
+                    </div>
+                </div>
+                <textarea id="incNote" rows="3" style="width:100%; padding:10px; border-radius:12px; border:1px solid #cbd5e1; font-family:inherit;" placeholder="เช่น ขาดใบ OT, ลืมแนบใบลา..."></textarea>
+            </div>
+        </div>
+        <div style="margin-top:20px; display:flex; gap:10px;">
+             <button onclick="saveIncompleteReport()" class="primary" style="background:#9333ea; box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);">บันทึก</button>
+             <button onclick="closeIncompleteModal()" class="btn-next">ยกเลิก</button>
+        </div>
+    </div>
+  </div>
+
+  <!-- 🟢 Summary Modal (New) -->
+  <div id="summaryModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" onclick="closeSummaryModal()">&times;</span>
+        <h2 style="font-size:1.5rem; margin-bottom:20px; color:#ea580c;">📋 สรุปรายการต้องตาม</h2>
+        <div id="summaryList" style="margin-top:15px; max-height:400px; overflow-y:auto;">
+             <!-- Content injected by JS -->
+        </div>
+      </div>
+  </div>
+  
+  <!-- 🟢 Delete Option Modal (New) -->
+  <div id="deleteOptionModal" class="modal">
+      <div class="modal-content" style="text-align:center;">
+          <span class="close-modal" onclick="closeDeleteModal()">&times;</span>
+          <h2 style="color:var(--danger); margin-bottom:20px;">🗑️ ต้องการลบอะไรครับ?</h2>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+              <button onclick="deleteCurrentMonth()" class="primary" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5;">📅 ลบเฉพาะเดือนนี้</button>
+              <button onclick="clearAllHistory()" class="primary" style="background:#ef4444; color:white; box-shadow:0 4px 10px rgba(239, 68, 68, 0.4);">💥 ล้างประวัติทั้งหมด</button>
+          </div>
+          <button onclick="closeDeleteModal()" class="btn-next" style="margin-top:20px; width:100%;">ยกเลิก</button>
+      </div>
+  </div>
+
 </div>
 
 <script>
-  /* ===== Constants ===== */
-  const WORKDAY_MINUTES = 8*60;          // 480
-  const LUNCH_BREAK_MIN = 60;            // 12:00–13:00
-  const DINNER_BREAK_MIN = 30;           // 19:30–20:00
+  /* ===== 1. Global Utilities & Helpers (Moved to Top for Safety) ===== */
+  let currentHistoryMode = 'daily'; // 'daily' or 'driver'
+  let historyFilters = { daily: { month: null, driver: "" }, driver: { month: null, driver: "" } }; 
+  
+  // 🟢 Custom Picker State
+  let pickerTargetId = null;
+  let pickerDisplayId = null;
+  let pickerCurrentDate = new Date();
+  
+  // 🟢 SHORT MONTHS for Picker Buttons
+  const THAI_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  // 🟢 FULL MONTHS for Display Header
+  const THAI_MONTHS_FULL = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
 
-  /* ===== Sidebar ===== */
-  const sidebar   = document.getElementById('sidebar');
-  const btnToggle = document.getElementById('btnToggle');
-  if(localStorage.getItem('egat_sidebar_collapsed')==='1') sidebar.classList.add('collapsed');
-  btnToggle.addEventListener('click', ()=>{
-    sidebar.classList.toggle('collapsed');
-    localStorage.setItem('egat_sidebar_collapsed', sidebar.classList.contains('collapsed')?'1':'0');
+  function updateRadioStyle() {
+    document.querySelectorAll('.radio-line label').forEach(lbl => {
+        const rad = lbl.querySelector('input[type="radio"]');
+        if(rad && rad.checked) lbl.classList.add('active');
+        else lbl.classList.remove('active');
+    });
+  }
+  
+  // 🟢 FIX: Directly Toggle Menu in JS
+  function toggleSummaryMenu(event) {
+      if(event) event.stopPropagation();
+      const menu = document.getElementById('summaryMenu');
+      if(menu) {
+          menu.classList.toggle('show');
+      }
+  }
+
+  // 🟢 Sidebar Submenu Toggle Logic
+  function toggleSidebarSubmenu(id) {
+      const submenu = document.getElementById(id);
+      const parent = submenu.parentElement.querySelector('.menu-item');
+      if (submenu) {
+          if (submenu.classList.contains('open')) {
+              submenu.classList.remove('open');
+              parent.classList.remove('expanded');
+          } else {
+              submenu.classList.add('open');
+              parent.classList.add('expanded');
+          }
+      }
+  }
+
+  // Close dropdown when clicking outside
+  window.onclick = function(event) {
+      // Handle Modal closing
+      const modal = document.getElementById('detailModal');
+      const deleteModal = document.getElementById('deleteOptionModal');
+      const summaryModal = document.getElementById('summaryModal');
+      const incompleteModal = document.getElementById('incompleteModal');
+      const driverModal = document.getElementById('addDriverModal');
+      const createOptModal = document.getElementById('createOptionModal');
+      const customMonthModal = document.getElementById('customMonthPickerModal');
+      
+      if (event.target == modal) closeModal();
+      if (event.target == deleteModal) closeDeleteModal();
+      if (event.target == summaryModal) closeSummaryModal();
+      if (event.target == incompleteModal) closeIncompleteModal();
+      if (event.target == driverModal) closeAddDriverModal();
+      if (event.target == createOptModal) closeCreateOptionModal();
+      if (event.target == customMonthModal) closeCustomMonthPicker();
+      
+      // 🟢 FIX: Close Dropdown if clicked outside
+      if (!event.target.closest('#historyTitleBtn')) {
+          const menu = document.getElementById('summaryMenu');
+          if (menu && menu.classList.contains('show')) {
+              menu.classList.remove('show');
+          }
+      }
+  };
+  
+  // 🟢 CUSTOM MONTH PICKER FUNCTIONS
+  function openCustomMonthPicker(inputId, displayId) {
+    pickerTargetId = inputId;
+    pickerDisplayId = displayId;
+    
+    const input = document.getElementById(inputId);
+    if(input && input.value) {
+        // value is YYYY-MM
+        const [y, m] = input.value.split('-');
+        pickerCurrentDate = new Date(parseInt(y), parseInt(m)-1, 1);
+    } else {
+        pickerCurrentDate = new Date();
+    }
+    
+    renderCustomPicker();
+    document.getElementById('customMonthPickerModal').classList.add('show');
+  }
+
+  function closeCustomMonthPicker() {
+    document.getElementById('customMonthPickerModal').classList.remove('show');
+  }
+
+  function adjustPickerYear(offset) {
+    pickerCurrentDate.setFullYear(pickerCurrentDate.getFullYear() + offset);
+    renderCustomPicker();
+  }
+
+  function renderCustomPicker() {
+    const year = pickerCurrentDate.getFullYear();
+    const thaiYear = year + 543;
+    document.getElementById('cmpYearDisplay').innerText = thaiYear;
+    
+    const grid = document.getElementById('cmpMonthGrid');
+    grid.innerHTML = '';
+    
+    // 🟢 Picker uses SHORT names (ม.ค.)
+    THAI_MONTHS_SHORT.forEach((m, idx) => {
+        const btn = document.createElement('div');
+        btn.className = 'cmp-month-btn';
+        btn.innerText = m; 
+        // Highlight if matches current value
+        const input = document.getElementById(pickerTargetId);
+        if(input && input.value) {
+             const [y, mStr] = input.value.split('-');
+             if(parseInt(y) === year && (parseInt(mStr)-1) === idx) {
+                 btn.classList.add('active');
+             }
+        }
+        
+        btn.onclick = () => selectPickerMonth(idx);
+        grid.appendChild(btn);
+    });
+  }
+
+  function selectPickerMonth(mIndex) {
+    const year = pickerCurrentDate.getFullYear();
+    const month = String(mIndex + 1).padStart(2, '0');
+    const val = `${year}-${month}`;
+    
+    const input = document.getElementById(pickerTargetId);
+    if(input) {
+        input.value = val;
+        // Trigger logic update manually since hidden inputs don't fire change on script update
+        if(pickerTargetId === 'historyMonthPicker') {
+            renderHistory();
+        } else if (pickerTargetId === 'createTargetMonth') {
+            updateCreateMonthDisplay(val);
+        }
+    }
+    
+    // Update Display Text immediately
+    const display = document.getElementById(pickerDisplayId);
+    if(display) {
+        // 🟢 Logic: ALWAYS use FULL Month for Display Text (มกราคม 2568)
+        display.innerText = getThaiMonthYearFull(val); 
+    }
+    
+    closeCustomMonthPicker();
+  }
+
+  function setHistoryMode(mode) {
+      // 1. Save current filter state for the OLD mode
+      const dropdown = document.getElementById('historyDriverFilter');
+      const monthPicker = document.getElementById('historyMonthPicker');
+      
+      if(dropdown) {
+          historyFilters[currentHistoryMode].driver = dropdown.value;
+      }
+      if(monthPicker) {
+          historyFilters[currentHistoryMode].month = monthPicker.value;
+      }
+
+      // 2. Switch Mode
+      currentHistoryMode = mode;
+      
+      // Update Buttons
+      document.querySelectorAll('.mvs-btn').forEach(btn => btn.classList.remove('active'));
+      if(mode === 'daily') document.getElementById('mvsDaily')?.classList.add('active');
+      else document.getElementById('mvsDriver')?.classList.add('active');
+
+      // Update Title Text based on mode
+      const titleText = document.getElementById('historyTitleBtn');
+      if(titleText) {
+          if(mode === 'daily') {
+              titleText.innerText = "สรุปรายเดือน";
+          } else {
+              titleText.innerText = "สรุปตามรายเดือน พขร.";
+          }
+      }
+      
+      // Highlight active submenu item
+      document.querySelectorAll('.submenu-item').forEach(el => el.classList.remove('active'));
+      
+      // 🟢 Toggle Toolbar Visibility based on Mode
+      const toolbar = document.getElementById('historyToolbar');
+      if(toolbar) {
+          if(mode === 'daily') {
+              toolbar.style.display = 'flex';
+          } else {
+              toolbar.style.display = 'none';
+          }
+      }
+
+      // 3. Restore filter state for the NEW mode
+      if(dropdown) {
+          dropdown.value = historyFilters[mode].driver || "";
+      }
+      if(monthPicker) {
+          if(historyFilters[mode].month) {
+               monthPicker.value = historyFilters[mode].month;
+          } else {
+               const now = new Date();
+               const mStr = String(now.getMonth() + 1).padStart(2, '0');
+               monthPicker.value = `${now.getFullYear()}-${mStr}`;
+          }
+          // Update Display
+          const display = document.getElementById('historyDateDisplay');
+          // 🟢 FIX: Use FULL Month
+          if(display) display.innerText = getThaiMonthYearFull(monthPicker.value);
+      }
+
+      renderHistory();
+  }
+
+  function handleFilterChange() {
+      const dropdown = document.getElementById('historyDriverFilter');
+      if(dropdown) {
+          // Update the state immediately
+          historyFilters[currentHistoryMode].driver = dropdown.value;
+      }
+      renderHistory();
+  }
+
+  function formatThaiDateDisplay(dateStr) {
+    if(!dateStr) return 'เลือกวันที่...';
+    const d = new Date(dateStr);
+    if(isNaN(d.getTime())) return 'เลือกวันที่...';
+      
+    // 🟢 Changed to Thai Short Month
+    const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+    const day = d.getDate();
+    const month = months[d.getMonth()];
+    const year = (d.getFullYear() + 543) % 100; // Last 2 digits
+      
+    return `${day} ${month} ${year}`;
+  }
+  
+  function getThaiMonthYearShort(dateStr) {
+      if(!dateStr) return '...';
+      const [y, m] = dateStr.split('-');
+      // 🟢 Changed to Thai Short Month
+      const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+      return `${months[parseInt(m)-1]} ${(parseInt(y)+543)%100}`;
+  }
+  
+  function getThaiMonthYearFull(dateStr) {
+       if(!dateStr) return '...';
+      const [y, m] = dateStr.split('-');
+      const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+      return `${months[parseInt(m)-1]} ${parseInt(y)+543}`;
+  }
+
+  function updateCreateMonthDisplay(val) {
+      const display = document.getElementById('createMonthDisplay');
+      if(display) display.innerText = val ? getThaiMonthYearFull(val) : 'เลือกเดือน...';
+  }
+
+  function formatDateForInputBox(dateStr) {
+    if(!dateStr) return 'เลือกวันที่...';
+    const d = new Date(dateStr);
+    if(isNaN(d.getTime())) return 'เลือกวันที่...';
+      
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear() + 543;
+      
+    return `${day}/${month}/${year}`;
+  }
+
+  function formatThaiDate(dateStr) {
+    if(!dateStr) return '-';
+    const d = new Date(dateStr);
+    if(isNaN(d.getTime())) return '-';
+      
+    const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+      
+    const day = d.getDate();
+    const month = months[d.getMonth()];
+    const year = (d.getFullYear() + 543) % 100; 
+      
+    return `${day} ${month} ${year}`;
+  }
+
+  function syncDateDisplay(inputId, displayId) {
+      const input = document.getElementById(inputId);
+      const display = document.getElementById(displayId);
+      if(input && display) {
+          display.textContent = formatDateForInputBox(input.value);
+      }
+  }
+
+  function updateThaiDateDisplay() {
+    const workDateEl = document.getElementById('workDate');
+    if (!workDateEl) return; // Guard clause
+
+    const inputVal = workDateEl.value;
+    const label = document.getElementById('dateLabel');
+
+    if (inputVal) { 
+        const d = new Date(inputVal);
+        const day = d.getDay();
+        const typeVal = (day===0||day===6)?'weekend':'weekday';
+        const rad = document.querySelector(`input[name="type"][value="${typeVal}"]`);
+        if(rad) { rad.checked=true; updateRadioStyle(); }
+        
+        if(label) {
+            label.textContent = `วันที่: ${formatThaiDateDisplay(inputVal)}`;
+            label.style.color = 'var(--brand)';
+        }
+    }
+    syncDateDisplay('workDate', 'workDateShow');
+  }
+
+  function formatTimeInput(e) {
+    let v = e.target.value.replace(/[^0-9]/g, '');
+    if (v.length > 4) v = v.substring(0,4);
+    if (v.length > 2) e.target.value = v.substring(0,2) + ':' + v.substring(2);
+    else e.target.value = v;
+  }
+
+  function validateTimeInput(e) {
+    let v = e.target.value;
+    if(!v.includes(':') && v.length === 4) { 
+        v = v.substring(0,2) + ':' + v.substring(2); 
+        e.target.value = v; 
+    }
+    const parts = v.split(':');
+    if(parts.length === 2) {
+        let h = parseInt(parts[0]);
+        let m = parseInt(parts[1]);
+        if (isNaN(h)) h = 0;
+        if (isNaN(m)) m = 0;
+        if (h > 24) h = 24;
+        if (m > 59) m = 59;
+        e.target.value = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+    }
+  }
+
+  // 🟢 New Helper for Date String
+  function getDateString(year, month, day) {
+      const m = String(month).padStart(2, '0');
+      const d = String(day).padStart(2, '0');
+      return `${year}-${m}-${d}`;
+  }
+
+  /* ===== 2. Global State & Data Logic ===== */
+  let currentCalcResult = null; 
+  let otHistory = [];
+  let rawDrivers = JSON.parse(localStorage.getItem('egat_drivers')) || [];
+  let drivers = [];
+   
+  if(rawDrivers.length > 0 && typeof rawDrivers[0] === 'string') {
+      drivers = rawDrivers.map(d => ({ id: Date.now() + Math.random(), name: d, nickname: '', phone: '', affiliation: '', department: '' }));
+      localStorage.setItem('egat_drivers', JSON.stringify(drivers));
+  } else {
+      drivers = rawDrivers;
+  }
+
+  let editingRowIndex = null; 
+  let showAll = false;
+  let filteredIndices = [];
+  try { otHistory = JSON.parse(localStorage.getItem('egat_ot_history')) || []; } catch(e) {}
+  
+  // Sort Init
+  otHistory.sort((a, b) => {
+      const nameA = a.driver || "";
+      const nameB = b.driver || "";
+      const nameCompare = nameA.localeCompare(nameB, 'th');
+      if (nameCompare !== 0) return nameCompare;
+      return new Date(a.date) - new Date(b.date);
   });
 
-  /* ===== Routing ===== */
-  const params = new URLSearchParams(location.search);
-  const currentView = (params.get('view') || 'ot').toLowerCase();
-  document.querySelectorAll('#menu a').forEach(a=>a.classList.toggle('active', a.dataset.view === currentView));
-  function show(viewId){
-    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-    document.getElementById('view-' + viewId).classList.add('active');
-  }
-  show(currentView);
+  const WORKDAY_MINUTES = 8*60;
+  const LUNCH_BREAK_MIN = 60;
+  const DINNER_BREAK_MIN = 30;
 
-  /* ===== Calculator ===== */
-  (function(){
-    if(currentView !== 'calc') return;
-    const disp = document.getElementById('calcDisplay');
-    let buf = '0';
-    const set = v => disp.value = v;
-
-    const safeEval = s => {
-      try{
-        if(!/^[0-9.+\-*/%() ]+$/.test(s)) return 'Error';
-        const val = Function('"use strict";return ('+s+')')();
-        return (val===Infinity || Number.isNaN(val)) ? 'Error' : String(val);
-      }catch{ return 'Error'; }
-    };
-
-    function push(ch){
-      if(ch==='C'){ buf='0'; set(buf); return; }
-      if(ch==='BS'){ buf = buf.length>1 ? buf.slice(0,-1) : '0'; set(buf); return; }
-      if(ch==='='){ const out=safeEval(buf); set(out); buf=(out==='Error')?'0':out; return; }
-      if(ch==='x'||ch==='X') ch='*'; if(ch==='÷') ch='/';
-      if(buf==='0' && /[0-9.]/.test(ch)) buf=ch; else buf+=ch;
-      set(buf);
+  /* ===== 3. Global Action Functions (Must be defined before HTML calls them) ===== */
+  
+  // Navigation
+  function switchView(viewId) {
+    document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+    
+    // Handle menu highlight
+    if(viewId === 'ot') document.querySelector('.menu-item[onclick*="ot"]').classList.add('active');
+    if(viewId === 'drivers') document.querySelector('.menu-item[onclick*="drivers"]').classList.add('active');
+    if(viewId === 'calc') document.querySelector('.menu-item[onclick*="calc"]').classList.add('active');
+    
+    // Special handling for history group
+    if(viewId === 'history') {
+        const historyGroupItem = document.querySelector('.menu-item-group .menu-item');
+        if(historyGroupItem) historyGroupItem.classList.add('active');
     }
 
-    document.querySelectorAll('.keys button').forEach(b=>{
-      b.addEventListener('click',()=> push(b.dataset.k || b.textContent.trim()));
-    });
-    window.addEventListener('keydown', e=>{
-      const k=e.key;
-      if(/[0-9]/.test(k)) { push(k); return; }
-      if(['+','-','*','/','x','X','%','.'].includes(k)) { push(k); return; }
-      if(k==='Enter' || k==='NumpadEnter'){ e.preventDefault(); push('='); return; }
-      if(k==='Backspace'){ e.preventDefault(); push('BS'); return; }
-      if(k==='Escape' || k==='Delete'){ e.preventDefault(); push('C'); return; }
-    });
-  })();
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + viewId).classList.add('active');
+      
+    if(viewId === 'history') {
+        showAll = false;
+        
+        // Restore State for Default View
+        setHistoryMode(currentHistoryMode);
+        
+        // Ensure Default State
+        const toolbar = document.getElementById('historyToolbar');
+        if(toolbar) {
+            if(currentHistoryMode === 'daily') toolbar.style.display = 'flex';
+            else toolbar.style.display = 'none';
+        }
+    }
+    if(viewId === 'drivers') {
+        renderDriverPageList();
+    }
+  }
 
-  /* ===== Time helpers ===== */
+  function updateBadge() {
+    const badge = document.getElementById('historyCount');
+    if(otHistory.length > 0) {
+        badge.innerText = otHistory.length;
+        badge.style.display = 'inline-block';
+    } else {
+        badge.style.display = 'none';
+    }
+  }
+
+  // Drivers
+  function renderDrivers() {
+    const driverSelect = document.getElementById('driverSelect');
+    const historyDriverFilter = document.getElementById('historyDriverFilter'); // 🟢 Re-added
+
+    if(driverSelect) {
+        const currentVal = driverSelect.value;
+        driverSelect.innerHTML = '<option value="">-- ไม่ระบุ --</option>';
+        drivers.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.name;
+          let label = d.name;
+          if(d.nickname) label += ` (${d.nickname})`;
+          opt.textContent = label;
+          driverSelect.appendChild(opt);
+        });
+        if(drivers.some(d => d.name === currentVal)) driverSelect.value = currentVal;
+    }
+    
+    // 🟢 Update History Filter Dropdown
+    if(historyDriverFilter) {
+        // Save current value before rebuilding options if needed, but usually we just want to rebuild list.
+        // Actually, we should only rebuild options if the list changed. But here we do it every time.
+        // We must preserve the selected value.
+        const currentFilter = historyDriverFilter.value;
+        
+        historyDriverFilter.innerHTML = '<option value="">ทั้งหมด</option>';
+        drivers.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.name;
+          let label = d.name;
+          if(d.nickname) label += ` (${d.nickname})`;
+          opt.textContent = label;
+          historyDriverFilter.appendChild(opt);
+        });
+        
+        // If current value is valid, keep it.
+        if(currentFilter && drivers.some(d => d.name === currentFilter)) {
+             historyDriverFilter.value = currentFilter;
+        } else {
+             // If not valid (e.g. driver deleted), or first load, check state.
+             // We should sync with current mode's state filter
+             historyDriverFilter.value = historyFilters[currentHistoryMode].driver || "";
+        }
+    }
+
+    renderDriverPageList();
+  }
+
+  function renderDriverPageList() {
+      const container = document.getElementById('driverListContainer');
+      if(!container) return;
+      
+      // 🟢 CHANGE: Use driver-list-container instead of grid
+      container.className = 'driver-list-container';
+      
+      if(drivers.length === 0) {
+          container.innerHTML = '<div style="padding:60px; text-align:center; color:#94a3b8;">ยังไม่มีรายชื่อ พขร. <br>กดปุ่ม "+ เพิ่มคนใหม่" ด้านบนได้เลยค่ะ</div>';
+          return;
+      }
+      container.innerHTML = '';
+      drivers.forEach((d, index) => {
+          const item = document.createElement('div');
+          item.className = 'driver-item-row'; // Use Row Class
+          
+          let nicknameStr = d.nickname ? `(${d.nickname})` : '';
+          
+          let detailsHtml = '';
+          if(d.phone) detailsHtml += `<span>📞 ${d.phone}</span>`;
+          if(d.affiliation || d.department) detailsHtml += `<span>🏢 ${d.affiliation} ${d.department}</span>`;
+          if(detailsHtml === '') detailsHtml = '<span style="opacity:0.4;">- ไม่มีข้อมูลเพิ่มเติม -</span>';
+
+          item.innerHTML = `
+            <div class="d-index">${index + 1}</div>
+            <div class="d-info">
+                <div class="d-main">${d.name} <span style="font-weight:400; color:var(--text-muted); font-size:0.9rem;">${nicknameStr}</span></div>
+                <div class="d-sub">${detailsHtml}</div>
+            </div>
+            <div class="d-actions">
+                <button onclick="editDriver('${d.id}')" class="action-btn-sm btn-view-sm" title="แก้ไข">✏️</button>
+                <button onclick="removeDriverByName('${d.name}')" class="action-btn-sm btn-reset-sm" style="color:#ef4444; background:#fef2f2;" title="ลบ">🗑️</button>
+            </div>
+          `;
+          container.appendChild(item);
+      });
+  }
+
+  // Driver Modals
+  function openAddDriverModal() {
+      document.getElementById('editDriverId').value = '';
+      document.getElementById('driverModalTitle').innerText = 'เพิ่มรายชื่อ พขร. ใหม่';
+      document.getElementById('dName').value = '';
+      document.getElementById('dNick').value = '';
+      document.getElementById('dPhone').value = '';
+      document.getElementById('dAff').value = '';
+      document.getElementById('dDept').value = '';
+      document.getElementById('addDriverModal').classList.add('show');
+      document.getElementById('dName').focus();
+  }
+   
+  function editDriver(id) {
+      const d = drivers.find(drv => drv.id.toString() === id.toString());
+      if(!d) return;
+      document.getElementById('editDriverId').value = d.id;
+      document.getElementById('driverModalTitle').innerText = 'แก้ไขข้อมูล พขร.';
+      document.getElementById('dName').value = d.name;
+      document.getElementById('dNick').value = d.nickname || '';
+      document.getElementById('dPhone').value = d.phone || '';
+      document.getElementById('dAff').value = d.affiliation || '';
+      document.getElementById('dDept').value = d.department || '';
+      document.getElementById('addDriverModal').classList.add('show');
+  }
+   
+  function closeAddDriverModal() {
+      document.getElementById('addDriverModal').classList.remove('show');
+  }
+
+  function saveDriver() {
+      const id = document.getElementById('editDriverId').value;
+      const nameInp = document.getElementById('dName');
+      const nickInp = document.getElementById('dNick');
+      const phoneInp = document.getElementById('dPhone');
+      const affInp = document.getElementById('dAff');
+      const deptInp = document.getElementById('dDept');
+
+      const name = nameInp.value.trim();
+      if(!name) { alert('❌ กรุณาระบุชื่อ-นามสกุล'); return; }
+
+      const isDuplicate = drivers.some(d => d.name === name && d.id.toString() !== id);
+      if(isDuplicate) { alert('❌ มีชื่อนี้อยู่แล้ว'); return; }
+
+      if(id) {
+          const index = drivers.findIndex(d => d.id.toString() === id);
+          if(index !== -1) {
+              drivers[index].name = name;
+              drivers[index].nickname = nickInp.value.trim();
+              drivers[index].phone = phoneInp.value.trim();
+              drivers[index].affiliation = affInp.value.trim();
+              drivers[index].department = deptInp.value.trim();
+          }
+      } else {
+          const newDriver = {
+              id: Date.now(),
+              name: name,
+              nickname: nickInp.value.trim(),
+              phone: phoneInp.value.trim(),
+              affiliation: affInp.value.trim(),
+              department: deptInp.value.trim()
+          };
+          drivers.push(newDriver);
+      }
+      localStorage.setItem('egat_drivers', JSON.stringify(drivers));
+      renderDrivers();
+      closeAddDriverModal();
+      
+      nameInp.value = ''; nickInp.value = ''; phoneInp.value = ''; affInp.value = ''; deptInp.value = '';
+  }
+   
+  function removeDriverByName(name) {
+      if(confirm('ยืนยันลบรายชื่อ "' + name + '" ?')) {
+          drivers = drivers.filter(d => d.name !== name);
+          localStorage.setItem('egat_drivers', JSON.stringify(drivers));
+          renderDrivers();
+      }
+  }
+
+  // Calc Logic
   const MIN = (h,m)=>h*60+m;
-  const toMinutes = t => { const [h,m]=t.split(':').map(Number); return h*60+m; };
-  const fmt = mins => `${Math.floor(mins/60)} ชั่วโมง ${mins%60} นาที`;
-
-  function optionsHalfHour(){
-    const t=[];
-    for(let h=0; h<24; h++){ for(const m of [0,30]){
-      if(h===0 && m===0) continue;
-      const s=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; t.push(s);
-    }}
-    return t;
-  }
-  function fillTimeSelects(){
-    const opts = optionsHalfHour().map(s=>`<option value="${s}">${s}</option>`).join('');
-    document.getElementById('startTime').innerHTML = opts;
-    document.getElementById('endTime').innerHTML   = opts;
-    document.getElementById('startTime').value = '07:30';
-    document.getElementById('endTime').value   = '20:00';
+  const toMinutes = t => { if(!t) return 0; const [h,m]=t.split(':').map(Number); return h*60+m; };
+    
+  function getEffectiveDriver() {
+      const historyView = document.getElementById('view-history');
+      const driverSelect = document.getElementById('driverSelect');
+      const historyFilter = document.getElementById('historyDriverFilter');
+      if (historyView && historyView.classList.contains('active')) {
+          if (historyFilter && historyFilter.value !== "") {
+              return historyFilter.value;
+          }
+      }
+      return driverSelect ? driverSelect.value : "";
   }
 
-  /* ===== Row HTML ===== */
+  const fmt = mins => {
+      const h = Math.floor(mins/60);
+      const m = mins%60;
+      return m > 0 ? `${h} ชม. ${m} น.` : `${h} ชม.`;
+  };
+    
+  const fmtShort = mins => {
+      if(!mins || mins===0) return '-';
+      return (mins/60).toFixed(1).replace('.0','');
+  };
+
+  const fmtTime = mins => { const h = Math.floor(mins/60)%24; const m = mins%60; return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; };
+
   function rowHTML(range, rateClass, rateText, mins){
-    return `<div class="row">
-      <div class="time">${range}</div>
-      <div class="rate ${rateClass}">${rateText}</div>
-      <div class="dur">${fmt(mins)}</div>
-    </div>`;
+    return `<div class="row"><div class="time">${range}</div><div class="rate ${rateClass}">${rateText}</div><div class="dur">${fmt(mins)}</div></div>`;
   }
 
-  /* ===== จ–ศ: คำนวณ ×1.5 (เปลี่ยนเป็นโครงข้อมูล) ===== */
+  function generateResultHTML(type, dateVal, startMin, endMin, totalMinutes, wkResult) {
+      const thaiDate = formatThaiDate(dateVal);
+      const timeRange = `${fmtTime(startMin)} - ${fmtTime(endMin)}`;
+      const head = `<div class="result-head"><div class="tt">สรุป</div><div class="meta-pill"><span class="m-date">📅 ${thaiDate}</span><span class="m-time">⏰ ${timeRange}</span></div></div>`;
+      let body = '';
+
+      if (type === 'weekday') {
+          body = `<div class="result-section"><div class="result-title"><span class="i">🔔</span>ช่วงเวลาที่นับเป็น OT ×1.5</div><div class="rows">${wkResult.rowsHTML || '<div class="note-sub">ไม่มีช่วงเวลาที่ทับ</div>'}</div>${wkResult.breaks.length?`<div class="breaks">${wkResult.breaks.map(b=>`<span class="break-chip">${b}</span>`).join('')}</div>`:''}</div><div class="result-section"><div class="total-box"><div class="total-line"><span class="k">รวม ×1.5</span><span class="v">${fmt(wkResult.total15)}</span></div><div class="total-line em"><span class="k">⏱️ เวลาทำงานรวม</span><span class="v">${fmt(Math.max(0, totalMinutes - WORKDAY_MINUTES))}</span></div></div></div>`;
+      } else {
+          const ot1 = wkResult.totals[1] || 0;
+          const ot3 = wkResult.totals[3] || 0;
+          body = `<div class="result-section"><div class="result-title"><span class="i">🔔</span>ช่วงเวลาที่นับงานและเรตค่าตอบแทน</div><div class="rows">${wkResult.rowsHTML || '<div class="note-sub">ไม่มีช่วงเวลาที่ทับ</div>'}</div>${wkResult.breaks.length?`<div class="breaks">${wkResult.breaks.map(b=>`<span class="break-chip">${b}</span>`).join('')}</div>`:''}</div><div class="result-section"><div class="total-box"><div class="total-line"><span class="k">รวม ×3</span><span class="v">${fmt(ot3)}</span></div><div class="total-line"><span class="k">รวม ×1</span><span class="v">${fmt(ot1)}</span></div><div class="total-line em"><span class="k">⏱️ เวลาทำงานรวม</span><span class="v">${fmt(wkResult.totalMinutes)}</span></div></div></div>`;
+      }
+      return `<div class="result-wrap" style="outline:none;">${head}${body}</div>`;
+  }
+
+  function calculateCore(start, end, dateVal, type) {
+      if(!start || !end || !dateVal) return null;
+      let startMin = toMinutes(start);
+      let endMin = toMinutes(end);
+      if (endMin < startMin || end.startsWith('00:')) endMin += 24 * 60; 
+      if (startMin > 720 && startMin < 780) startMin = 780;
+      if (endMin > 720 && endMin < 780) endMin = 720;
+      startMin = Math.ceil(startMin / 30) * 30;
+      endMin = Math.floor(endMin / 30) * 30;
+      if(endMin <= startMin) return null;
+
+      let totalMinutes = endMin - startMin;
+      if(Math.max(0,Math.min(endMin,MIN(13,0))-Math.max(startMin,MIN(12,0)))>0) totalMinutes-=LUNCH_BREAK_MIN;
+      if(endMin>=MIN(19,30)) totalMinutes-=DINNER_BREAK_MIN;
+
+      const timeRange = `${fmtTime(startMin)} - ${fmtTime(endMin)}`;
+      let ot15=0, ot1=0, ot3=0, html = '', maxOTMinutes = 0;
+
+      if(type === 'weekday'){
+          const wk15 = computeWeekday15(startMin, endMin); 
+          ot15 = wk15.total15; 
+          html = generateResultHTML(type, dateVal, startMin, endMin, totalMinutes, wk15);
+          maxOTMinutes = wk15.total15;
+      } else {
+          const wk = computeWeekend(startMin, endMin);
+          ot1 = wk.totals[1] || 0;
+          ot3 = wk.totals[3] || 0;
+          html = generateResultHTML(type, dateVal, startMin, endMin, totalMinutes, wk);
+          maxOTMinutes = (wk.totals[1]||0) + (wk.totals[3]||0);
+      }
+      return { date: dateVal, type: type, timeRange: timeRange, start: start, end: end, ot15: ot15, ot1: ot1, ot3: ot3, html: html, maxOTMinutes: maxOTMinutes };
+  }
+
   function computeWeekday15(startMin,endMin){
-    const sessions=[[MIN(0,0),MIN(8,0)],[MIN(17,0),MIN(24,0)]];
+    const sessions=[[MIN(0,0),MIN(8,0)],[MIN(17,0),MIN(24,0)],[MIN(24,0),MIN(32,0)]]; 
     let total15=0, rowsHTML='', breaks=[];
     for(const [s,e] of sessions){
       const from=Math.max(startMin,s), to=Math.min(endMin,e), ov=Math.max(0,to-from);
       if(ov>0){
-        const f=`${String((from/60|0)).padStart(2,'0')}:${String(from%60).padStart(2,'0')}`;
-        const t=`${String((to/60|0)).padStart(2,'0')}:${String(to%60).padStart(2,'0')}`;
+        const f=fmtTime(from); const t=fmtTime(to);
         rowsHTML += rowHTML(`${f}–${t}`,'x15','×1.5',ov);
         total15 += ov;
       }
@@ -267,111 +1539,1201 @@
     return { rowsHTML, breaks, total15 };
   }
 
-  /* ===== ส–อ: คำนวณ ===== */
   function computeWeekend(startMin,endMin,totalMinutes){
-    const sess=[[MIN(0,0),MIN(8,0),3],[MIN(8,0),MIN(17,0),1],[MIN(17,0),MIN(24,0),3]];
+    const sess=[[MIN(0,0),MIN(8,0),3],[MIN(8,0),MIN(17,0),1],[MIN(17,0),MIN(24,0),3],[MIN(24,0),MIN(32,0),3]];
     let rowsHTML='', totals={1:0,3:0}, breaks=[];
     for(const [s,e,r] of sess){
       const from=Math.max(startMin,s), to=Math.min(endMin,e), ov=Math.max(0,to-from);
       if(ov>0){
-        const f=`${String((from/60|0)).padStart(2,'0')}:${String(from%60).padStart(2,'0')}`;
-        const t=`${String((to/60|0)).padStart(2,'0')}:${String(to%60).padStart(2,'0')}`;
+        const f=fmtTime(from); const t=fmtTime(to);
         rowsHTML += rowHTML(`${f}–${t}`, r===3?'x3':'x1', `×${r}`, ov);
         totals[r]=(totals[r]||0)+ov;
       }
     }
     const L1=MIN(12,0), L2=MIN(13,0);
     if(Math.max(0,Math.min(endMin,L2)-Math.max(startMin,L1))>0){
-      totals[1]=Math.max(0,(totals[1]||0)-LUNCH_BREAK_MIN); breaks.push('หักพัก 1 ชั่วโมง (12:00–13:00)');
+      totals[1]=Math.max(0,(totals[1]||0)-LUNCH_BREAK_MIN); breaks.push('หักพัก 1 ชม. (12:00–13:00)');
     }
-    if(endMin>=MIN(19,30)){ totals[3]=Math.max(0,(totals[3]||0)-DINNER_BREAK_MIN); breaks.push('หักพัก 30 นาที (19:30–20:00)'); }
-    return { rowsHTML, breaks, totals, totalMinutes };
+    if(endMin>=MIN(19,30)){ totals[3]=Math.max(0,(totals[3]||0)-DINNER_BREAK_MIN); breaks.push('หักพัก 30 น. (19:30–20:00)'); }
+    const totalCalc = (totals[1]||0) + (totals[3]||0);
+    return { rowsHTML, breaks, totals, totalMinutes: totalCalc };
   }
 
-  /* ===== OT Calculator ===== */
+  function sortHistory() {
+      otHistory.sort((a, b) => {
+          const nameA = a.driver || "";
+          const nameB = b.driver || "";
+          const nameCompare = nameA.localeCompare(nameB, 'th');
+          if (nameCompare !== 0) return nameCompare;
+          return new Date(a.date) - new Date(b.date);
+      });
+  }
+
   function calculateOT(){
     const start = document.getElementById('startTime').value;
     const end   = document.getElementById('endTime').value;
+    const dateVal = document.getElementById('workDate').value;
     const type  = document.querySelector('input[name="type"]:checked').value;
-    const startMin = toMinutes(start), endMin = toMinutes(end);
-    if(endMin<=startMin){ document.getElementById('result').innerText='❌ เวลาออกต้องมากกว่าเวลาเข้า'; return; }
+    const driver = document.getElementById('driverSelect').value;
+      
+    if(!start || !end || !dateVal) { document.getElementById('result').innerText='❌ กรุณาระบุข้อมูลให้ครบ'; return; }
+    const result = calculateCore(start, end, dateVal, type); 
+    if(!result) { document.getElementById('result').innerText='❌ เวลาไม่ถูกต้อง'; return; }
 
-    // เวลาทำงานรวม (หักพักที่ทับช่วง)
-    let totalMinutes=endMin-startMin;
-    if(Math.max(0,Math.min(endMin,MIN(13,0))-Math.max(startMin,MIN(12,0)))>0) totalMinutes-=LUNCH_BREAK_MIN;
-    if(endMin>=MIN(19,30)) totalMinutes-=DINNER_BREAK_MIN;
+    currentCalcResult = { ...result, id: Date.now(), driver: driver };
+    document.getElementById('result').innerHTML = result.html;
+    document.getElementById('saveSection').style.display = 'flex';
+    const btn = document.getElementById('btnSaveLog');
+    btn.innerHTML = '📥 บันทึกข้อมูล';
+    btn.style.background = 'var(--success)';
+    btn.disabled = false;
+  }
 
-    const dayText = (type==='weekday') ? 'จันทร์–ศุกร์' : 'เสาร์–อาทิตย์';
-    const head = `
-      <div class="result-head">
-        <div class="tt">สรุปการคำนวณ</div>
-        <div class="meta">เข้า: ${start} • ออก: ${end} • ประเภท: ${dayText}</div>
-      </div>`;
+  function resetFormForNext() {
+    document.getElementById('startTime').value = '07:30';
+    document.getElementById('endTime').value    = '17:00';
+    document.getElementById('result').innerHTML = '';
+    document.getElementById('saveSection').style.display = 'none';
+    currentCalcResult = null;
+    document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
+  }
 
-    /* ---------- Weekday ---------- */
-    if(type==='weekday'){
-      const ot = totalMinutes - WORKDAY_MINUTES;
-      if(ot<=0){ document.getElementById('result').innerText='✅ ไม่มี OT'; return; }
+  function editInline(index) {
+      editingRowIndex = index;
+      renderHistory(); 
+  }
 
-      const wk15 = computeWeekday15(startMin,endMin);
-      const body = `
-        <div class="result-section">
-          <div class="result-title"><span class="i">🔔</span>ช่วงเวลาที่นับเป็น OT ×1.5 (จ–ศ)</div>
-          <div class="rows">${wk15.rowsHTML || '<div class="note-sub">ไม่มีช่วงเวลาที่ทับ</div>'}</div>
-          ${wk15.breaks.length?`<div class="breaks" style="margin-top:.5rem">${wk15.breaks.map(b=>`<span class="break-chip">${b}</span>`).join('')}</div>`:''}
-        </div>
-        <div class="result-section">
-          <div class="result-title"><span class="i">🧾</span>สรุป OT</div>
-          <div class="total-box">
-            <div class="total-line"><span class="k">รวม ×1.5</span><span class="v">${fmt(wk15.total15)}</span></div>
-            <div class="total-line em"><span class="k">⏱️ เวลาทำงานรวม</span><span class="v">${fmt(ot)}</span></div>
-          </div>
-        </div>`;
-      document.getElementById('result').innerHTML = `<div class="result-wrap">${head}${body}</div>`;
-      return;
+  function saveInline(index) { 
+      const dateInp = document.getElementById('editDate').value;
+      const startInp = document.getElementById('editStart').value;
+      const endInp = document.getElementById('editEnd').value;
+      const originalItem = otHistory[index];
+
+      if(!dateInp) { alert('กรุณาระบุวันที่'); return; }
+
+      const d = new Date(dateInp);
+      const day = d.getDay();
+      let newType = (day === 0 || day === 6) ? 'weekend' : 'weekday';
+      if (dateInp === originalItem.date) newType = originalItem.type;
+
+      const newResult = calculateCore(startInp, endInp, dateInp, newType);
+
+      if(newResult) {
+          newResult.id = originalItem.id;
+          newResult.driver = originalItem.driver; 
+          newResult.isPending = false; 
+          otHistory[index] = newResult;
+          
+          sortHistory(); 
+          try { localStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e) {}
+            
+          const driverFilterVal = document.getElementById('historyDriverFilter').value;
+          let targetMonth = null;
+          let targetYear = null;
+          if (!showAll) {
+              const workDateVal = document.getElementById('workDate').value;
+              if (workDateVal) {
+                  const d = new Date(workDateVal);
+                  targetMonth = d.getMonth();
+                  targetYear = d.getFullYear();
+              }
+          }
+
+          const currentFiltered = otHistory.filter(item => {
+              if(!showAll && targetMonth !== null) {
+                  const d = new Date(item.date);
+                  if(d.getMonth() !== targetMonth || d.getFullYear() !== targetYear) return false;
+              }
+              if (driverFilterVal !== "" && (item.driver||"") !== driverFilterVal) return false;
+              return true;
+          });
+
+          const currentFilteredIndex = currentFiltered.findIndex(item => item.id === newResult.id);
+          if (currentFilteredIndex !== -1 && currentFilteredIndex < currentFiltered.length - 1) {
+              const nextItem = currentFiltered[currentFilteredIndex + 1];
+              const nextIndexInMain = otHistory.findIndex(item => item.id === nextItem.id);
+              if(nextIndexInMain !== -1) {
+                  editingRowIndex = nextIndexInMain;
+              } else {
+                  editingRowIndex = null;
+              }
+          } else {
+              editingRowIndex = null;
+          }
+          renderHistory();
+      } else {
+          alert('❌ ข้อมูลไม่ถูกต้อง');
+      }
+  }
+
+  function moveInline(step) {
+      const currentVisualIndex = filteredIndices.indexOf(editingRowIndex);
+      if (currentVisualIndex !== -1) {
+          const nextVisualIndex = currentVisualIndex + step;
+          if (nextVisualIndex >= 0 && nextVisualIndex < filteredIndices.length) {
+              editingRowIndex = filteredIndices[nextVisualIndex];
+              renderHistory();
+          }
+      }
+  }
+
+  function cancelInline() {
+      editingRowIndex = null;
+      renderHistory();
+  }
+
+  function showAllHistory() {
+    showAll = true;
+    renderHistory();
+  }
+
+  function resetCurrentMonth() {
+      const driverFilterVal = document.getElementById('historyDriverFilter').value;
+      let targetMonth = null;
+      let targetYear = null;
+      if (!showAll) {
+          const workDateVal = document.getElementById('workDate').value;
+          if (workDateVal) {
+              const d = new Date(workDateVal);
+              targetMonth = d.getMonth();
+              targetYear = d.getFullYear();
+          }
+      }
+      if(!showAll && targetMonth === null) { alert('กรุณาเลือกเดือนก่อนครับ'); return; }
+      const confirmMsg = showAll ? `ยืนยันล้างข้อมูล "ทั้งหมด"?` : `ยืนยันล้างข้อมูลเดือนนี้?`;
+      if(!confirm(confirmMsg)) return;
+
+      let count = 0;
+      otHistory.forEach(item => {
+          let isMatch = true;
+          if (!showAll) {
+              const d = new Date(item.date);
+              if(d.getMonth() !== targetMonth || d.getFullYear() !== targetYear) isMatch = false;
+          }
+          if (driverFilterVal !== "" && (item.driver||"") !== driverFilterVal) isMatch = false;
+          if(isMatch) {
+              item.isPending = true; item.isLeave = false;
+              delete item.leaveType; delete item.isIncomplete; delete item.incompleteReason;
+              item.start = '07:30'; item.end = '17:00'; item.ot15 = 0; item.ot1 = 0; item.ot3 = 0;
+              count++;
+          }
+      });
+      localStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
+      renderHistory();
+      alert(`ล้างค่าเรียบร้อย จำนวน ${count} รายการ`);
+  }
+
+  // 🟢 Delete Option Logic
+  function openDeleteModal() {
+      document.getElementById('deleteOptionModal').classList.add('show');
+  }
+
+  function closeDeleteModal() {
+      document.getElementById('deleteOptionModal').classList.remove('show');
+  }
+
+  function deleteCurrentMonth() {
+      // Logic for "Delete This Month" triggered from Modal
+      // Close modal first
+      closeDeleteModal();
+
+      const driverFilterVal = document.getElementById('historyDriverFilter').value;
+      let targetMonth = null;
+      let targetYear = null;
+      if (!showAll) {
+          const workDateVal = document.getElementById('workDate').value;
+          if (workDateVal) {
+              const d = new Date(workDateVal);
+              targetMonth = d.getMonth();
+              targetYear = d.getFullYear();
+          }
+      }
+      const confirmMsg = showAll ? `⚠️ อันตราย: ยืนยันลบรายการ "ทั้งหมด"?` : `⚠️ ยืนยันลบรายการของเดือนนี้?`;
+      if(!confirm(confirmMsg)) return;
+
+      const initialLen = otHistory.length;
+      otHistory = otHistory.filter(item => {
+          let isMatch = true;
+          if (!showAll) {
+              const d = new Date(item.date);
+              if(d.getMonth() !== targetMonth || d.getFullYear() !== targetYear) isMatch = false;
+          }
+          if (driverFilterVal !== "" && (item.driver||"") !== driverFilterVal) isMatch = false;
+          return !isMatch;
+      });
+      const deletedCount = initialLen - otHistory.length;
+      localStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
+      renderHistory();
+      updateBadge();
+      alert(`ลบเรียบร้อย จำนวน ${deletedCount} รายการ`);
+  }
+
+  function clearAllHistory() {
+      // Logic for "Reset All" triggered from Modal
+      closeDeleteModal();
+
+      if(confirm('⛔️ ล้างข้อมูลประวัติทั้งหมด?')) {
+          if(confirm('ยืนยันอีกครั้งนะ?')) {
+              otHistory = [];
+              localStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
+              renderHistory();
+              updateBadge();
+          }
+      }
+  }
+
+  function resetHistoryItem(index) {
+      if(!confirm('เคลียร์รายการนี้เป็นแบบร่าง (Pending)?')) return;
+      const item = otHistory[index];
+      item.isPending = true;
+      item.start = '07:30'; item.end = '17:00'; item.ot15 = 0; item.ot1 = 0; item.ot3 = 0;
+      localStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
+      renderHistory();
+  }
+
+  function openIncompleteModal() {
+      const sel = document.getElementById('incDriverSelect');
+      sel.innerHTML = '';
+      drivers.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.name;
+          opt.textContent = d.name + (d.nickname ? ` (${d.nickname})` : '');
+          sel.appendChild(opt);
+      });
+      const current = getEffectiveDriver();
+      if(current && drivers.some(d => d.name === current)) sel.value = current;
+      const workDateVal = document.getElementById('workDate').value;
+      if(workDateVal) {
+          document.getElementById('incMonth').value = workDateVal.substring(0, 7);
+      } else {
+          const now = new Date();
+          const y = now.getFullYear();
+          const m = String(now.getMonth()+1).padStart(2,'0');
+          document.getElementById('incMonth').value = `${y}-${m}`;
+      }
+      document.getElementById('incNote').value = '';
+      renderIncDays();
+      document.getElementById('incompleteModal').classList.add('show');
+  }
+
+  function closeIncompleteModal() {
+      document.getElementById('incompleteModal').classList.remove('show');
+  }
+
+  function renderIncDays() {
+      const monthVal = document.getElementById('incMonth').value;
+      const grid = document.getElementById('incDaysGrid');
+      grid.innerHTML = '';
+      if(!monthVal) return;
+      const [year, month] = monthVal.split('-').map(Number); 
+      const daysInMonth = new Date(year, month, 0).getDate();
+      for(let i=1; i<=daysInMonth; i++) {
+          const div = document.createElement('div');
+          div.className = 'day-item';
+          div.textContent = i;
+          div.onclick = function() { this.classList.toggle('selected'); };
+          grid.appendChild(div);
+      }
+  }
+
+  function resolveIncomplete(index) {
+      if(confirm('ได้รับเอกสารครบถ้วนแล้วใช่หรือไม่?')) {
+          const item = otHistory[index];
+          delete item.isIncomplete; delete item.incompleteReason;
+          try { localStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
+          renderHistory();
+      }
+  }
+
+  function addIncNoteText(text) {
+      const el = document.getElementById('incNote');
+      const current = el.value.trim();
+      if(current) el.value = current + ', ' + text; else el.value = text;
+      el.focus();
+  }
+
+  function saveIncompleteReport() {
+      const driver = document.getElementById('incDriverSelect').value;
+      const monthVal = document.getElementById('incMonth').value;
+      const note = document.getElementById('incNote').value.trim();
+      const selectedEls = document.querySelectorAll('#incDaysGrid .day-item.selected');
+      let targetDays = [];
+      selectedEls.forEach(el => targetDays.push(parseInt(el.textContent)));
+
+      if(!driver) { alert('กรุณาเลือกพนักงาน'); return; }
+      if(!monthVal) { alert('กรุณาเลือกเดือน'); return; }
+      if(targetDays.length === 0) { alert('กรุณาจิ้มเลือกวันที่ขาดเอกสาร'); return; }
+      if(!note) { alert('กรุณาระบุรายละเอียดเอกสารที่ขาด'); return; }
+
+      const [year, month] = monthVal.split('-').map(Number);
+      targetDays.sort((a,b)=>a-b);
+      let updatedCount = 0; let newCount = 0;
+
+      targetDays.forEach(dayNum => {
+          const dateString = getDateString(year, month, dayNum);
+          const driverName = driver.trim();
+          
+          // 🟢 Robust Find: Check Exact Match (Trimmed) OR Orphan (No Name)
+          let existingItem = otHistory.find(item => 
+              item.date === dateString && 
+              (item.driver || "").trim() === driverName
+          );
+          
+          // If not found, try finding an orphan to claim
+          if (!existingItem) {
+              existingItem = otHistory.find(item => item.date === dateString && !item.driver);
+          }
+
+          if(existingItem) {
+              existingItem.driver = driver; 
+              existingItem.isIncomplete = true;
+              existingItem.incompleteReason = note;
+              updatedCount++;
+          } else {
+               const newItem = {
+                  id: Date.now() + dayNum, date: dateString, type: 'weekday', driver: driver,
+                  isPending: true, isIncomplete: true, incompleteReason: note,
+                  ot15: 0, ot1: 0, ot3: 0, start: '07:30', end: '17:00'
+              };
+              otHistory.push(newItem);
+              newCount++;
+          }
+      });
+      sortHistory();
+      try {
+          localStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
+          renderHistory();
+          closeIncompleteModal();
+          alert(`✅ บันทึกเรียบร้อย\n- อัปเดต: ${updatedCount}\n- ใหม่: ${newCount}`);
+      } catch(e) { alert('Error saving'); }
+  }
+  
+  // 🟢 New Function: View Missing Details (Clickable Alert)
+  window.viewDriverMissing = function(driverName) {
+    const listContainer = document.getElementById('summaryList');
+    listContainer.innerHTML = '';
+    
+    // 1. Find Driver Details for Phone Number
+    const driverObj = drivers.find(d => d.name === driverName);
+    const phone = driverObj ? driverObj.phone : '-';
+
+    // Header
+    const header = document.createElement('div');
+    header.style.marginBottom = '15px';
+    header.style.borderBottom = '1px solid #e2e8f0';
+    header.style.paddingBottom = '10px';
+    header.innerHTML = `
+        <div style="font-weight:800; font-size:1.1rem; color:var(--brand);">👤 ${driverName}</div>
+        <div style="font-size:0.9rem; color:var(--text-muted);">📞 เบอร์โทร: <span style="color:var(--text-main); font-weight:600;">${phone || 'ไม่ระบุ'}</span></div>
+    `;
+    listContainer.appendChild(header);
+
+    // Filter Logic matches renderHistory
+    let targetMonth = null;
+    let targetYear = null;
+      
+    if (!showAll) {
+        // 🟢 FIX: Use history picker value
+        const historyPickerVal = document.getElementById('historyMonthPicker').value;
+        if (historyPickerVal) {
+            const [y, m] = historyPickerVal.split('-');
+            targetMonth = parseInt(m) - 1;
+            targetYear = parseInt(y);
+        }
     }
 
-    /* ---------- Weekend (ส–อ) ---------- */
-    const wk = computeWeekend(startMin,endMin,totalMinutes);
-    const body = `
-      <div class="result-section">
-        <div class="result-title"><span class="i">🔔</span>ช่วงเวลาที่นับงานและเรตค่าตอบแทน (ส–อ)</div>
-        <div class="rows">${wk.rowsHTML || '<div class="note-sub">ไม่มีช่วงเวลาที่ทับ</div>'}</div>
-        ${wk.breaks.length?`<div class="breaks" style="margin-top:.5rem">${wk.breaks.map(b=>`<span class="break-chip">${b}</span>`).join('')}</div>`:''}
-        <div class="result-title" style="margin-top:.7rem"><span class="i">🧾</span>สรุป OT (ส–อ)</div>
-        <div class="total-box">
-          <div class="total-line"><span class="k">รวม ×3</span><span class="v">${fmt(wk.totals[3]||0)}</span></div>
-          <div class="total-line"><span class="k">รวม ×1</span><span class="v">${fmt(wk.totals[1]||0)}</span></div>
-          <div class="total-line em"><span class="k">⏱️ เวลาทำงานรวม</span><span class="v">${fmt(wk.totalMinutes)}</span></div>
-        </div>
-      </div>`;
-    document.getElementById('result').innerHTML = `<div class="result-wrap">${head}${body}</div>`;
-  }
+    const items = otHistory.filter(item => {
+        if(!item.isIncomplete) return false;
+        // Check Name
+        const dName = item.driver || "(ไม่ระบุชื่อ)";
+        if(dName !== driverName) return false;
 
-  /* ===== Init OT page ===== */
-  function resetOT(){
-    fillTimeSelects();
-    document.getElementById('workDate').value = '';
-    document.querySelector('input[name="type"][value="weekday"]').checked = true;
-    document.getElementById('result').innerHTML = '';
-  }
+        // Check Date
+        if (!showAll && targetMonth !== null) {
+             const d = new Date(item.date);
+             if (d.getMonth() !== targetMonth || d.getFullYear() !== targetYear) return false;
+        }
+        return true;
+    });
+    
+    if(items.length === 0) {
+         listContainer.innerHTML += '<div style="text-align:center; color:#94a3b8; padding:20px;">🎉 ครบถ้วนแล้วครับ!</div>';
+    } else {
+         items.sort((a,b) => new Date(a.date) - new Date(b.date)); // Sort by date
+         items.forEach(item => {
+            // Find original index to pass to resolve function
+            const originalIndex = otHistory.indexOf(item); 
 
-  if(currentView==='ot'){
-    resetOT();
-    document.getElementById('btnCalc').addEventListener('click', calculateOT);
-    document.getElementById('workDate').addEventListener('change',e=>{
-      const d=new Date(e.target.value);
-      if(!isNaN(d)) {
-        const day=d.getDay();
-        document.querySelector(`input[name="type"][value="${(day===0||day===6)?'weekend':'weekday'}"]`).checked=true;
+            const el = document.createElement('div');
+            el.className = 'summary-list-item';
+            el.style.display = 'flex';
+            el.style.justifyContent = 'space-between';
+            el.style.alignItems = 'center';
+            el.style.gap = '10px';
+            
+            el.innerHTML = `
+                <div style="flex:1;">
+                    <div class="summary-date">📅 ${formatThaiDate(item.date)}</div>
+                    <div class="summary-reason" style="margin-top:4px;">${item.incompleteReason || 'ไม่ระบุสาเหตุ'}</div>
+                </div>
+                <button onclick="resolveFromModal(${originalIndex}, '${driverName}')" 
+                        style="border:none; background:#ecfdf5; color:#10b981; width:36px; height:36px; border-radius:10px; cursor:pointer; font-size:1.1rem; flex-shrink:0; display:grid; place-items:center; transition:all 0.2s;"
+                        title="ได้รับแล้ว (ติ๊กถูก)"
+                        onmouseover="this.style.background='#d1fae5'" 
+                        onmouseout="this.style.background='#ecfdf5'">
+                    ✔
+                </button>
+            `;
+            listContainer.appendChild(el);
+         });
+    }
+
+    document.getElementById('summaryModal').classList.add('show');
+  };
+
+  // 🟢 Resolve Item from Modal and Refresh List
+  window.resolveFromModal = function(index, driverName) {
+      if(!confirm('ยืนยันได้รับเอกสารแล้ว?')) return;
+
+      const item = otHistory[index];
+      if(item) {
+          delete item.isIncomplete;
+          delete item.incompleteReason;
+          
+          try { localStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
+          
+          // Refresh Main Table Background
+          renderHistory();
+          
+          // Refresh Modal Content (re-open to update list)
+          viewDriverMissing(driverName);
       }
-    });
-    window.addEventListener('pageshow', () => resetOT());
-  } else {
-    window.addEventListener('pageshow', () => {
-      const d=document.getElementById('calcDisplay'); if(d) d.value='0';
-    });
   }
+
+  function openFollowUpSummary() {
+    const currentDriver = getEffectiveDriver(); 
+    let monthInput = document.getElementById('historyMonthPicker');
+    let targetMonth = null, targetYear = null;
+    if(monthInput && monthInput.value) {
+        const [y, m] = monthInput.value.split('-'); targetYear = parseInt(y); targetMonth = parseInt(m) - 1;
+    } else {
+        const workDateVal = document.getElementById('workDate').value;
+        if(workDateVal) { const d = new Date(workDateVal); targetMonth = d.getMonth(); targetYear = d.getFullYear(); }
+    }
+    
+    const incompleteItems = otHistory.filter(item => {
+        if(!item.isIncomplete) return false;
+        const d = new Date(item.date);
+        if(targetMonth !== null && (d.getMonth() !== targetMonth || d.getFullYear() !== targetYear)) return false;
+        if(currentDriver && item.driver !== currentDriver) return false;
+        return true;
+    });
+
+    const listContainer = document.getElementById('summaryList');
+    listContainer.innerHTML = '';
+    if(incompleteItems.length === 0) {
+        listContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8;">🎉 เย้! ไม่มีรายการค้างส่ง</div>';
+    } else {
+        incompleteItems.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'summary-list-item';
+            el.innerHTML = `<div><div class="summary-date">📅 ${formatThaiDate(item.date)}</div><div class="summary-driver">👤 ${item.driver || 'ไม่ระบุชื่อ'}</div></div><div class="summary-reason">${item.incompleteReason || 'ไม่ระบุสาเหตุ'}</div>`;
+            listContainer.appendChild(el);
+        });
+    }
+    document.getElementById('summaryModal').classList.add('show');
+  }
+  
+  function closeSummaryModal() { document.getElementById('summaryModal').classList.remove('show'); }
+
+  // 🟢 NEW: Create Option Logic
+  function openCreateOptionModal() {
+      document.getElementById('createOptionModal').classList.add('show');
+      
+      // Auto-set the month picker to match the History View's month (more intuitive)
+      const historyPickerVal = document.getElementById('historyMonthPicker').value;
+      const createPicker = document.getElementById('createTargetMonth');
+      if(historyPickerVal && createPicker) {
+          createPicker.value = historyPickerVal;
+          updateCreateMonthDisplay(historyPickerVal); // 🟢 Update Display Text
+      }
+  }
+  
+  function closeCreateOptionModal() {
+      document.getElementById('createOptionModal').classList.remove('show');
+  }
+  
+  function initiateAutoFill(mode) {
+      // 🟢 Use the new month picker in modal
+      const monthVal = document.getElementById('createTargetMonth').value;
+      if(!monthVal) { alert('กรุณาเลือกเดือนที่จะสร้างก่อนครับ'); return; }
+      
+      closeCreateOptionModal();
+      
+      let targetDrivers = [];
+      
+      if(mode === 'single') {
+          // Use current filter value, NOT main tab
+          const filterVal = document.getElementById('historyDriverFilter').value;
+          
+          if(!filterVal) { 
+              // If "All" is selected in filter, fallback to main tab driver
+              const mainDriver = document.getElementById('driverSelect').value;
+              if(!mainDriver) { 
+                  alert('กรุณาเลือก พขร. ที่ต้องการสร้างรายการก่อนครับ\n(เลือกจากตัวกรอง หรือ หน้าคำนวณก็ได้)'); 
+                  return; 
+              }
+              targetDrivers.push(mainDriver);
+          } else {
+              targetDrivers.push(filterVal);
+          }
+      } else {
+          // All drivers
+          if(drivers.length === 0) { alert('ยังไม่มีรายชื่อ พขร. ในระบบ'); return; }
+          targetDrivers = drivers.map(d => d.name);
+      }
+      
+      const isFullMonth = confirm(`ยืนยันสร้างรายการสำหรับ ${targetDrivers.length} ท่าน \nประจำเดือน ${getThaiMonthYearFull(monthVal)} แบบทั้งเดือน (1-31) ?\n\n[ตกลง] = สร้างเลย\n[ยกเลิก] = ยกเลิก`);
+      if(!isFullMonth) return;
+      
+      const [yearStr, monthStr] = monthVal.split('-');
+      const year = parseInt(yearStr);
+      const monthIndex = parseInt(monthStr) - 1; // 0-based
+      const lastDay = new Date(year, monthIndex + 1, 0).getDate();
+      
+      let addedCount = 0;
+      const monthForHelper = monthIndex + 1; // 1-based
+      
+      // Loop through drivers
+      targetDrivers.forEach(drvName => {
+          for(let dayNum=1; dayNum<=lastDay; dayNum++) {
+              const dateString = getDateString(year, monthForHelper, dayNum);
+              // Check if exists for this specific driver
+              const exists = otHistory.some(item => 
+                  item.date === dateString && 
+                  ((item.driver || "").trim() === drvName.trim())
+              );
+              
+              if(!exists) {
+                  const currentDay = new Date(year, monthIndex, dayNum);
+                  const dayOfWeek = currentDay.getDay();
+                  const type = (dayOfWeek === 0 || dayOfWeek === 6) ? 'weekend' : 'weekday';
+                  const pendingItem = { 
+                      id: Date.now() + Math.random(), 
+                      date: dateString, 
+                      type: type, 
+                      driver: drvName, 
+                      isPending: true, 
+                      ot15: 0, ot1: 0, ot3: 0, 
+                      start: '07:30', end: '17:00' 
+                  };
+                  otHistory.push(pendingItem);
+                  addedCount++;
+              }
+          }
+      });
+      
+      sortHistory();
+      try {
+          localStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
+          updateBadge();
+          renderHistory();
+          alert(`✅ เพิ่มรายการเรียบร้อย ${addedCount} รายการ`);
+      } catch(e) { alert('บันทึกไม่สำเร็จ'); }
+  }
+
+  // 🟢 Old autoFillMonth (redirects to modal logic now, but kept function name for button compatibility if needed, though updated HTML uses openCreateOptionModal)
+  function autoFillMonth() {
+      openCreateOptionModal();
+  }
+
+  function toggleLeaveFromTable(index, isChecked) {
+      const item = otHistory[index];
+      if(isChecked) {
+          item.isLeave = true; item.leaveType = 'ลา'; item.ot15 = 0; item.ot1 = 0; item.ot3 = 0; item.start = '-'; item.end = '-';
+      } else {
+          item.isLeave = false; item.isPending = true; item.leaveType = undefined; item.start = '07:30'; item.end = '17:00';
+      }
+      try { localStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
+      renderHistory();
+  }
+
+  function toggleType(index) {
+      const item = otHistory[index];
+      const newType = item.type === 'weekday' ? 'weekend' : 'weekday';
+      item.type = newType;
+      if (!item.isPending && !item.isLeave) { 
+           const result = calculateCore(item.start, item.end, item.date, newType);
+           if(result) {
+               item.ot15 = result.ot15; item.ot1 = result.ot1; item.ot3 = result.ot3; item.html = result.html; item.timeRange = result.timeRange; item.maxOTMinutes = result.maxOTMinutes;
+           }
+      }
+      try { localStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
+      renderHistory(); 
+  }
+
+  function editOTHours(index, rateKey) {
+      const item = otHistory[index];
+      const limitCalc = calculateCore(item.start, item.end, item.date, item.type);
+      let currentVal = 0, maxLimit = 0, label = "";
+      
+      if(rateKey === '15') { currentVal = item.ot15/60; maxLimit = limitCalc.ot15; label = "OT x1.5"; }
+      if(rateKey === '1')  { currentVal = item.ot1/60; maxLimit = limitCalc.ot1; label = "OT x1"; }
+      if(rateKey === '3')  { currentVal = item.ot3/60; maxLimit = limitCalc.ot3; label = "OT x3"; }
+      
+      const newValStr = prompt(`แก้ไขชั่วโมง ${label} (สูงสุด ${(maxLimit/60).toFixed(2)})`, currentVal.toFixed(1));
+      if(newValStr !== null) {
+          const newVal = parseFloat(newValStr);
+          if(isNaN(newVal) || newVal < 0) { alert('❌ ตัวเลขไม่ถูกต้อง'); return; }
+          const newValMinutes = Math.round(newVal * 60);
+          if(newValMinutes > maxLimit + 1) { alert(`❌ เกินเวลาจริง (${(maxLimit/60).toFixed(2)})`); return; }
+
+          let proposedTotal = 0;
+          if(rateKey === '15') proposedTotal = newValMinutes; 
+          else {
+              let ot1 = (rateKey === '1') ? newValMinutes : (item.ot1||0);
+              let ot3 = (rateKey === '3') ? newValMinutes : (item.ot3||0);
+              proposedTotal = ot1 + ot3;
+              const maxTotal = (limitCalc.ot1 || 0) + (limitCalc.ot3 || 0);
+              if(proposedTotal > maxTotal + 1) { alert(`❌ เวลารวมเกิน (${(maxTotal/60).toFixed(2)})`); return; }
+          }
+          
+          if(rateKey === '15') item.ot15 = newValMinutes;
+          if(rateKey === '1')  item.ot1 = newValMinutes;
+          if(rateKey === '3')  item.ot3 = newValMinutes;
+          
+          try { localStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
+          renderHistory();
+      }
+  }
+
+  function viewDetail(index) {
+      const item = otHistory[index];
+      if(!item) return;
+      document.getElementById('modalBody').innerHTML = item.html;
+      document.getElementById('detailModal').classList.add('show');
+  }
+
+  function closeModal() { document.getElementById('detailModal').classList.remove('show'); }
+  
+  function deleteHistory(index) {
+    if(!confirm('ยืนยันลบ?')) return;
+    otHistory.splice(index, 1);
+    try { localStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); updateBadge(); renderHistory(); } catch(e) {}
+  }
+
+  function resetOT() {
+    const s = document.getElementById('startTime');
+    const e = document.getElementById('endTime');
+    if(s) s.value = '07:30';
+    if(e) e.value = '17:00';
+    
+    const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Bangkok"}));
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+      
+    const dateInput = document.getElementById('workDate');
+    if(dateInput) {
+        dateInput.value = `${year}-${month}-${day}`;
+        syncDateDisplay('workDate', 'workDateShow');
+    }
+      
+    updateThaiDateDisplay();
+      
+    const dayOfWeek = now.getDay();
+    const typeVal = (dayOfWeek===0||dayOfWeek===6)?'weekend':'weekday';
+    const rad = document.querySelector(`input[name="type"][value="${typeVal}"]`);
+    if(rad) { rad.checked=true; updateRadioStyle(); }
+
+    const res = document.getElementById('result');
+    if(res) res.innerHTML = '';
+    const saveSec = document.getElementById('saveSection');
+    if(saveSec) saveSec.style.display = 'none';
+    editingRowIndex = null; 
+  }
+
+  function renderHistory() {
+    let targetMonth = null;
+    let targetYear = null;
+      
+    if (!showAll) {
+        // 🟢 FIX: Use independent history picker
+        const historyPickerVal = document.getElementById('historyMonthPicker').value;
+        if (historyPickerVal) {
+            const [y, m] = historyPickerVal.split('-');
+            targetMonth = parseInt(m) - 1;
+            targetYear = parseInt(y);
+        } else {
+            // Default to current date or workDate if picker is empty on first load
+            const defaultDate = new Date(); // Or read from workDate if preferred default
+            targetMonth = defaultDate.getMonth();
+            targetYear = defaultDate.getFullYear();
+            
+            // Set the picker value to reflect this default
+            const mStr = String(targetMonth + 1).padStart(2, '0');
+            document.getElementById('historyMonthPicker').value = `${targetYear}-${mStr}`;
+        }
+    }
+
+    const driverFilterVal = document.getElementById('historyDriverFilter').value;
+    const monthsTh = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+      
+    if (showAll) {
+        document.getElementById('historyDateDisplay').textContent = "ทั้งหมด (All)";
+        document.getElementById('historyMonthPicker').value = "";
+    } else if (targetMonth !== null) {
+        // 🟢 Thai Year Full
+        const thaiYear = targetYear + 543; 
+        document.getElementById('historyDateDisplay').textContent = `${monthsTh[targetMonth]} ${thaiYear}`;
+        
+        // Sync hidden input
+        const monthStr = String(targetMonth + 1).padStart(2, '0');
+        document.getElementById('historyMonthPicker').value = `${targetYear}-${monthStr}`; 
+    }
+
+    const tbody = document.getElementById('historyList');
+    tbody.innerHTML = '';
+    let s15=0, s1=0, s3=0;
+    let leaveCount = 0; 
+    filteredIndices = []; 
+
+    // === BRANCH LOGIC: Daily vs Driver ===
+    if(currentHistoryMode === 'driver') {
+        // --- 🟢 DRIVER SUMMARY MODE ---
+        // Change Table Headers
+        document.querySelector('#historyTable thead').innerHTML = `
+            <tr>
+                <th width="5%" class="col-center">#</th>
+                <th width="20%">ชื่อ พขร.</th>
+                <th width="12%" class="col-center" style="background:#eff6ff; color:#1e3a8a;">x1.5 (ชม.)</th>
+                <th width="12%" class="col-center" style="background:#ecfeff; color:#0e7490;">x1 (ชม.)</th>
+                <th width="12%" class="col-center" style="background:#fff1f2; color:#be123c;">x3 (ชม.)</th>
+                <th width="12%" class="col-center">รวม (ชม.)</th>
+                <th width="10%" class="col-center">วันลา</th>
+                <th width="17%">เอกสารขาด</th>
+            </tr>
+        `;
+
+        // Process Data
+        const summaryMap = {};
+
+        // 🟢 Step 1: Pre-fill with ALL registered drivers (so they appear even with 0 data)
+        drivers.forEach(d => {
+            summaryMap[d.name] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0, hasData: false }; 
+        });
+        
+        otHistory.forEach((item) => {
+            // Filter Logic
+            let isMatch = true;
+            if (!showAll && targetMonth !== null) {
+                const d = new Date(item.date);
+                if (d.getMonth() !== targetMonth || d.getFullYear() !== targetYear) isMatch = false;
+            }
+            // Note: If driver filter is on, we only show that driver, otherwise all.
+
+            if(isMatch) {
+                const driverKey = item.driver || "(ไม่ระบุชื่อ)";
+                if(!summaryMap[driverKey]) {
+                    summaryMap[driverKey] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0 };
+                }
+                
+                if(item.isLeave) {
+                    summaryMap[driverKey].leave++;
+                } else if(!item.isPending) {
+                    summaryMap[driverKey].ot15 += (item.ot15 || 0);
+                    summaryMap[driverKey].ot1 += (item.ot1 || 0);
+                    summaryMap[driverKey].ot3 += (item.ot3 || 0);
+                }
+
+                if(item.isIncomplete) {
+                    summaryMap[driverKey].missingCount++;
+                }
+            }
+        });
+
+        // 🟢 FIX: Sort by original driver list order (index)
+        let driverNames = Object.keys(summaryMap);
+        
+        // Custom Sort: Match order in 'drivers' array
+        driverNames.sort((a, b) => {
+            const indexA = drivers.findIndex(d => d.name === a);
+            const indexB = drivers.findIndex(d => d.name === b);
+            // If not found in list (e.g. deleted driver but has history), put at end
+            if (indexA === -1) return 1;
+            if (indexB === -1) return -1;
+            return indexA - indexB;
+        });
+        
+        // Apply Driver Filter if selected
+        if (driverFilterVal !== "") {
+            driverNames = driverNames.filter(name => name === driverFilterVal);
+        }
+
+        if(driverNames.length === 0) {
+            document.getElementById('emptyMsg').style.display = 'block';
+        } else {
+            document.getElementById('emptyMsg').style.display = 'none';
+            driverNames.forEach((name, idx) => {
+                const data = summaryMap[name];
+                const totalMins = data.ot15 + data.ot1 + data.ot3;
+                
+                // Sum Global Stats for Dashboard (Top Cards)
+                s15 += data.ot15;
+                s1 += data.ot1;
+                s3 += data.ot3;
+                leaveCount += data.leave;
+
+                let missingHtml = '-';
+                if(data.missingCount > 0) {
+                    // 🟢 Update: Clickable Missing Alert
+                    missingHtml = `<span style="background:#fef2f2; color:#ef4444; padding:4px 10px; border-radius:99px; font-weight:700; font-size:0.8rem; border:1px solid #fca5a5; cursor:pointer; transition:transform 0.2s;" onclick="viewDriverMissing('${name}')" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="คลิกเพื่อดูรายละเอียด">⚠️ ขาด ${data.missingCount} รายการ (ดู)</span>`;
+                }
+
+                // Find original index for display #
+                const realIndex = drivers.findIndex(d => d.name === name) + 1;
+                const displayIndex = realIndex > 0 ? realIndex : '-';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="col-center">${displayIndex}</td>
+                    <td style="font-weight:700; color:var(--brand);">${name}</td>
+                    <td class="col-center">${fmtShort(data.ot15)}</td>
+                    <td class="col-center">${fmtShort(data.ot1)}</td>
+                    <td class="col-center">${fmtShort(data.ot3)}</td>
+                    <td class="col-center" style="font-weight:800;">${fmtShort(totalMins)}</td>
+                    <td class="col-center" style="color:#ef4444; font-weight:700;">${data.leave}</td>
+                    <td style="font-size:0.85rem; text-align:center;">${missingHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+    } else {
+        // --- 🔵 DAILY MODE (Original) ---
+        // Restore Headers
+        document.querySelector('#historyTable thead').innerHTML = `
+            <tr>
+                <th width="5%" class="col-center">ลา</th>
+                <th width="12%">วันที่</th>
+                <th width="10%" class="col-center">ประเภท</th>
+                <th width="20%" class="col-center">ช่วงเวลา</th>
+                <th width="10%" class="col-center" style="background:#eff6ff; color:#1e3a8a; border-bottom-color:#bfdbfe;">x1.5</th>
+                <th width="10%" class="col-center" style="background:#ecfeff; color:#0e7490; border-bottom-color:#a5f3fc;">x1</th>
+                <th width="10%" class="col-center" style="background:#fff1f2; color:#be123c; border-bottom-color:#fecdd3;">x3</th>
+                <th width="10%" class="col-center">รวม</th>
+                <th width="18%" class="col-center">เครื่องมือ</th>
+            </tr>
+        `;
+
+        otHistory.forEach((item, index) => {
+            let isMatch = true;
+            if (!showAll) {
+                 if (targetMonth !== null) {
+                    const itemDate = new Date(item.date);
+                    if (itemDate.getMonth() !== targetMonth || itemDate.getFullYear() !== targetYear) {
+                        isMatch = false;
+                    }
+                 }
+            }
+            if (driverFilterVal !== "") {
+                const dName = item.driver || "";
+                if(dName !== driverFilterVal) {
+                    isMatch = false;
+                }
+            }
+
+            if (isMatch) {
+                filteredIndices.push(index); 
+            }
+        });
+
+        if(filteredIndices.length === 0) {
+            document.getElementById('emptyMsg').style.display = 'block';
+        } else {
+            document.getElementById('emptyMsg').style.display = 'none';
+            
+            filteredIndices.forEach((originalIndex, i) => {
+                const item = otHistory[originalIndex];
+                
+                if(item.isLeave) { leaveCount++; }
+
+                if(!item.isPending && !item.isLeave) {
+                    s15 += item.ot15 || 0; 
+                    s1 += item.ot1 || 0; 
+                    s3 += item.ot3 || 0;
+                }
+                
+                const tr = document.createElement('tr');
+                let totalText = '-';
+                if(!item.isPending && !item.isLeave) {
+                     const totalMinutes = (item.ot15||0) + (item.ot1||0) + (item.ot3||0);
+                     totalText = fmt(totalMinutes);
+                }
+
+                let driverHtml = item.driver ? `<div style="font-size:0.8rem; color:var(--brand); font-weight:700; margin-bottom:2px; opacity:0.8;">👤 ${item.driver}</div>` : '';
+                const isChecked = item.isLeave ? 'checked' : '';
+                const checkboxHtml = `<input type="checkbox" ${isChecked} onchange="toggleLeaveFromTable(${originalIndex}, this.checked)" style="width:18px; height:18px; cursor:pointer;">`;
+
+                if(item.isLeave) {
+                    const leavePill = `<span class="pill" style="background:#fef2f2; color:#ef4444; border:1px solid #fecaca; cursor:default;">ลา</span>`;
+                    let dateContent = `${driverHtml}${formatThaiDate(item.date)}`;
+                    let leaveTypeContent = ''; 
+                    if(item.isIncomplete) {
+                          leaveTypeContent = `<div style="background:#f3e8ff; border:1px dashed #d8b4fe; border-radius:6px; padding:2px 8px; color:#7e22ce; font-size:0.8rem; text-align:left; white-space: normal;">📝 ${item.incompleteReason || 'ขาดเอกสาร'}</div>`;
+                    } else {
+                        leaveTypeContent = '-'; 
+                    }
+
+                    tr.innerHTML = `
+                        <td class="col-center">${checkboxHtml}</td>
+                        <td style="font-weight:600; color:#ef4444; opacity:0.8;">${dateContent}</td>
+                        <td class="col-center">${leavePill}</td>
+                        <td class="col-center" style="font-weight:bold; color:#ef4444; vertical-align:middle;">${leaveTypeContent}</td>
+                        <td class="col-center" style="background:#f9fafb; opacity:0.5;">-</td>
+                        <td class="col-center" style="background:#f9fafb; opacity:0.5;">-</td>
+                        <td class="col-center" style="background:#f9fafb; opacity:0.5;">-</td>
+                        <td class="col-center">-</td>
+                        <td class="col-center">
+                            ${item.isIncomplete ? `<button class="action-btn view-btn" onclick="resolveIncomplete(${originalIndex})" title="ได้รับเอกสารแล้ว" style="color:#10b981; background:#ecfdf5; margin-right:4px;">✅</button>` : ''}
+                            <button class="action-btn del-btn" onclick="deleteHistory(${originalIndex})" title="ลบ">🗑️</button>
+                        </td>
+                    `;
+                } else {
+                    const pillClass = item.type === 'weekday' ? 'pill-weekday' : 'pill-weekend';
+                    const pillText = item.type === 'weekday' ? 'วันธรรมดา' : 'วันหยุด';
+                    const pillHtml = `<span class="pill ${pillClass}" onclick="toggleType(${originalIndex})" title="คลิกเพื่อสลับ ประเภทวัน (ธรรมดา/หยุด)">${pillText}</span>`;
+
+                    let timeContent = '';
+                    let otHtml = '';
+                    let actionBtnHtml = '';
+                    let dateContent = `${driverHtml}${formatThaiDate(item.date)}`;
+                    
+                    if(item.isPending) {
+                         timeContent = `<span class="time-range pending" onclick="editInline(${originalIndex})" title="คลิกเพื่อระบุเวลา">➕ เพิ่ม</span>`;
+                    } else {
+                         timeContent = `<span class="time-range" onclick="editInline(${originalIndex})" title="คลิกเพื่อแก้ไขเวลา">${item.timeRange}</span>`;
+                    }
+                    
+                    if(item.isIncomplete) {
+                        timeContent += `<div style="background:#f3e8ff; border:1px dashed #d8b4fe; border-radius:6px; padding:2px 8px; color:#7e22ce; font-size:0.8rem; text-align:left; margin-top:4px; white-space: normal;">📝 ${item.incompleteReason || 'ขาดเอกสาร'}</div>`;
+                    }
+
+                    if(item.isPending) {
+                        otHtml = `<td class="col-center" style="color:#cbd5e1">-</td><td class="col-center" style="color:#cbd5e1">-</td><td class="col-center" style="color:#cbd5e1">-</td>`;
+                        actionBtnHtml = `<button class="action-btn del-btn" onclick="deleteHistory(${originalIndex})" title="ลบ">🗑️</button>`;
+                    } else {
+                        otHtml = `<td class="col-center"><span class="ot-val val-15" onclick="editOTHours(${originalIndex}, '15')">${fmtShort(item.ot15)}</span></td><td class="col-center"><span class="ot-val val-1" onclick="editOTHours(${originalIndex}, '1')">${fmtShort(item.ot1)}</span></td><td class="col-center"><span class="ot-val val-3" onclick="editOTHours(${originalIndex}, '3')">${fmtShort(item.ot3)}</span></td>`;
+                        actionBtnHtml = `<button class="action-btn view-btn" onclick="viewDetail(${originalIndex})" title="ดูรายละเอียด">🔍</button><button class="action-btn reset-btn" onclick="resetHistoryItem(${originalIndex})" title="เคลียร์เป็นแบบร่าง">🧹</button>`;
+                    }
+                    
+                    if(item.isIncomplete) {
+                         actionBtnHtml = `<button class="action-btn view-btn" onclick="resolveIncomplete(${originalIndex})" title="ได้รับเอกสารแล้ว" style="color:#10b981; background:#ecfdf5; margin-right:4px;">✅</button>` + actionBtnHtml;
+                    }
+
+                    if(editingRowIndex === originalIndex) {
+                        tr.innerHTML = `
+                            <td class="col-center">${checkboxHtml}</td>
+                            <td><input type="date" id="editDate" value="${item.date}" class="mini-input" style="width:100%; min-width:120px;" lang="th-TH"></td>
+                            <td class="col-center">${pillHtml}</td>
+                            <td class="col-center" colspan="3">
+                                <div class="edit-row-wrap">
+                                    <input type="tel" id="editStart" value="${item.start || '07:30'}" class="mini-input"><span>-</span><input type="tel" id="editEnd" value="${item.end || '17:00'}" class="mini-input">
+                                    <button onclick="saveInline(${originalIndex})" class="mini-btn ok">✔</button>
+                                    <button onclick="cancelInline()" class="mini-btn cancel">✖</button>
+                                </div>
+                            </td>
+                            <td class="col-center"><span style="color:#94a3b8; font-size:0.8rem;">แก้ไข...</span></td>
+                        `;
+                         setTimeout(() => {
+                            const inputs = ['editStart', 'editEnd'];
+                            inputs.forEach(id => {
+                                const el = document.getElementById(id);
+                                if(el) {
+                                    el.addEventListener('input', formatTimeInput);
+                                    el.addEventListener('blur', validateTimeInput);
+                                    el.addEventListener('focus', function() { this.select(); });
+                                    el.addEventListener('click', function() { this.select(); });
+                                    el.addEventListener('keydown', function(e) { if(e.key === 'Enter') { saveInline(originalIndex); } });
+                                }
+                            });
+                            const s = document.getElementById('editStart');
+                            const e = document.getElementById('editEnd');
+                            if(s && e) {
+                                s.addEventListener('input', function() { if(this.value.length === 5) { e.focus(); e.select(); } });
+                            }
+                            if(s) { s.focus(); s.select(); }
+                        }, 50);
+                    } else {
+                        tr.innerHTML = `
+                            <td class="col-center">${checkboxHtml}</td>
+                            <td style="font-weight:600; ${item.isPending ? 'color:#64748b' : ''}">${dateContent}</td>
+                            <td class="col-center">${pillHtml}</td>
+                            <td class="col-center" style="vertical-align:top; padding-top:12px;">${timeContent}</td>
+                            ${otHtml}
+                            <td class="col-center" style="font-weight:800; color:var(--brand); font-size:1rem;">${totalText}</td>
+                            <td class="col-center">${actionBtnHtml}</td>
+                        `;
+                    }
+                }
+                tbody.appendChild(tr);
+            });
+        }
+    }
+
+    // Common Footer Update (Same logic for both views)
+    document.getElementById('sum15').innerText = (s15/60).toFixed(1); 
+    document.getElementById('sum1').innerText = (s1/60).toFixed(1);
+    document.getElementById('sum3').innerText = (s3/60).toFixed(1);
+    let totalAllMinutes = s15 + s1 + s3;
+    document.getElementById('sumLeaveDays').innerText = leaveCount;
+    document.getElementById('sumTotal_b').innerText = (totalAllMinutes/60).toFixed(1); 
+  }
+
+  /* ===== 🟢 DOMContentLoaded MAIN ===== */
+  document.addEventListener('DOMContentLoaded', () => {
+        // Init Helpers
+        window.resetOT();
+        renderDrivers();
+        renderHistory(); // Ensure history loads initially
+
+        // 🟢 FIX: Dropdown Menu Logic (Moved to JS for reliability)
+        const historyBtn = document.getElementById('historyTitleBtn');
+        const summaryMenu = document.getElementById('summaryMenu');
+        
+        if(historyBtn && summaryMenu) {
+            // Toggle Menu
+            historyBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Stop bubbling to window
+                summaryMenu.classList.toggle('show');
+            });
+
+            // Close when clicking outside
+            window.addEventListener('click', () => {
+                if (summaryMenu.classList.contains('show')) {
+                    summaryMenu.classList.remove('show');
+                }
+            });
+
+            // Handle Options
+            summaryMenu.querySelectorAll('.menu-opt').forEach(opt => {
+                opt.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent immediate closing logic if needed, but we want to close it actually.
+                    // Let's just handle logic and close
+                    const mode = opt.getAttribute('data-mode');
+                    setHistoryMode(mode);
+                    summaryMenu.classList.remove('show');
+                });
+            });
+        }
+
+        // 🟢 History Month Picker Listener
+        const historyPicker = document.getElementById('historyMonthPicker');
+        if(historyPicker) {
+            historyPicker.addEventListener('change', (e) => {
+                const val = e.target.value; // YYYY-MM
+                if(val) {
+                    const [y, m] = val.split('-');
+                    // 🟢 FIX: NO SYNC back to main page (Independent)
+                    
+                    updateThaiDateDisplay();
+                    showAll = false; 
+                    renderHistory();
+                }
+            });
+        }
+
+        // 1. Sidebar Toggle
+        const btnToggle = document.getElementById('btnToggle');
+        if(btnToggle) {
+            btnToggle.addEventListener('click', ()=>{
+                sidebar.classList.toggle('collapsed');
+                try { localStorage.setItem('egat_sidebar_collapsed', sidebar.classList.contains('collapsed')?'1':'0'); } catch(e){}
+            });
+        }
+
+        // 2. Work Date Listeners
+        const workDateInput = document.getElementById('workDate');
+        if(workDateInput) {
+            workDateInput.addEventListener('change', () => {
+                updateThaiDateDisplay();
+                // 🟢 FIX: Don't auto-refresh history to match this date anymore
+                // showAll = false; 
+                // renderHistory();
+            });
+            workDateInput.addEventListener('input', updateThaiDateDisplay);
+        }
+
+        // 3. Save Button
+        const btnSaveLog = document.getElementById('btnSaveLog');
+        if(btnSaveLog) {
+            btnSaveLog.addEventListener('click', () => {
+                if(!currentCalcResult) return;
+                const existingIndex = otHistory.findIndex(item => 
+                    item.date === currentCalcResult.date && ((item.driver || "") === (currentCalcResult.driver || "") || !item.driver)
+                );
+                if(existingIndex !== -1) { currentCalcResult.id = otHistory[existingIndex].id; otHistory[existingIndex] = currentCalcResult; } 
+                else { otHistory.push(currentCalcResult); }
+                sortHistory(); 
+                try { localStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); const btn = document.getElementById('btnSaveLog'); btn.innerHTML = '✅ บันทึกเรียบร้อย'; btn.disabled = true; btn.style.background = '#64748b'; updateBadge(); renderHistory(); } catch(e) { alert('บันทึกไม่สำเร็จ (Storage เต็ม)'); }
+            });
+        }
+        
+        // 4. Calc Button
+        const btnCalc = document.getElementById('btnCalc');
+        if(btnCalc) { btnCalc.addEventListener('click', calculateOT); }
+
+        // 5. Radio Buttons
+        document.querySelectorAll('input[name="type"]').forEach(r => {
+            r.addEventListener('change', updateRadioStyle);
+        });
+
+        // 6. Time Inputs (Main Form)
+        document.querySelectorAll('.time-manual').forEach(inp => {
+            inp.addEventListener('input', formatTimeInput);
+            inp.addEventListener('blur', validateTimeInput);
+            inp.addEventListener('focus', function() { this.select(); }); 
+        });
+
+        // 7. Auto-focus Logic (Main Form)
+        const mainStart = document.getElementById('startTime');
+        const mainEnd = document.getElementById('endTime');
+        if(mainStart && mainEnd) {
+            mainStart.addEventListener('input', function() {
+                if(this.value.length === 5) {
+                    mainEnd.focus();
+                    mainEnd.select(); 
+                }
+            });
+        }
+
+        // 🟢 8. Global Key Listener for Up/Down Navigation in Edit Mode
+        window.addEventListener('keydown', (e) => {
+            if(editingRowIndex !== null) {
+                if(e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    moveInline(-1);
+                } else if(e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    moveInline(1);
+                }
+            }
+            // 🟢 ESC to close all modals
+            if(e.key === 'Escape') {
+                closeModal();
+                // closeLeaveModal(); // Function must exist if used
+                closeDeleteModal();
+                closeIncompleteModal();
+                closeAddDriverModal();
+                closeSummaryModal();
+                closeCreateOptionModal();
+                closeCustomMonthPicker();
+            }
+        });
+  });
+  
+  /* ===== Service Worker Kill Switch ===== */
+  if ('serviceWorker' in navigator) { try { navigator.serviceWorker.getRegistrations().then(function(registrations) { for(let registration of registrations) { registration.unregister(); } }).catch(function(err) {}); } catch(e) {} }
 </script>
 </body>
 </html>
