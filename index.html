@@ -237,11 +237,14 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .sum-card .val { font-size: 2rem; font-weight: 800; line-height: 1; margin: 2px 0; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
 .sum-card .unit { font-size: 0.75rem; opacity: 0.8; font-weight: 500; }
 
-/* Total Summary Bar - Split Style */
+/* 🟢 อัปเดต Total Summary Bar ให้เป็น 3 ส่วน */
 .total-summary-section { background: #fff; border: 1px solid var(--border); border-radius: 16px; margin-top: 20px; display: flex; overflow: hidden; box-shadow: var(--shadow); padding: 0; }
 .summary-half { flex: 1; padding: 16px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-.summary-half:first-child { border-right: 1px dashed var(--border); background: linear-gradient(to bottom right, #fff7ed, #fff); }
-.summary-half:last-child { background: linear-gradient(to bottom right, #f0f9ff, #fff); }
+.summary-half:not(:last-child) { border-right: 1px dashed var(--border); }
+.summary-half.leave { background: linear-gradient(to bottom right, #fff7ed, #fff); }
+.summary-half.ot { background: linear-gradient(to bottom right, #f0f9ff, #fff); }
+.summary-half.request { background: linear-gradient(to bottom right, #ecfeff, #fff); }
+.summary-half.request .val { color: #0284c7; } /* สีฟ้าน้ำทะเล ให้ดูต่างจากยอดรวม OT ปกติ */
 .summary-half .lbl { font-size: 0.95rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
 .summary-half .val-group { display: flex; align-items: baseline; gap: 6px; }
 .summary-half .val { font-size: 2rem; font-weight: 800; line-height: 1; }
@@ -739,6 +742,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
             </div>
         </div>
 
+        <!-- 🟢 อัปเดต Total Summary Bar ให้เป็น 3 ส่วน -->
         <div class="total-summary-section">
             <div class="summary-half leave">
                 <div class="lbl">รวมวันลา</div>
@@ -751,6 +755,14 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                 <div class="lbl">รวมชั่วโมง OT</div>
                 <div class="val-group">
                     <span class="val" id="sumTotal_b">0.0</span>
+                    <span class="unit">ชั่วโมง</span>
+                </div>
+            </div>
+            <!-- 🟢 เพิ่มช่อง รวมขอเบิก OT -->
+            <div class="summary-half request">
+                <div class="lbl">รวมขอเบิก OT</div>
+                <div class="val-group">
+                    <span class="val" id="sumRequestOT">0.0</span>
                     <span class="unit">ชั่วโมง</span>
                 </div>
             </div>
@@ -1004,7 +1016,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
   let historyFilters = { daily: { month: null, driver: "" }, driver: { month: null, driver: "" } }; 
 
   // 1. URL จาก Google Apps Script (แก้ไขให้เรียบร้อยแล้ว)
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwUpWVLQQ15Cpikdi-MgWiMb1RWRFv79lIXobeufSX4PosQpJpcEJcdI5ZPOziEEM1bFg/exec"; 
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxRevCb91rOByJ5BAAuqhI91YLxnaC3CJCAiLbtULQQeWU4oG5mdimed_EyJuKcgnnANw/exec"; 
 
   // 2. ฟังก์ชันเชื่อมคลาวด์ (ทำตัวเลียนแบบ localStorage)
   const CloudStorage = {
@@ -1859,7 +1871,6 @@ function renderDrivers() {
     return `<div class="row"><div class="time">${range}</div><div class="rate ${rateClass}">${rateText}</div><div class="dur">${fmt(mins)}</div></div>`;
   }
 
-  // 🟢 อัปเดตฟังก์ชันเพื่อเพิ่มกล่อง "ขอเบิกเวลา OT"
   function generateResultHTML(type, dateVal, startMin, endMin, totalMinutes, wkResult) {
       const thaiDate = formatThaiDate(dateVal);
       const timeRange = `${fmtTime(startMin)} - ${fmtTime(endMin)}`;
@@ -1869,7 +1880,6 @@ function renderDrivers() {
       let dispTotal = 0;
       let totalBoxTop = '';
 
-      // แยกคำนวณเวลาทำงานรวมเพื่อเอามาใส่ max ให้กล่อง Input
       if (type === 'weekday') {
           dispTotal = Math.max(0, totalMinutes - WORKDAY_MINUTES);
           totalBoxTop = `<div class="total-line"><span class="k">รวม ×1.5</span><span class="v">${fmt(wkResult.total15)}</span></div>`;
@@ -1880,7 +1890,6 @@ function renderDrivers() {
           totalBoxTop = `<div class="total-line"><span class="k">รวม ×3</span><span class="v">${fmt(ot3)}</span></div><div class="total-line"><span class="k">รวม ×1</span><span class="v">${fmt(ot1)}</span></div>`;
       }
 
-      // สร้างหน้าตาช่องกรอกขอเบิก OT
       const maxHours = dispTotal / 60;
       const maxHoursClean = maxHours % 1 === 0 ? maxHours : maxHours.toFixed(2);
       
@@ -2073,7 +2082,6 @@ function renderDrivers() {
               newResult.incompleteReason = originalItem.incompleteReason;
           }
 
-          // 🟢 ตรวจสอบและจำกัดเวลาขอเบิก (Request OT) ไม่ให้เกินเวลาที่คำนวณได้ใหม่จากการแก้ไขตาราง
           let oldReq = parseFloat(originalItem.requestOT);
           let newMaxHr = newResult.dispTotalMinutes / 60;
           if (!isNaN(oldReq)) {
@@ -2850,10 +2858,10 @@ function closeIncompleteModal() {
     tbody.innerHTML = '';
     let s15=0, s1=0, s3=0;
     let leaveCount = 0; 
+    let totalRequestOT = 0; // 🟢 เพิ่มตัวแปรเก็บยอดรวมขอเบิก
     filteredIndices = []; 
 
     if(currentHistoryMode === 'driver') {
-        // 🟢 เพิ่มคอลัมน์ ขอเบิก ในตารางรวม
         document.querySelector('#historyTable thead').innerHTML = `
             <tr>
                 <th class="col-center">#</th>
@@ -2894,7 +2902,7 @@ function closeIncompleteModal() {
                     summaryMap[plainDriverName].ot15 += (item.ot15 || 0);
                     summaryMap[plainDriverName].ot1 += (item.ot1 || 0);
                     summaryMap[plainDriverName].ot3 += (item.ot3 || 0);
-                    summaryMap[plainDriverName].requestOT += parseFloat(item.requestOT || 0); // รวมยอดขอเบิก
+                    summaryMap[plainDriverName].requestOT += parseFloat(item.requestOT || 0); 
                 }
 
                 if(item.isIncomplete) {
@@ -2930,6 +2938,7 @@ function closeIncompleteModal() {
                 s1 += data.ot1;
                 s3 += data.ot3;
                 leaveCount += data.leave;
+                totalRequestOT += (parseFloat(data.requestOT) || 0); // 🟢 บวกรวมยอดขอเบิก
 
                 let missingHtml = '-';
                 if(data.missingCount > 0) {
@@ -2970,7 +2979,6 @@ function closeIncompleteModal() {
         }
 
     } else {
-        // 🟢 เพิ่มคอลัมน์ขอเบิกในหน้าประวัติ
         document.querySelector('#historyTable thead').innerHTML = `
             <tr>
                 <th width="4%" class="col-center">ลา</th>
@@ -3024,6 +3032,7 @@ function closeIncompleteModal() {
                     s15 += item.ot15 || 0; 
                     s1 += item.ot1 || 0; 
                     s3 += item.ot3 || 0;
+                    totalRequestOT += (parseFloat(item.requestOT) || 0); // 🟢 บวกรวมยอดขอเบิก
                 }
                 
                 const tr = document.createElement('tr');
@@ -3081,7 +3090,6 @@ function closeIncompleteModal() {
                     let otHtml = '';
                     let actionBtnHtml = '';
                     
-                    // 🟢 โชว์ข้อมูลการเบิก OT
                     let reqValDisplay = '-';
                     if(!item.isPending) {
                         reqValDisplay = item.requestOT !== undefined ? parseFloat(item.requestOT).toFixed(1).replace('.0','') : '-';
@@ -3176,12 +3184,14 @@ function closeIncompleteModal() {
         }
     }
 
+    // 🟢 แสดงผลข้อมูลรวมบนหน้าปัด (Dashboard)
     document.getElementById('sum15').innerText = (s15/60).toFixed(1); 
     document.getElementById('sum1').innerText = (s1/60).toFixed(1);
     document.getElementById('sum3').innerText = (s3/60).toFixed(1);
     let totalAllMinutes = s15 + s1 + s3;
     document.getElementById('sumLeaveDays').innerText = leaveCount;
     document.getElementById('sumTotal_b').innerText = (totalAllMinutes/60).toFixed(1); 
+    document.getElementById('sumRequestOT').innerText = totalRequestOT.toFixed(1).replace('.0', ''); // 🟢 ยิงค่าขอเบิกลงหน้าจอ
     
     const btnToolbarVerify = document.getElementById('btnToolbarVerify');
     if(btnToolbarVerify && currentHistoryMode === 'daily') {
@@ -3318,7 +3328,6 @@ function closeIncompleteModal() {
                     return;
                 }
 
-                // 🟢 ตรวจสอบความถูกต้องของการขอเบิก OT ก่อนบันทึก
                 const reqInput = document.getElementById('requestOTInput');
                 let requestOTVal = 0;
                 if (reqInput) {
@@ -3329,7 +3338,7 @@ function closeIncompleteModal() {
                         return;
                     }
                     const maxVal = parseFloat(reqInput.getAttribute('max'));
-                    if (reqVal > maxVal + 0.01) { // เผื่อจุดทศนิยม 0.01 
+                    if (reqVal > maxVal + 0.01) {  
                         document.getElementById('requestOTError').style.display = 'block';
                         reqInput.focus();
                         return;
@@ -3341,7 +3350,7 @@ function closeIncompleteModal() {
                 if(!currentCalcResult) return;
 
                 currentCalcResult.driver = driverName;
-                currentCalcResult.requestOT = requestOTVal; // ส่งข้อมูลขอเบิกลงตาราง
+                currentCalcResult.requestOT = requestOTVal; 
 
                 const existingIndex = otHistory.findIndex(item => 
                     item.date === currentCalcResult.date && (getPlainName(item.driver) === currentCalcResult.driver)
