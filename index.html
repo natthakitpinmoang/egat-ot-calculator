@@ -257,10 +257,9 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     border: 1px solid var(--border); 
     margin-top: 20px; 
     overflow-x: auto; 
-    /* Make the last column sticky logic work */
     position: relative; 
 }
-.history-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 100%; font-size: 0.8rem; /* 🟢 ลดขนาดฟอนต์ตาราง */ }
+.history-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 100%; font-size: 0.8rem; }
 .history-table thead th { 
     background: #f8fafc; 
     color: var(--text-muted); 
@@ -268,21 +267,20 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     letter-spacing: 0.5px; 
     font-size: 0.75rem; 
     font-weight: 800; 
-    padding: 10px 2px; /* 🟢 ลด Padding แนวนอนเหลือ 2px */
+    padding: 10px 2px; 
     border-bottom: 2px solid var(--border); 
     white-space: nowrap; 
     vertical-align: middle; 
 }
-/* 🟢 FIX: ปรับคอลัมน์ OT ให้เล็กกระชับที่สุด เพื่อให้ไม่ดันจนต้องเลื่อน */
 .th-ot {
     white-space: nowrap !important;
-    min-width: 35px !important; /* ลดความกว้างขั้นต่ำ */
+    min-width: 35px !important; 
     width: auto !important;
     text-align: center;
 }
 
 .history-table td { 
-    padding: 6px 2px; /* 🟢 ลด Padding บนล่าง */
+    padding: 6px 2px; 
     border-bottom: 1px solid #f1f5f9; 
     color: var(--text-main); 
     vertical-align: middle; 
@@ -293,21 +291,18 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .col-center { text-align: center; }
 .col-right { text-align: right; }
 
-/* Sticky Right Column (Actions) */
 .history-table th:last-child, 
 .history-table td:last-child {
     position: sticky;
     right: 0;
     z-index: 10;
-    box-shadow: -2px 0 5px rgba(0,0,0,0.05); /* Shadow to create visual depth */
+    box-shadow: -2px 0 5px rgba(0,0,0,0.05); 
 }
 
-/* Backgrounds for sticky items must be opaque to cover scrolling content */
 .history-table th:last-child { background-color: #f8fafc; }
 .history-table td:last-child { background-color: #fff; }
 .history-table tbody tr:hover td:last-child { background-color: #fdfeff; }
 
-/* 🟢 Verified State Styles (New) */
 .history-table tbody tr.verified-row { background-color: #ecfdf5 !important; transition: all 0.3s; }
 .history-table tbody tr.verified-row:hover { background-color: #d1fae5 !important; }
 .history-table tbody tr.verified-row td { border-bottom-color: #a7f3d0 !important; }
@@ -321,7 +316,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .tool-btn.t-verify { color: #94a3b8; background: #f8fafc; border-color: #cbd5e1; }
 .tool-btn.t-verify.active { color: #fff; background: linear-gradient(to bottom, #10b981, #059669); border-color: #047857; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
 
-/* New Action Buttons Style in Table (Compact) */
 .row-actions { display: flex; align-items: center; justify-content: center; gap: 4px; }
 .action-btn-sm { border: none; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; transition: all 0.2s; }
 .action-btn-sm:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
@@ -330,19 +324,16 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .btn-reset-sm { background: #fffbeb; color: #d97706; }
 .btn-reset-sm:hover { background: #d97706; color: #fff; }
 
-/* Pills (Compact) */
 .pill { display: inline-block; padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; white-space: nowrap; cursor: pointer; transition: all 0.2s; user-select: none; border: 1px solid transparent; margin-top: 2px; }
 .pill:hover { transform: scale(1.05); }
 .pill-weekday { background: #f0f9ff; color: #0369a1; border-color: #bae6fd; }
 .pill-weekend { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
 
-/* Time Range (Compact) */
 .time-range { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-main); background: #f8fafc; padding: 4px 8px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px; font-size: 0.85rem; border: 1px solid var(--border); transition: all 0.2s; }
 .time-range:hover { background: #fff; border-color: var(--brand); color: var(--brand); box-shadow: var(--shadow-sm); }
 .time-range.pending { background: #fff; border: 1px dashed #cbd5e1; color: #94a3b8; }
 .time-range.pending:hover { background: #f0f9ff; border-color: #3b82f6; color: #3b82f6; }
 
-/* Inline Edit (Compact) - UPDATED SIZE */
 .edit-row-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .mini-input { 
     padding: 8px 12px; 
@@ -356,7 +347,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     background: #fff; 
     outline: none; 
     box-shadow: var(--shadow-sm); 
-    width: 85px; /* Expanded Width */
+    width: 85px; 
     transition: all 0.2s;
 }
 .mini-input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-light); transform: scale(1.05); }
@@ -377,14 +368,12 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .mini-btn.ok { background: var(--success); }
 .mini-btn.cancel { background: var(--danger); }
 
-/* OT Badges (Distinct Colors & Clickable) */
 .ot-val { cursor: pointer; font-weight: 800; padding: 2px 8px; border-radius: 6px; transition: all 0.2s; font-size: 0.85rem; display: inline-block; min-width: 36px; text-align: center; }
 .ot-val:hover { background: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); transform: scale(1.1); }
 .val-15 { color: #1e3a8a; background: #eff6ff; border: 1px solid #bfdbfe; }
 .val-1 { color: #0e7490; background: #ecfeff; border: 1px solid #a5f3fc; }
 .val-3 { color: #be123c; background: #fff1f2; border: 1px solid #fecdd3; }
 
-/* Incomplete Reason Box (Clean & Minimal) - 🟢 FIX: จำกัดความกว้าง */
 .inc-box {
     display: flex;
     align-items: baseline; 
@@ -395,12 +384,10 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     padding: 4px 6px; 
     margin-top: 6px;
     color: #7e22ce; 
-    font-size: 0.75rem; /* ลดขนาดฟอนต์ */
+    font-size: 0.75rem; 
     font-weight: 500;
     line-height: 1.3;
     text-align: left;
-    
-    /* 🟢 สำคัญ: ให้ตัดบรรทัดและจำกัดความกว้างไม่ให้ดันตาราง */
     white-space: normal !important; 
     max-width: 140px; 
     width: fit-content;
@@ -412,11 +399,10 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .inc-box i {
     font-style: normal;
     font-size: 0.9rem;
-    opacity: 0.7; /* ลดความเข้มของไอคอนลง */
+    opacity: 0.7; 
     flex-shrink: 0;
 }
 
-/* Action Buttons */
 .action-btn { border: none; width: 34px; height: 34px; border-radius: 10px; cursor: pointer; font-size: 1rem; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; margin: 0 2px; }
 .view-btn { color: #0284c7; background: #e0f2fe; }
 .view-btn:hover { background: #0284c7; color: white; }
@@ -427,7 +413,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .btn-clear-all { background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; width: auto; padding: 6px 14px; font-size: 0.8rem; border-radius: 10px; cursor: pointer; font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
 .btn-clear-all:hover { background: #dc2626; color: white; border-color: #dc2626; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.2); }
 
-/* Reverted Driver Styles (List Row) */
 .driver-list-container { display: flex; flex-direction: column; gap: 8px; }
 .driver-item-row { display: grid; grid-template-columns: 24px 40px 1fr auto; align-items: center; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px 12px 8px; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; cursor: grab; }
 .driver-item-row:active { cursor: grabbing; }
@@ -442,7 +427,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .d-sub { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 10px; }
 .d-actions { display: flex; gap: 8px; }
 
-/* Calculator Styles */
 .calc { width: min(520px, 100%); margin: 14px auto 0; background: #fff; border: 1px solid var(--border); border-radius: 24px; padding: 24px; box-shadow: var(--shadow); }
 .calc-display { width: 100%; height: 90px; border: none; border-radius: 16px; padding: 20px; font-size: 3.5rem; text-align: right; background: #f8fafc; color: var(--brand); font-weight: 700; margin-bottom: 24px; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03); }
 .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
@@ -452,19 +436,17 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .keys button.eq { background: var(--brand); color: #fff; border-color: var(--brand-dark); box-shadow: 0 4px 0 var(--brand-dark); }
 .keys button[data-k="0"] { grid-column: span 2; aspect-ratio: auto; }
 
-/* Modal Improvements */
 .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; backdrop-filter: blur(2px); }
 .modal.show { display: flex; animation: fadeIn 0.2s; }
 .modal-content {
     background-color: #ffffff;
-    padding: 30px 24px; /* More padding */
-    border-radius: 24px; /* More rounded */
+    padding: 30px 24px; 
+    border-radius: 24px; 
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     border: 1px solid #f1f5f9;
     width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto; position: relative;
 }
 
-/* Close Button Redesign */
 .close-modal {
     position: absolute;
     top: 12px;
@@ -492,13 +474,11 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 
 .driver-form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
 
-/* Leave Day Grid (Calendar Style) */
 .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 8px; }
 .day-item { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.2s; background: #fff; color: var(--text-muted); user-select: none; }
 .day-item:hover { border-color: var(--brand); color: var(--brand); transform: scale(1.05); }
 .day-item.selected { background: var(--danger); color: white; border-color: var(--danger); box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
 
-/* Quick Note Chips - Improved */
 .quick-notes-wrapper { margin-bottom: 10px; background: #f8fafc; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; }
 .quick-notes-title { font-size: 0.8rem; font-weight: 700; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
 .quick-notes { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -506,14 +486,12 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .note-chip:hover { border-color: var(--brand); color: var(--brand); background: #f0f9ff; transform: translateY(-1px); }
 .note-chip:active { transform: scale(0.98); }
 
-/* Summary Modal Style */
 .summary-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f1f5f9; }
 .summary-list-item:last-child { border-bottom: none; }
 .summary-date { font-weight: 700; color: var(--text-main); }
 .summary-driver { font-size: 0.85rem; color: var(--text-muted); }
 .summary-reason { background: #f3e8ff; color: #7e22ce; padding: 4px 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; }
 
-/* Dropdown Menu Style */
 .summary-dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); z-index: 100; min-width: 220px; overflow: hidden; animation: fadeIn 0.2s; }
 .summary-dropdown-menu.show { display: block; }
 .menu-opt { padding: 12px 16px; cursor: pointer; font-weight: 600; color: var(--text-main); transition: background 0.1s; border-bottom: 1px solid #f1f5f9; }
@@ -521,7 +499,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .menu-opt:hover { background: #f8fafc; color: var(--brand); }
 .menu-opt.active { background: var(--brand-light); color: var(--brand); }
 
-/* CUSTOM MONTH PICKER STYLES - REFINED */
 .cmp-content { margin-top: 10px; text-align: center; }
 .cmp-header { 
     display: flex; 
@@ -535,7 +512,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     border: 1px solid #e2e8f0; 
     width: 36px; 
     height: 36px; 
-    border-radius: 12px; /* Soft square */
+    border-radius: 12px; 
     color: var(--text-muted); 
     cursor: pointer; 
     font-size: 1.2rem; 
@@ -592,10 +569,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .view { display: none; animation: fadeIn 0.3s; }
 .view.active { display: flex; justify-content: center; align-items: flex-start; flex-grow: 1; padding: 20px 20px; min-height: 100%; box-sizing: border-box; }
 
-/* Compact Card Style - 🟢 FIX: ปรับความกว้างเป็น 1100px (ขนาดมาตรฐาน dashboard) เพื่อความพอดี */
 .card { width: 100%; max-width: 1100px; margin: 0 auto; background: var(--bg-card); border-radius: var(--radius); border-top: 6px solid var(--accent); box-shadow: var(--shadow-lg); padding: 24px; transition: all 0.3s ease; position: relative; }
 
-/* Empty State */
 #emptyMsg { text-align: center; padding: 60px 20px; color: var(--text-muted); display: none; }
 #emptyMsg div { font-size: 4rem; margin-bottom: 16px; opacity: 0.5; }
 </style>
@@ -612,7 +587,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       <div class="menu-item active" onclick="switchView('ot')">
         <span class="icon">⏱️</span><span class="label">คำนวณเวลา OT</span>
       </div>
-      <!-- Sidebar Menu with Submenu -->
       <div class="menu-item-group" style="position:relative;">
           <div class="menu-item" onclick="toggleSidebarSubmenu('history-submenu')">
             <span class="icon">📊</span><span class="label">สรุปรายเดือน</span>
@@ -632,7 +606,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
         <span class="icon">🧮</span><span class="label">เครื่องคิดเลข</span>
       </div>
       
-      <!-- 🟢 NEW: Backup/Restore Menu Item -->
       <div class="menu-item" onclick="openBackupModal()" style="margin-top:10px; border-top:1px dashed #e2e8f0; border-radius:0; padding-top:14px;">
         <span class="icon" style="color:#10b981;">💾</span><span class="label">สำรอง/นำเข้าข้อมูล</span>
       </div>
@@ -640,36 +613,24 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
   </aside>
 
   <main class="content">
-    <!-- OT -->
     <section id="view-ot" class="view active">
       <div class="card">
         <h2>คำนวณเวลา OT</h2>
             
-        <!-- Input Zone Wrapper -->
         <div class="input-zone">
             <div class="grid">
                  
-              <!-- Driver Selection (Searchable) -->
               <div style="grid-column: 1 / -1;">
                 <label>พนักงานขับรถ (พขร.)</label>
-                 
-                <!-- Search Input Wrapper -->
                 <div class="search-wrapper">
                     <span class="search-icon">🔍</span>
                     <input type="text" id="driverSelect" list="driverList" style="width:100%;" placeholder="พิมพ์ชื่อเพื่อค้นหา หรือเลือกจากรายการ..." autocomplete="off">
                 </div>
-                <datalist id="driverList">
-                    <!-- รายชื่อจะถูกเติมโดย JavaScript -->
-                </datalist>
-
+                <datalist id="driverList"></datalist>
               </div>
 
-              <!-- 1. เลือกวันที่ (ซ้าย) -->
               <div>
-                <!-- Changed Label ID to update dynamically -->
                 <label id="dateLabel">เลือกวันที่</label>
-                    
-                <!-- Re-introduced Custom Wrapper for DD/MM/YYYY overlay -->
                 <div class="custom-date-input">
                     <input type="date" id="workDate" class="real-date-input" lang="th-TH" onclick="try{this.showPicker()}catch(e){}">
                     <div id="workDateShow" class="fake-date-display">เลือกวันที่...</div>
@@ -677,7 +638,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                 </div>
               </div>
 
-              <!-- 2. ประเภทวัน (ขวา) -->
               <div>
                  <label>ประเภทวัน</label>
                  <div class="radio-line">
@@ -692,7 +652,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                  </div>
               </div>
                  
-              <!-- 3. เวลาแบบพิมพ์เอง -->
               <div>
                 <label>เวลาเข้า (เช่น 0730)</label>
                 <input type="tel" id="startTime" class="time-manual" placeholder="07:30" maxlength="5">
@@ -704,7 +663,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 
             </div>
         </div>
-        <!-- End Input Zone -->
 
         <div class="actions">
           <button class="primary" id="btnCalc">คำนวณ OT</button>
@@ -721,60 +679,42 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     <!-- History -->
     <section id="view-history" class="view">
       <div class="card">
-        <!-- NEW UNIFIED HEADER BAR -->
         <div class="history-header-container">
-            <!-- Left: Title + Date -->
             <div class="left-group">
-                <!-- FIX: Title Static -->
                 <h2 id="historyTitleBtn" class="history-title">สรุปรายเดือน</h2>
-                <!-- CUSTOM TRIGGER -->
                 <div class="month-picker-inline" onclick="openCustomMonthPicker('historyMonthPicker', 'historyDateDisplay')">
                     <span id="historyDateDisplay" class="month-text">...</span>
                     <span style="font-size:0.8em; margin-left:4px; opacity:0.5;">▼</span>
                 </div>
-                <!-- Hidden Real Input -->
                 <input type="text" id="historyMonthPicker" class="history-date-input-hidden" onchange="renderHistory()">
             </div>
 
-            <!-- Right: Driver Filter Dropdown (Now Searchable) -->
             <div class="right-group">
                 <div class="driver-filter-wrapper" style="padding: 4px 6px 4px 14px; background:#fff; border-radius:50px; border:1px solid #cbd5e1;">
                     <label class="filter-label" style="margin-right:4px;">👀</label>
                     <div style="position:relative; flex:1;">
-                        <!-- เปลี่ยนจาก Select เป็น Input Searchable -->
                         <input type="text" id="historyDriverFilter" list="historyDriverList" 
                                style="width:100%; border:none; background:transparent; padding:6px; font-weight:700; color:var(--brand); outline:none; font-size:0.95rem; min-width:140px;" 
                                placeholder="ทั้งหมด (พิมพ์ค้นหา)" autocomplete="off" onchange="handleFilterChange()">
-                        <datalist id="historyDriverList">
-                            <!-- รายชื่อจะถูกเติมโดย JavaScript -->
-                        </datalist>
+                        <datalist id="historyDriverList"></datalist>
                     </div>
-                    <!-- ลบสามเหลี่ยมที่ซ้ำออก -->
                 </div>
             </div>
         </div>
 
-        <!-- RESTORED: Toolbar Buttons -->
         <div class="history-toolbar-container" id="historyToolbar">
              <button onclick="openCreateOptionModal()" class="tool-btn t-create" title="สร้างรายการทั้งเดือน">📅 สร้าง</button>
              <button onclick="openIncompleteModal()" class="tool-btn" style="background:#f3e8ff; border-color:#d8b4fe; color:#7e22ce;" title="ระบุว่าส่งเอกสารมาไม่ครบ">⚠️ แจ้งขาด</button>
-             
              <div class="tool-divider"></div>
-             
              <button onclick="openFollowUpSummary()" class="tool-btn" style="background:#fff7ed; border-color:#fed7aa; color:#ea580c;" title="สรุปรายการที่ต้องตาม">📋 สรุปตาม</button>
-             
-             <!-- 🟢 Changed: Replace 'ดูหมด' with 'ตรวจสอบแล้ว' -->
              <button id="btnToolbarVerify" onclick="toggleVerifyCurrentDriver()" class="tool-btn t-verify" title="ยืนยันตรวจสอบเอกสาร">
                  ⚪ รอตรวจสอบ
              </button>
-             
              <div class="tool-divider"></div>
-             
              <button onclick="openResetModal()" class="tool-btn t-warn" title="เคลียร์ค่าเวลาเดือนนี้ให้กลับเป็นแบบร่าง">🧹 รีเซ็ตค่า</button>
              <button onclick="openDeleteModal()" class="tool-btn t-danger" title="ตัวเลือกการลบ">🗑️ ลบข้อมูล</button>
         </div>
              
-        <!-- Summary Grid (Sub) -->
         <div class="summary-grid">
             <div class="sum-card c-15">
                 <div>
@@ -799,7 +739,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
             </div>
         </div>
 
-        <!-- New Total Summary (Split) -->
         <div class="total-summary-section">
             <div class="summary-half leave">
                 <div class="lbl">รวมวันลา</div>
@@ -820,13 +759,11 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
         <div class="table-container">
             <table class="history-table" id="historyTable">
                 <thead>
-                    <!-- UPDATED HEADER: Improved Widths & Sticky Last Column -->
                     <tr>
                         <th width="4%" class="col-center">ลา</th>
                         <th width="20%" style="text-align:left; padding-left:10px;">วันที่</th>
                         <th width="12%" class="col-center">ประเภท</th>
                         <th width="15%" class="col-center">ช่วงเวลา</th>
-                        <!-- Compact OT columns -->
                         <th class="col-center th-ot" style="min-width:45px; background:#eff6ff; color:#1e3a8a; border-bottom-color:#bfdbfe;">x1.5</th>
                         <th class="col-center th-ot" style="min-width:45px; background:#ecfeff; color:#0e7490; border-bottom-color:#a5f3fc;">x1</th>
                         <th class="col-center th-ot" style="min-width:45px; background:#fff1f2; color:#be123c; border-bottom-color:#fecdd3;">x3</th>
@@ -846,10 +783,9 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       </div>
     </section>
 
-    <!-- Drivers Management View (Updated Layout: List Rows) -->
+    <!-- Drivers -->
     <section id="view-drivers" class="view">
       <div class="card">
-        <!-- Flex Header: Title + Button inline -->
         <div class="driver-header-flex" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <h2 style="margin:0;">รายชื่อ พขร. ทั้งหมด</h2>
             <button onclick="openAddDriverModal()" class="primary" style="width:auto; padding: 10px 20px; font-size:1rem; display:flex; align-items:center; gap:6px;">
@@ -857,9 +793,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
             </button>
         </div>
          
-        <div id="driverListContainer" class="driver-list-container">
-            <!-- JS renders here -->
-        </div>
+        <div id="driverListContainer" class="driver-list-container"></div>
       </div>
     </section>
 
@@ -883,7 +817,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     </section>
   </main>
 
-  <!-- Detail Modal -->
   <div id="detailModal" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeModal()">&times;</span>
@@ -891,15 +824,12 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     </div>
   </div>
 
-  <!-- Create Option Modal -->
   <div id="createOptionModal" class="modal">
       <div class="modal-content" style="text-align:center;">
           <span class="close-modal" onclick="closeCreateOptionModal()">&times;</span>
           <h2 style="color:var(--brand); margin-bottom:20px;">📅 ต้องการสร้างรายการให้ใคร?</h2>
-          <!-- Added Month Picker for Create -->
           <div style="margin-bottom:15px; text-align:left; position:relative;">
               <label style="font-weight:700; color:var(--text-muted);">เลือกเดือนที่จะสร้าง:</label>
-              <!-- Mask Input -->
               <div style="position:relative; margin-top:5px; height:44px; border:1px solid #cbd5e1; border-radius:12px; background:#fff; display:flex; align-items:center; overflow:hidden; cursor:pointer;" onclick="openCustomMonthPicker('createTargetMonth', 'createMonthDisplay')">
                   <div id="createMonthDisplay" style="padding:0 14px; width:100%; font-weight:700; color:var(--brand); pointer-events:none;">เลือกเดือน...</div>
                   <input type="text" id="createTargetMonth" style="display:none;">
@@ -913,7 +843,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       </div>
   </div>
 
-  <!-- CUSTOM MONTH PICKER MODAL -->
   <div id="customMonthPickerModal" class="modal">
       <div class="modal-content" style="text-align:center; max-width:320px;">
           <span class="close-modal" onclick="closeCustomMonthPicker()">&times;</span>
@@ -923,19 +852,15 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                   <span id="cmpYearDisplay">2568</span>
                   <button class="cmp-nav-btn" onclick="adjustPickerYear(1)">❯</button>
               </div>
-              <div class="cmp-grid" id="cmpMonthGrid">
-                  <!-- Months injected by JS -->
-              </div>
+              <div class="cmp-grid" id="cmpMonthGrid"></div>
           </div>
           <button onclick="closeCustomMonthPicker()" class="btn-next" style="margin-top:20px; width:100%;">ยกเลิก</button>
       </div>
   </div>
 
-  <!-- Add Driver Modal (Hidden by default) -->
   <div id="addDriverModal" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeAddDriverModal()">&times;</span>
-        <!-- Added hidden field for ID -->
         <input type="hidden" id="editDriverId">
         <h2 id="driverModalTitle" style="font-size:1.5rem; margin-bottom:20px;">เพิ่มรายชื่อ พขร. ใหม่</h2>
         <div class="driver-form-grid">
@@ -961,34 +886,22 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
             </div>
         </div>
         <div style="margin-top:20px; display:flex; gap:10px;">
-             <!-- Changed function to unified saveDriver -->
              <button onclick="saveDriver()" class="primary">บันทึก</button>
              <button onclick="closeAddDriverModal()" class="btn-next" style="background:#f1f5f9; color:var(--text-main);">ยกเลิก</button>
         </div>
     </div>
   </div>
 
-  <!-- Incomplete Modal (Updated with Grid) -->
   <div id="incompleteModal" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeIncompleteModal()">&times;</span>
         <h2 style="font-size:1.5rem; margin-bottom:10px; color:#7e22ce; text-align:center;">📩 แจ้งเอกสารไม่ครบ</h2>
-         
-        <!-- Context Display (แสดงข้อมูลที่ Sync มาแทน Input) -->
-        <div id="incContextDisplay" style="text-align:center; margin-bottom:20px; padding:12px; background:#f3e8ff; border-radius:12px; color:#6b21a8; font-weight:700; border:1px solid #e9d5ff;">
-            <!-- JS จะใส่ข้อมูลตรงนี้ -->
-        </div>
-
-        <!-- Hidden Inputs (เก็บค่าไว้ใช้งาน แต่ไม่แสดง) -->
+        <div id="incContextDisplay" style="text-align:center; margin-bottom:20px; padding:12px; background:#f3e8ff; border-radius:12px; color:#6b21a8; font-weight:700; border:1px solid #e9d5ff;"></div>
         <input type="hidden" id="incDriverSelect">
         <input type="hidden" id="incMonth">
-
         <div class="driver-form-grid" style="grid-template-columns: 1fr;">
-            <!-- Removed visible Driver and Month selectors -->
-             
             <div>
                 <label style="text-align:center; display:block; margin-bottom:10px;">วันที่ขาด (จิ้มเลือกได้เลย)</label>
-                <!-- Grid Container -->
                 <div id="incDaysGrid" class="day-grid"></div>
             </div>
             <div>
@@ -1011,18 +924,14 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     </div>
   </div>
 
-  <!-- Summary Modal (New) -->
   <div id="summaryModal" class="modal">
       <div class="modal-content">
         <span class="close-modal" onclick="closeSummaryModal()">&times;</span>
         <h2 style="font-size:1.5rem; margin-bottom:20px; color:#ea580c;">📋 สรุปรายการต้องตาม</h2>
-        <div id="summaryList" style="margin-top:15px; max-height:400px; overflow-y:auto;">
-             <!-- Content injected by JS -->
-        </div>
+        <div id="summaryList" style="margin-top:15px; max-height:400px; overflow-y:auto;"></div>
       </div>
   </div>
    
-  <!-- Reset Option Modal (New) -->
   <div id="resetOptionModal" class="modal">
       <div class="modal-content" style="text-align:center;">
           <span class="close-modal" onclick="closeResetModal()">&times;</span>
@@ -1035,7 +944,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       </div>
   </div>
 
-  <!-- Delete Option Modal -->
   <div id="deleteOptionModal" class="modal">
       <div class="modal-content" style="text-align:center;">
           <span class="close-modal" onclick="closeDeleteModal()">&times;</span>
@@ -1047,7 +955,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       </div>
   </div>
 
-  <!-- 🟢 NEW: Backup/Restore Modal -->
   <div id="backupModal" class="modal">
       <div class="modal-content" style="text-align:center;">
           <span class="close-modal" onclick="closeBackupModal()">&times;</span>
@@ -1063,7 +970,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                   <option value="verified">✅ 3. เฉพาะ "สถานะการตรวจสอบ"</option>
               </select>
 
-              <!-- 🟢 NEW: Month Filter UI for History Export -->
               <div id="exportHistoryFilter" style="display:none; margin-bottom:12px; padding:12px; background:#fff; border-radius:12px; border:1px dashed #cbd5e1; animation: fadeIn 0.2s;">
                   <label style="font-size:0.85rem; font-weight:700; color:var(--text-main); margin-bottom:8px; display:block;">📅 เลือกเดือนที่ต้องการ (ระบุเพื่อโหลดเฉพาะเดือน)</label>
                   <div style="display:flex; gap:8px; align-items:center;">
@@ -1092,33 +998,31 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 </div>
 
 <script>
-  /* ===== 1. Global Utilities & Helpers (Moved to Top for Safety) ===== */
-  let currentHistoryMode = 'daily'; // 'daily' or 'driver'
+  /* ===== 1. Global Utilities & Helpers ===== */
+  let currentHistoryMode = 'daily'; 
   let historyFilters = { daily: { month: null, driver: "" }, driver: { month: null, driver: "" } }; 
 
-  // 1. ใส่ URL จาก Google Apps Script
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzgz3pesPmqojAyrsVKp9dRJsrUMZvFKoVLewH-hRd7pv9PdDFd-TRHz3jNphFsuAQZqQ/exec"; 
+  // 1. URL จาก Google Apps Script (แก้ไขให้เรียบร้อยแล้ว)
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxRevCb91rOByJ5BAAuqhI91YLxnaC3CJCAiLbtULQQeWU4oG5mdimed_EyJuKcgnnANw/exec"; 
 
-  // 2. ฟังก์ชันสมศักดิ์เชื่อมคลาวด์ (ทำตัวเลียนแบบ localStorage)
+  // 2. ฟังก์ชันเชื่อมคลาวด์ (ทำตัวเลียนแบบ localStorage)
   const CloudStorage = {
       setItem: function(key, value) {
-          localStorage.setItem(key, value); // เซฟลงเครื่องให้ไวทันใจเหมือนเดิม (แก้บั๊ก Loop ตรงนี้ให้แล้ว)
+          localStorage.setItem(key, value); 
           
-          // ตัวแปรพวกนี้ไม่ต้องส่งขึ้น Cloud (ประหยัดเน็ต)
+          // ไม่ส่งร่างข้อมูลและสถานะเมนูด้านข้างขึ้น Cloud (ประหยัดเน็ต)
           if (key === 'egat_ot_draft' || key === 'egat_sidebar_collapsed') return; 
 
-          // แอบส่งข้อมูลขึ้น Google Sheets เบื้องหลัง
           fetch(WEB_APP_URL, {
               method: 'POST',
               body: JSON.stringify({ key: key, value: value }),
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' } // เลี่ยงปัญหา CORS
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
           }).catch(e => console.log('Cloud Sync Error:', e));
       }
   };
 
   // 3. ฟังก์ชันดึงข้อมูลตอนเปิดเว็บ
   async function initCloudData() {
-      // แกล้งทำให้ผู้ใช้รู้ว่ากำลังโหลด (แก้ตรง #emptyMsg)
       const emptyMsg = document.getElementById('emptyMsg');
       if(emptyMsg) {
           emptyMsg.innerHTML = '<div style="font-size:2rem; margin-bottom:10px;">⏳</div>กำลังโหลดข้อมูลจากฐานข้อมูลกลาง...';
@@ -1129,24 +1033,20 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
           const res = await fetch(WEB_APP_URL);
           const cloudData = await res.json();
 
-          // อัปเดตข้อมูลรายชื่อ พขร.
           if (cloudData['egat_drivers']) {
               rawDrivers = JSON.parse(cloudData['egat_drivers']);
               drivers = rawDrivers;
-              localStorage.setItem('egat_drivers', cloudData['egat_drivers']); // ใช้ localStorage ปกติตอนโหลดครั้งแรก
+              localStorage.setItem('egat_drivers', cloudData['egat_drivers']);
           }
-          // อัปเดตข้อมูล OT
           if (cloudData['egat_ot_history']) {
               otHistory = JSON.parse(cloudData['egat_ot_history']);
               localStorage.setItem('egat_ot_history', cloudData['egat_ot_history']);
           }
-          // อัปเดตข้อมูลสถานะยืนยัน
           if (cloudData['egat_ot_verified_status']) {
               verifiedStatus = JSON.parse(cloudData['egat_ot_verified_status']);
               localStorage.setItem('egat_ot_verified_status', cloudData['egat_ot_verified_status']);
           }
 
-          // โหลดเสร็จแล้ว สั่งวาดหน้าจอใหม่ให้แสดงผล
           renderDrivers();
           sortHistory();
           renderHistory();
@@ -1156,13 +1056,11 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       }
   }
    
-  // Custom Picker State
   let pickerTargetId = null;
   let pickerDisplayId = null;
   let pickerCurrentDate = new Date();
   const THAI_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
-  // 🟢 NEW: Save form state as Draft
   function saveFormDraft() {
       const typeEl = document.querySelector('input[name="type"]:checked');
       const draft = {
@@ -1183,7 +1081,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     });
   }
    
-  // FIX: Directly Toggle Menu in JS
   function toggleSummaryMenu(event) {
       if(event) event.stopPropagation();
       const menu = document.getElementById('summaryMenu');
@@ -1192,7 +1089,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       }
   }
 
-  // Sidebar Submenu Toggle Logic
   function toggleSidebarSubmenu(id) {
       const submenu = document.getElementById(id);
       const parent = submenu.parentElement.querySelector('.menu-item');
@@ -1207,17 +1103,14 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       }
   }
 
-  // 🟢 Backup & Restore Functions
   function openBackupModal() {
       document.getElementById('backupModal').classList.add('show');
   }
   function closeBackupModal() {
       document.getElementById('backupModal').classList.remove('show');
-      // Reset file input to allow selecting same file again
       const fileInp = document.getElementById('importFile');
       if(fileInp) fileInp.value = "";
       
-      // Reset export selection
       const expType = document.getElementById('exportType');
       if(expType) {
           expType.value = 'all';
@@ -1253,14 +1146,11 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
           data = { drivers: allDrivers };
           filenameSuffix = "drivers";
       } else if (type === 'history') {
-          // 🟢 History Filtering Logic
-          const exportMonth = document.getElementById('exportMonthInput').value; // format: YYYY-MM
-          
+          const exportMonth = document.getElementById('exportMonthInput').value;
           if (exportMonth) {
               const [year, month] = exportMonth.split('-');
               allHistory = allHistory.filter(item => {
                   if (!item.date) return false;
-                  // item.date is format YYYY-MM-DD
                   const itemDateStr = item.date;
                   return itemDateStr.startsWith(`${year}-${month}`);
               });
@@ -1318,9 +1208,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       reader.readAsText(file);
   }
 
-  // Close dropdown when clicking outside
   window.onclick = function(event) {
-      // Handle Modal closing
       const modal = document.getElementById('detailModal');
       const deleteModal = document.getElementById('deleteOptionModal');
       const resetModal = document.getElementById('resetOptionModal');
@@ -1329,7 +1217,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       const driverModal = document.getElementById('addDriverModal');
       const createOptModal = document.getElementById('createOptionModal');
       const customMonthModal = document.getElementById('customMonthPickerModal');
-      const backupModal = document.getElementById('backupModal'); // Add backup modal
+      const backupModal = document.getElementById('backupModal');
       
       if (event.target == modal) closeModal();
       if (event.target == deleteModal) closeDeleteModal();
@@ -1341,7 +1229,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       if (event.target == customMonthModal) closeCustomMonthPicker();
       if (event.target == backupModal) closeBackupModal();
       
-      // FIX: Close Dropdown if clicked outside
       if (!event.target.closest('#historyTitleBtn')) {
           const menu = document.getElementById('summaryMenu');
           if (menu && menu.classList.contains('show')) {
@@ -1350,14 +1237,12 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       }
   };
    
-  // CUSTOM MONTH PICKER FUNCTIONS
   function openCustomMonthPicker(inputId, displayId) {
     pickerTargetId = inputId;
     pickerDisplayId = displayId;
     
     const input = document.getElementById(inputId);
     if(input && input.value) {
-        // value is YYYY-MM
         const [y, m] = input.value.split('-');
         pickerCurrentDate = new Date(parseInt(y), parseInt(m)-1, 1);
     } else {
@@ -1389,7 +1274,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
         const btn = document.createElement('div');
         btn.className = 'cmp-month-btn';
         btn.innerText = m;
-        // Highlight if matches current value
         const input = document.getElementById(pickerTargetId);
         if(input && input.value) {
              const [y, mStr] = input.value.split('-');
@@ -1411,7 +1295,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     const input = document.getElementById(pickerTargetId);
     if(input) {
         input.value = val;
-        // Trigger logic update manually since hidden inputs don't fire change on script update
         if(pickerTargetId === 'historyMonthPicker') {
             renderHistory();
         } else if (pickerTargetId === 'createTargetMonth') {
@@ -1419,11 +1302,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
         }
     }
     
-    // Update Display Text immediately
     const display = document.getElementById(pickerDisplayId);
     if(display) {
-        // FIX: Use FULL Month for History Header, Short for Create Modal? 
-        // Prompt requested full for history headers
         if (pickerDisplayId === 'historyDateDisplay') {
              display.innerText = getThaiMonthYearFull(val);
         } else {
@@ -1435,7 +1315,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
   }
 
   function setHistoryMode(mode) {
-      // 1. Save current filter state for the OLD mode
       const dropdown = document.getElementById('historyDriverFilter');
       const monthPicker = document.getElementById('historyMonthPicker');
       
@@ -1446,10 +1325,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
           historyFilters[currentHistoryMode].month = monthPicker.value;
       }
 
-      // 2. Switch Mode
       currentHistoryMode = mode;
       
-      // Update Title Text based on mode
       const titleText = document.getElementById('historyTitleBtn');
       if(titleText) {
           if(mode === 'daily') {
@@ -1459,10 +1336,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
           }
       }
       
-      // Highlight active submenu item
       document.querySelectorAll('.submenu-item').forEach(el => el.classList.remove('active'));
       
-      // Toggle Toolbar Visibility based on Mode
       const toolbar = document.getElementById('historyToolbar');
       if(toolbar) {
           if(mode === 'daily') {
@@ -1472,7 +1347,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
           }
       }
 
-      // 3. Restore filter state for the NEW mode
       if(dropdown) {
           dropdown.value = historyFilters[mode].driver || "";
       }
@@ -1484,9 +1358,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                const mStr = String(now.getMonth() + 1).padStart(2, '0');
                monthPicker.value = `${now.getFullYear()}-${mStr}`;
           }
-          // Update Display
           const display = document.getElementById('historyDateDisplay');
-          // FIX: Use FULL Month
           if(display) display.innerText = getThaiMonthYearFull(monthPicker.value);
       }
 
@@ -1496,7 +1368,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
   function handleFilterChange() {
       const dropdown = document.getElementById('historyDriverFilter');
       if(dropdown) {
-          // Update the state immediately
           historyFilters[currentHistoryMode].driver = dropdown.value;
       }
       renderHistory();
@@ -1507,11 +1378,10 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     const d = new Date(dateStr);
     if(isNaN(d.getTime())) return 'เลือกวันที่...';
       
-    // Changed to Thai Short Month
     const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
     const day = d.getDate();
     const month = months[d.getMonth()];
-    const year = (d.getFullYear() + 543) % 100; // Last 2 digits
+    const year = (d.getFullYear() + 543) % 100;
       
     return `${day} ${month} ${year}`;
   }
@@ -1519,7 +1389,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
   function getThaiMonthYearShort(dateStr) {
       if(!dateStr) return '...';
       const [y, m] = dateStr.split('-');
-      // Changed to Thai Short Month
       const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
       return `${months[parseInt(m)-1]} ${(parseInt(y)+543)%100}`;
   }
@@ -1572,7 +1441,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 
   function updateThaiDateDisplay() {
     const workDateEl = document.getElementById('workDate');
-    if (!workDateEl) return; // Guard clause
+    if (!workDateEl) return;
 
     const inputVal = workDateEl.value;
     const label = document.getElementById('dateLabel');
@@ -1617,14 +1486,12 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     }
   }
 
-  // New Helper for Date String
   function getDateString(year, month, day) {
       const m = String(month).padStart(2, '0');
       const d = String(day).padStart(2, '0');
       return `${year}-${m}-${d}`;
   }
 
-  // 🟢 NEW: Helper for cleaning Driver Name (Remove #index prefix)
   function getPlainName(name) {
       if (!name) return "";
       return name.replace(/^#\d+\s+/, "").trim();
@@ -1634,10 +1501,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
   let currentCalcResult = null; 
   let otHistory = [];
 
-  // ==========================================
-  // ⚙️ ตั้งค่ารายชื่อพนักงานเริ่มต้น (Default Drivers)
-  // หากเปิดไฟล์นี้ในเครื่องใหม่ที่ไม่มีข้อมูล จะใช้รายชื่อชุดนี้ทันที
-  // ==========================================
   const DEFAULT_DRIVERS = [
       "นายศรายุทธ ดีแล้ว",
       "นายสมชาย ใจดี",
@@ -1645,14 +1508,11 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
   ];
 
   let rawDrivers = JSON.parse(localStorage.getItem('egat_drivers'));
-  // ถ้าไม่มีข้อมูลในเครื่องเลย ให้โหลดค่าเริ่มต้น
   if (!rawDrivers || rawDrivers.length === 0) {
       rawDrivers = DEFAULT_DRIVERS;
   }
 
   let drivers = [];
-   
-  // 🟢 State สำหรับจำค่าการตรวจสอบ (แยกตามเดือน และ ชื่อ พขร.)
   let verifiedStatus = JSON.parse(localStorage.getItem('egat_ot_verified_status')) || {};
     
   if(rawDrivers.length > 0 && typeof rawDrivers[0] === 'string') {
@@ -1662,7 +1522,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       drivers = rawDrivers;
   }
 
-  // 🟢 Drag and Drop State สำหรับเรียงลำดับ
   let dragStartIndex = null;
 
   function handleDragStart(e) {
@@ -1672,7 +1531,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       e.dataTransfer.setData('text/html', this.innerHTML);
   }
   function handleDragOver(e) {
-      if (e.preventDefault) e.preventDefault(); // อนุญาตให้ drop ได้
+      if (e.preventDefault) e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
       return false;
   }
@@ -1689,15 +1548,12 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       const dragEndIndex = parseInt(this.dataset.index);
 
       if (dragStartIndex !== null && dragStartIndex !== dragEndIndex) {
-          // สลับตำแหน่งใน Array
           const draggedItem = drivers[dragStartIndex];
           drivers.splice(dragStartIndex, 1);
           drivers.splice(dragEndIndex, 0, draggedItem);
           
-          // บันทึกและวาด UI ใหม่ทั้งหมด
           CloudStorage.setItem('egat_drivers', JSON.stringify(drivers));
 
-          // 🟢 อัปเดตช่องเลือกชื่อให้ตรงกับลำดับใหม่ (เพื่อไม่ให้เลข # เพี้ยน)
           let dSelect = document.getElementById('driverSelect');
           if (dSelect && dSelect.value) {
               let plainName = dSelect.value.replace(/^#\d+\s+/, "").trim();
@@ -1713,7 +1569,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
               }
           });
           
-          // 🟢 จัดเรียงประวัติใหม่ตามลำดับ พขร. ที่เพิ่งเปลี่ยน
           sortHistory();
           CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
 
@@ -1732,16 +1587,12 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
   let filteredIndices = [];
   try { otHistory = JSON.parse(localStorage.getItem('egat_ot_history')) || []; } catch(e) {}
    
-  // Sort Init
   sortHistory();
 
   const WORKDAY_MINUTES = 8*60;
   const LUNCH_BREAK_MIN = 60;
   const DINNER_BREAK_MIN = 30;
 
-  /* ===== 3. Global Action Functions (Must be defined before HTML calls them) ===== */
-   
-  // 🟢 ฟังก์ชันสำหรับสลับสถานะตรวจสอบ (Toggle Verification)
   function toggleVerification(driverName) {
       if(!driverName) return;
       
@@ -1758,18 +1609,15 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
           verifiedStatus[monthKey] = {};
       }
 
-      // สลับค่า true/false
       verifiedStatus[monthKey][driverName] = !verifiedStatus[monthKey][driverName];
       
       try {
           CloudStorage.setItem('egat_ot_verified_status', JSON.stringify(verifiedStatus));
       } catch(e) { console.error('Save verified state failed'); }
       
-      // อัปเดต UI ทันที
       renderHistory();
   }
 
-  // 🟢 ฟังก์ชันเมื่อกดปุ่มบน Toolbar (ตรวจสอบเฉพาะคนที่เลือกใน Filter)
   function toggleVerifyCurrentDriver() {
       const currentDriver = document.getElementById('historyDriverFilter').value;
       if(!currentDriver) {
@@ -1778,20 +1626,16 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       }
       
       let plainName = getPlainName(currentDriver);
-
       toggleVerification(plainName);
   }
 
-  // Navigation
   function switchView(viewId) {
     document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
     
-    // Handle menu highlight
     if(viewId === 'ot') document.querySelector('.menu-item[onclick*="ot"]').classList.add('active');
     if(viewId === 'drivers') document.querySelector('.menu-item[onclick*="drivers"]').classList.add('active');
     if(viewId === 'calc') document.querySelector('.menu-item[onclick*="calc"]').classList.add('active');
     
-    // Special handling for history group
     if(viewId === 'history') {
         const historyGroupItem = document.querySelector('.menu-item-group .menu-item');
         if(historyGroupItem) historyGroupItem.classList.add('active');
@@ -1802,11 +1646,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       
     if(viewId === 'history') {
         showAll = false;
-        
-        // Restore State for Default View
         setHistoryMode(currentHistoryMode);
         
-        // Ensure Default State
         const toolbar = document.getElementById('historyToolbar');
         if(toolbar) {
             if(currentHistoryMode === 'daily') toolbar.style.display = 'flex';
@@ -1828,9 +1669,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     }
   }
 
-  // Drivers
 function renderDrivers() {
-  // 1. จัดการ Main Driver Input (หน้าคำนวณ OT)
   const driverList = document.getElementById('driverList');
   if (driverList) {
       driverList.innerHTML = ''; 
@@ -1841,25 +1680,22 @@ function renderDrivers() {
       });
   }
 
-  // 2. จัดการ History Filter (หน้าสรุปรายเดือน - เปลี่ยนเป็น Datalist เหมือนกัน)
   const historyDriverList = document.getElementById('historyDriverList'); 
   const historyDriverInput = document.getElementById('historyDriverFilter');
    
   if (historyDriverList) {
     historyDriverList.innerHTML = ''; 
-    // ไม่ต้องมี option "ทั้งหมด" เพราะใช้การเคลียร์ค่าว่างใน input แทน
     drivers.forEach((d, index) => {
       const opt = document.createElement('option');
       opt.value = `#${index + 1} ${d.name}`;
       historyDriverList.appendChild(opt);
     });
 
-    // คืนค่าที่เลือกไว้เดิม (ถ้ามี)
     if (historyDriverInput) {
         if(historyFilters[currentHistoryMode].driver) {
            historyDriverInput.value = historyFilters[currentHistoryMode].driver;
         } else {
-           historyDriverInput.value = ""; // เคลียร์เป็นค่าว่าง = ทั้งหมด
+           historyDriverInput.value = "";
         }
     }
   }
@@ -1871,7 +1707,6 @@ function renderDrivers() {
       const container = document.getElementById('driverListContainer');
       if(!container) return;
       
-      // CHANGE: Use driver-list-container instead of grid
       container.className = 'driver-list-container';
       
       if(drivers.length === 0) {
@@ -1881,12 +1716,9 @@ function renderDrivers() {
       container.innerHTML = '';
       drivers.forEach((d, index) => {
           const item = document.createElement('div');
-          item.className = 'driver-item-row'; // Use Row Class
+          item.className = 'driver-item-row';
           item.draggable = true;
           item.dataset.index = index;
-          
-          // EDIT: ปิดการแสดงชื่อเล่นตามคำขอ
-          // let nicknameStr = d.nickname ? `(${d.nickname})` : '';
           
           let detailsHtml = '';
           if(d.phone) detailsHtml += `<span>📞 ${d.phone}</span>`;
@@ -1897,7 +1729,7 @@ function renderDrivers() {
             <div class="drag-handle" title="คลิกค้างเพื่อลากเลื่อนลำดับ">⠿</div>
             <div class="d-index">${index + 1}</div>
             <div class="d-info">
-                <div class="d-main">${d.name}</div> <!-- ลบ nicknameStr ออก -->
+                <div class="d-main">${d.name}</div>
                 <div class="d-sub">${detailsHtml}</div>
             </div>
             <div class="d-actions">
@@ -1906,7 +1738,6 @@ function renderDrivers() {
             </div>
           `;
           
-          // 🟢 แนบ Event สำหรับ Drag & Drop
           item.addEventListener('dragstart', handleDragStart);
           item.addEventListener('dragover', handleDragOver);
           item.addEventListener('dragenter', handleDragEnter);
@@ -1918,7 +1749,6 @@ function renderDrivers() {
       });
   }
 
-  // Driver Modals
   function openAddDriverModal() {
       document.getElementById('editDriverId').value = '';
       document.getElementById('driverModalTitle').innerText = 'เพิ่มรายชื่อ พขร. ใหม่';
@@ -1997,7 +1827,6 @@ function renderDrivers() {
       }
   }
 
-  // Calc Logic
   const MIN = (h,m)=>h*60+m;
   const toMinutes = t => { if(!t) return 0; const [h,m]=t.split(':').map(Number); return h*60+m; };
     
@@ -2030,18 +1859,41 @@ function renderDrivers() {
     return `<div class="row"><div class="time">${range}</div><div class="rate ${rateClass}">${rateText}</div><div class="dur">${fmt(mins)}</div></div>`;
   }
 
+  // 🟢 อัปเดตฟังก์ชันเพื่อเพิ่มกล่อง "ขอเบิกเวลา OT"
   function generateResultHTML(type, dateVal, startMin, endMin, totalMinutes, wkResult) {
       const thaiDate = formatThaiDate(dateVal);
       const timeRange = `${fmtTime(startMin)} - ${fmtTime(endMin)}`;
       const head = `<div class="result-head"><div class="tt">สรุป</div><div class="meta-pill"><span class="m-date">📅 ${thaiDate}</span><span class="m-time">⏰ ${timeRange}</span></div></div>`;
       let body = '';
 
+      let dispTotal = 0;
+      let totalBoxTop = '';
+
+      // แยกคำนวณเวลาทำงานรวมเพื่อเอามาใส่ max ให้กล่อง Input
       if (type === 'weekday') {
-          body = `<div class="result-section"><div class="result-title"><span class="i">🔔</span>ช่วงเวลาที่นับเป็น OT ×1.5</div><div class="rows">${wkResult.rowsHTML || '<div class="note-sub">ไม่มีช่วงเวลาที่ทับ</div>'}</div>${wkResult.breaks.length?`<div class="breaks">${wkResult.breaks.map(b=>`<span class="break-chip">${b}</span>`).join('')}</div>`:''}</div><div class="result-section"><div class="total-box"><div class="total-line"><span class="k">รวม ×1.5</span><span class="v">${fmt(wkResult.total15)}</span></div><div class="total-line em"><span class="k">⏱️ เวลาทำงานรวม</span><span class="v">${fmt(Math.max(0, totalMinutes - WORKDAY_MINUTES))}</span></div></div></div>`;
+          dispTotal = Math.max(0, totalMinutes - WORKDAY_MINUTES);
+          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1.5</span><span class="v">${fmt(wkResult.total15)}</span></div>`;
       } else {
           const ot1 = wkResult.totals[1] || 0;
           const ot3 = wkResult.totals[3] || 0;
-          body = `<div class="result-section"><div class="result-title"><span class="i">🔔</span>ช่วงเวลาที่นับงานและเรตค่าตอบแทน</div><div class="rows">${wkResult.rowsHTML || '<div class="note-sub">ไม่มีช่วงเวลาที่ทับ</div>'}</div>${wkResult.breaks.length?`<div class="breaks">${wkResult.breaks.map(b=>`<span class="break-chip">${b}</span>`).join('')}</div>`:''}</div><div class="result-section"><div class="total-box"><div class="total-line"><span class="k">รวม ×3</span><span class="v">${fmt(ot3)}</span></div><div class="total-line"><span class="k">รวม ×1</span><span class="v">${fmt(ot1)}</span></div><div class="total-line em"><span class="k">⏱️ เวลาทำงานรวม</span><span class="v">${fmt(wkResult.totalMinutes)}</span></div></div></div>`;
+          dispTotal = wkResult.totalMinutes;
+          totalBoxTop = `<div class="total-line"><span class="k">รวม ×3</span><span class="v">${fmt(ot3)}</span></div><div class="total-line"><span class="k">รวม ×1</span><span class="v">${fmt(ot1)}</span></div>`;
+      }
+
+      // สร้างหน้าตาช่องกรอกขอเบิก OT (ซ่อนอยู่ในตัวแปร reqHtml)
+      const maxHours = (dispTotal / 60).toFixed(2);
+      const reqHtml = `
+          <div class="total-line" style="margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 12px; align-items: center;">
+              <span class="k" style="color:#0284c7; font-weight:800;">📝 ขอเบิกเวลา OT (ชม.)</span>
+              <input type="number" id="requestOTInput" class="mini-input" style="width:100px; border-color:#38bdf8; background:#f0f9ff;" min="0" max="${maxHours}" step="0.1" placeholder="เช่น 4">
+          </div>
+          <div id="requestOTError" style="color:var(--danger); font-size:0.85rem; text-align:right; display:none; margin-top:6px;">❌ เบิกได้สูงสุด ${fmt(dispTotal)}</div>
+      `;
+
+      if (type === 'weekday') {
+          body = `<div class="result-section"><div class="result-title"><span class="i">🔔</span>ช่วงเวลาที่นับเป็น OT ×1.5</div><div class="rows">${wkResult.rowsHTML || '<div class="note-sub">ไม่มีช่วงเวลาที่ทับ</div>'}</div>${wkResult.breaks.length?`<div class="breaks">${wkResult.breaks.map(b=>`<span class="break-chip">${b}</span>`).join('')}</div>`:''}</div><div class="result-section"><div class="total-box">${totalBoxTop}<div class="total-line em"><span class="k">⏱️ เวลาทำงานรวม</span><span class="v">${fmt(dispTotal)}</span></div>${reqHtml}</div></div>`;
+      } else {
+          body = `<div class="result-section"><div class="result-title"><span class="i">🔔</span>ช่วงเวลาที่นับงานและเรตค่าตอบแทน</div><div class="rows">${wkResult.rowsHTML || '<div class="note-sub">ไม่มีช่วงเวลาที่ทับ</div>'}</div>${wkResult.breaks.length?`<div class="breaks">${wkResult.breaks.map(b=>`<span class="break-chip">${b}</span>`).join('')}</div>`:''}</div><div class="result-section"><div class="total-box">${totalBoxTop}<div class="total-line em"><span class="k">⏱️ เวลาทำงานรวม</span><span class="v">${fmt(dispTotal)}</span></div>${reqHtml}</div></div>`;
       }
       return `<div class="result-wrap" style="outline:none;">${head}${body}</div>`;
   }
@@ -2054,7 +1906,6 @@ function renderDrivers() {
       if (startMin > 720 && startMin < 780) startMin = 780;
       if (endMin > 720 && endMin < 780) endMin = 720;
       
-      // 🟢 นำระบบปัดเศษกลับมาตามคำขอ: เวลาเข้า ปัดขึ้นทุก 30 นาที / เวลาออก ปัดลงทุก 30 นาที
       startMin = Math.ceil(startMin / 30) * 30;
       endMin = Math.floor(endMin / 30) * 30;
       
@@ -2125,20 +1976,17 @@ function renderDrivers() {
           const indexA = drivers.findIndex(d => d.name === plainA);
           const indexB = drivers.findIndex(d => d.name === plainB);
 
-          // 1. จัดเรียงตามลำดับที่อยู่ใน Array drivers (ตรงกับหน้าลากวาง)
           if (indexA !== -1 && indexB !== -1) {
               if (indexA !== indexB) return indexA - indexB;
           } else if (indexA !== -1) {
-              return -1; // A อยู่ในระบบ ให้อยู่บน
+              return -1; 
           } else if (indexB !== -1) {
-              return 1;  // B อยู่ในระบบ ให้อยู่บน
+              return 1;  
           } else {
-              // ถ้าไม่อยู่ในระบบทั้งคู่ ให้เรียงตามตัวอักษร
               const nameCompare = plainA.localeCompare(plainB, 'th');
               if (nameCompare !== 0) return nameCompare;
           }
 
-          // 2. ถ้าเป็นคนเดียวกัน ให้เรียงตามวันที่
           return new Date(a.date) - new Date(b.date);
       });
   }
@@ -2164,15 +2012,14 @@ function renderDrivers() {
   }
 
   function resetFormForNext() {
-    CloudStorage.setItem('egat_ot_draft', ""); // 🟢 ล้าง Draft เก่าทิ้ง
-    document.getElementById('driverSelect').value = ''; // 🟢 รีเซ็ตชื่อคนขับด้วย
+    CloudStorage.setItem('egat_ot_draft', ""); 
+    document.getElementById('driverSelect').value = ''; 
     document.getElementById('startTime').value = '07:30';
     document.getElementById('endTime').value    = '17:00';
     document.getElementById('result').innerHTML = '';
     document.getElementById('saveSection').style.display = 'none';
     currentCalcResult = null;
     
-    // ตั้งค่ากลับเป็นวันปัจจุบัน
     const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Bangkok"}));
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -2184,7 +2031,7 @@ function renderDrivers() {
     }
     updateThaiDateDisplay();
     
-    saveFormDraft(); // 🟢 บันทึก Draft ว่างทับลงไป
+    saveFormDraft(); 
     
     document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
   }
@@ -2214,7 +2061,6 @@ function renderDrivers() {
           newResult.driver = getPlainName(originalItem.driver); 
           newResult.isPending = false; 
           
-          // 🟢 FIX: คัดลอกสถานะขาดเอกสารมาจากรายการเดิม (ถ้ามี)
           if (originalItem.isIncomplete) {
               newResult.isIncomplete = true;
               newResult.incompleteReason = originalItem.incompleteReason;
@@ -2229,7 +2075,6 @@ function renderDrivers() {
           let targetMonth = null;
           let targetYear = null;
           
-          // FIX: ปรับ Logic การกรองให้ตรงกับ renderHistory (ใช้ History Picker เป็นหลัก)
           if (!showAll) {
               const historyPickerVal = document.getElementById('historyMonthPicker').value;
               if (historyPickerVal) {
@@ -2237,7 +2082,6 @@ function renderDrivers() {
                   targetMonth = parseInt(m) - 1;
                   targetYear = parseInt(y);
               } else {
-                  // Fallback: กรณี picker ว่างจริงๆ (ซึ่งยาก) ให้ใช้ workDate
                   const workDateVal = document.getElementById('workDate').value;
                   if (workDateVal) {
                       const d = new Date(workDateVal);
@@ -2297,7 +2141,6 @@ function renderDrivers() {
     renderHistory();
   }
 
-  // 🟢 Reset Option Logic
   function openResetModal() {
       const driverFilterVal = document.getElementById('historyDriverFilter').value;
       const btnResetMonth = document.getElementById('btnResetMonth');
@@ -2319,13 +2162,12 @@ function renderDrivers() {
   }
 
   function resetCurrentMonth() {
-      closeResetModal(); // ปิด Modal หลังจากกดปุ่ม
+      closeResetModal(); 
 
       const driverFilterVal = document.getElementById('historyDriverFilter').value;
       let targetMonth = null;
       let targetYear = null;
       
-      // ให้อิงจาก History Month Picker เสมอ ไม่ใช่วันที่หน้าคำนวณ
       const historyPickerVal = document.getElementById('historyMonthPicker').value;
       if (!showAll && historyPickerVal) {
           const [y, m] = historyPickerVal.split('-');
@@ -2361,16 +2203,13 @@ function renderDrivers() {
       alert(`รีเซ็ตค่ากลับเป็นแบบร่างเรียบร้อย จำนวน ${count} รายการ`);
   }
 
-  // Delete Option Logic
   function openDeleteModal() {
-      // เพิ่มโค้ดเช็คชื่อและเปลี่ยนข้อความบนปุ่มก่อนแสดงป๊อปอัป
       const driverFilterVal = document.getElementById('historyDriverFilter').value;
       const btnDeleteMonth = document.getElementById('btnDeleteMonth');
       
       if (btnDeleteMonth) {
           if (driverFilterVal) {
               let plainName = getPlainName(driverFilterVal);
-              // เปลี่ยนข้อความเป็น "ลบเฉพาะคนที่เลือกอยู่"
               btnDeleteMonth.innerHTML = `📅 ลบเฉพาะคนที่เลือกอยู่ (${plainName})`;
           } else {
               btnDeleteMonth.innerHTML = `📅 ลบเฉพาะเดือนนี้ (ทุกคน)`;
@@ -2385,15 +2224,12 @@ function renderDrivers() {
   }
 
   function deleteCurrentMonth() {
-      // Logic for "Delete This Month" triggered from Modal
-      // Close modal first
       closeDeleteModal();
 
       const driverFilterVal = document.getElementById('historyDriverFilter').value;
       let targetMonth = null;
       let targetYear = null;
       
-      // 🟢 FIX: ให้อิงจาก History Month Picker เสมอ
       const historyPickerVal = document.getElementById('historyMonthPicker').value;
       if (!showAll && historyPickerVal) {
           const [y, m] = historyPickerVal.split('-');
@@ -2405,7 +2241,6 @@ function renderDrivers() {
 
       let plainCurrentDriver = getPlainName(driverFilterVal);
 
-      // 🟢 ข้อความยืนยันระบุชื่อให้ชัดเจน
       let confirmMsg = "";
       if (showAll) {
           confirmMsg = `⚠️ อันตราย: ยืนยันลบรายการ "ทั้งหมด"?`;
@@ -2432,12 +2267,11 @@ function renderDrivers() {
           
           if (plainCurrentDriver && dName !== plainCurrentDriver) isMatch = false;
           
-          return !isMatch; // Keep items that DO NOT match
+          return !isMatch; 
       });
       const deletedCount = initialLen - otHistory.length;
       CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
       
-      // 🟢 เคลียร์สถานะ "ตรวจสอบแล้ว" ไปด้วย หากลบข้อมูลออกหมด
       if(plainCurrentDriver && targetMonth !== null) {
            const monthKey = historyPickerVal;
            if(verifiedStatus[monthKey] && verifiedStatus[monthKey][plainCurrentDriver]) {
@@ -2458,7 +2292,6 @@ function renderDrivers() {
   }
 
   function clearAllHistory() {
-      // Logic for "Reset All" triggered from Modal
       closeDeleteModal();
 
       if(confirm('⛔️ ล้างข้อมูลประวัติทั้งหมด?')) {
@@ -2485,9 +2318,7 @@ function renderDrivers() {
 }
 
 function openIncompleteModal() {
-  // 1. Resolve Driver (Auto-sync)
   let driverName = getPlainName(document.getElementById('historyDriverFilter').value);
-  // ถ้าตัวกรองเลือก "ทั้งหมด" (ค่าว่าง) ให้ลองดึงจากหน้าคำนวณหลัก
   if (!driverName) {
       driverName = getPlainName(document.getElementById('driverSelect').value);
   }
@@ -2497,10 +2328,8 @@ function openIncompleteModal() {
       return;
   }
 
-  // 2. Resolve Month (Auto-sync)
-  let monthVal = document.getElementById('historyMonthPicker').value; // YYYY-MM
+  let monthVal = document.getElementById('historyMonthPicker').value; 
   if (!monthVal) {
-      // ถ้าไม่ได้เลือกเดือนในประวัติ ให้ลองดูจากวันที่ทำงาน
       const workDateVal = document.getElementById('workDate').value;
       if (workDateVal) {
           monthVal = workDateVal.substring(0, 7);
@@ -2508,24 +2337,20 @@ function openIncompleteModal() {
   }
   
   if (!monthVal) {
-      // ถ้ายังไม่มีข้อมูลเดือน ให้แจ้งเตือน (กันพลาด)
       alert('⚠️ กรุณาเลือก "เดือน" ที่ต้องการบันทึกก่อนครับ');
       return;
   }
 
-  // 3. Set Values to Hidden Inputs (เพื่อให้ Logic เดิมทำงานต่อได้)
   document.getElementById('incDriverSelect').value = driverName;
   document.getElementById('incMonth').value = monthVal;
 
-  // 4. Update Display Text
   const displayEl = document.getElementById('incContextDisplay');
   if(displayEl) {
       displayEl.innerHTML = `<div style="font-size:1.1rem; margin-bottom:4px;">👤 ${driverName}</div><div style="font-size:0.95rem; opacity:0.8;">📅 เดือน ${getThaiMonthYearFull(monthVal)}</div>`;
   }
 
-  // 5. Reset & Render
   document.getElementById('incNote').value = '';
-  renderIncDays(); // ฟังก์ชันนี้จะไปอ่านค่าจาก hidden input #incMonth
+  renderIncDays(); 
   document.getElementById('incompleteModal').classList.add('show');
 }
 
@@ -2587,13 +2412,11 @@ function closeIncompleteModal() {
           const dateString = getDateString(year, month, dayNum);
           const driverName = driver;
           
-          // Robust Find: Check Exact Match (Trimmed) OR Orphan (No Name)
           let existingItem = otHistory.find(item => 
               item.date === dateString && 
               getPlainName(item.driver) === driverName
           );
           
-          // If not found, try finding an orphan to claim
           if (!existingItem) {
               existingItem = otHistory.find(item => item.date === dateString && !item.driver);
           }
@@ -2622,16 +2445,13 @@ function closeIncompleteModal() {
       } catch(e) { alert('Error saving'); }
   }
    
-  // New Function: View Missing Details (Clickable Alert)
   window.viewDriverMissing = function(driverName) {
     const listContainer = document.getElementById('summaryList');
     listContainer.innerHTML = '';
     
-    // 1. Find Driver Details for Phone Number
     const driverObj = drivers.find(d => d.name === driverName);
     const phone = driverObj ? driverObj.phone : '-';
 
-    // Header
     const header = document.createElement('div');
     header.style.marginBottom = '15px';
     header.style.borderBottom = '1px solid #e2e8f0';
@@ -2642,12 +2462,10 @@ function closeIncompleteModal() {
     `;
     listContainer.appendChild(header);
 
-    // Filter Logic matches renderHistory
     let targetMonth = null;
     let targetYear = null;
       
     if (!showAll) {
-        // FIX: Use history picker value
         const historyPickerVal = document.getElementById('historyMonthPicker').value;
         if (historyPickerVal) {
             const [y, m] = historyPickerVal.split('-');
@@ -2662,7 +2480,6 @@ function closeIncompleteModal() {
         let dName = getPlainName(item.driver) || "(ไม่ระบุชื่อ)";
         if(dName !== driverName) return false;
 
-        // Check Date
         if (!showAll && targetMonth !== null) {
              const d = new Date(item.date);
              if (d.getMonth() !== targetMonth || d.getFullYear() !== targetYear) return false;
@@ -2673,9 +2490,8 @@ function closeIncompleteModal() {
     if(items.length === 0) {
          listContainer.innerHTML += '<div style="text-align:center; color:#94a3b8; padding:20px;">🎉 ครบถ้วนแล้วครับ!</div>';
     } else {
-         items.sort((a,b) => new Date(a.date) - new Date(b.date)); // Sort by date
+         items.sort((a,b) => new Date(a.date) - new Date(b.date)); 
          items.forEach(item => {
-            // Find original index to pass to resolve function
             const originalIndex = otHistory.indexOf(item); 
 
             const el = document.createElement('div');
@@ -2705,7 +2521,6 @@ function closeIncompleteModal() {
     document.getElementById('summaryModal').classList.add('show');
   };
 
-  // Resolve Item from Modal and Refresh List
   window.resolveFromModal = function(index, driverName) {
       if(!confirm('ยืนยันได้รับเอกสารแล้ว?')) return;
 
@@ -2716,10 +2531,7 @@ function closeIncompleteModal() {
           
           try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
           
-          // Refresh Main Table Background
           renderHistory();
-          
-          // Refresh Modal Content (re-open to update list)
           viewDriverMissing(driverName);
       }
   }
@@ -2767,16 +2579,14 @@ function closeIncompleteModal() {
    
   function closeSummaryModal() { document.getElementById('summaryModal').classList.remove('show'); }
 
-  // NEW: Create Option Logic
   function openCreateOptionModal() {
       document.getElementById('createOptionModal').classList.add('show');
       
-      // Auto-set the month picker to match the History View's month (more intuitive)
       const historyPickerVal = document.getElementById('historyMonthPicker').value;
       const createPicker = document.getElementById('createTargetMonth');
       if(historyPickerVal && createPicker) {
           createPicker.value = historyPickerVal;
-          updateCreateMonthDisplay(historyPickerVal); // Update Display Text
+          updateCreateMonthDisplay(historyPickerVal); 
       }
   }
    
@@ -2785,7 +2595,6 @@ function closeIncompleteModal() {
   }
    
   function initiateAutoFill(mode) {
-      // Use the new month picker in modal
       const monthVal = document.getElementById('createTargetMonth').value;
       if(!monthVal) { alert('กรุณาเลือกเดือนที่จะสร้างก่อนครับ'); return; }
       
@@ -2794,11 +2603,9 @@ function closeIncompleteModal() {
       let targetDrivers = [];
       
       if(mode === 'single') {
-          // Use current filter value, NOT main tab
           const filterVal = document.getElementById('historyDriverFilter').value;
           
           if(!filterVal) { 
-              // If "All" is selected in filter, fallback to main tab driver
               const mainDriver = document.getElementById('driverSelect').value;
               if(!mainDriver) { 
                   alert('กรุณาเลือก พขร. ที่ต้องการสร้างรายการก่อนครับ\n(เลือกจากตัวกรอง หรือ หน้าคำนวณก็ได้)'); 
@@ -2809,9 +2616,7 @@ function closeIncompleteModal() {
               targetDrivers.push(getPlainName(filterVal));
           }
       } else {
-          // All drivers
           if(drivers.length === 0) { alert('ยังไม่มีรายชื่อ พขร. ในระบบ'); return; }
-          // ใช้แค่ชื่อเพียวๆ ในการสร้าง
           targetDrivers = drivers.map(d => d.name);
       }
       
@@ -2820,17 +2625,15 @@ function closeIncompleteModal() {
       
       const [yearStr, monthStr] = monthVal.split('-');
       const year = parseInt(yearStr);
-      const monthIndex = parseInt(monthStr) - 1; // 0-based
+      const monthIndex = parseInt(monthStr) - 1; 
       const lastDay = new Date(year, monthIndex + 1, 0).getDate();
       
       let addedCount = 0;
-      const monthForHelper = monthIndex + 1; // 1-based
+      const monthForHelper = monthIndex + 1; 
       
-      // Loop through drivers
       targetDrivers.forEach(drvName => {
           for(let dayNum=1; dayNum<=lastDay; dayNum++) {
               const dateString = getDateString(year, monthForHelper, dayNum);
-              // Check if exists for this specific driver
               const exists = otHistory.some(item => 
                   item.date === dateString && 
                   getPlainName(item.driver) === drvName
@@ -2844,7 +2647,7 @@ function closeIncompleteModal() {
                       id: Date.now() + Math.random(), 
                       date: dateString, 
                       type: type, 
-                      driver: drvName, // 🟢 บันทึกแค่ชื่อเพียวๆ
+                      driver: drvName, 
                       isPending: true, 
                       ot15: 0, ot1: 0, ot3: 0, 
                       start: '07:30', end: '17:00' 
@@ -2859,7 +2662,6 @@ function closeIncompleteModal() {
       try {
           CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
           
-          // AUTO-SWITCH to the month we just created
           const historyPicker = document.getElementById('historyMonthPicker');
           const historyDisplay = document.getElementById('historyDateDisplay');
           if(historyPicker && historyDisplay) {
@@ -2867,22 +2669,16 @@ function closeIncompleteModal() {
               historyDisplay.textContent = getThaiMonthYearFull(monthVal);
           }
           
-          // If mode is 'all', clear the driver filter to show everyone
           if(mode === 'all') {
                const driverFilter = document.getElementById('historyDriverFilter');
                if(driverFilter) driverFilter.value = "";
           }
 
-          showAll = false; // Disable "Show All" mode
+          showAll = false; 
           updateBadge();
           renderHistory();
           alert(`✅ เพิ่มรายการเรียบร้อย ${addedCount} รายการ`);
       } catch(e) { alert('บันทึกไม่สำเร็จ'); }
-  }
-
-  // Old autoFillMonth (redirects to modal logic now, but kept function name for button compatibility if needed, though updated HTML uses openCreateOptionModal)
-  function autoFillMonth() {
-      openCreateOptionModal();
   }
 
   function toggleLeaveFromTable(index, isChecked) {
@@ -2896,13 +2692,11 @@ function closeIncompleteModal() {
       renderHistory();
   }
 
-  // FIX: Global Update for Day Type
   function toggleType(index) {
       const sourceItem = otHistory[index];
       const targetDate = sourceItem.date;
       const newType = sourceItem.type === 'weekday' ? 'weekend' : 'weekday';
       
-      // Update ALL drivers for this date
       otHistory.forEach(item => {
           if(item.date === targetDate) {
               item.type = newType;
@@ -3006,19 +2800,16 @@ function closeIncompleteModal() {
     let targetYear = null;
       
     if (!showAll) {
-        // FIX: Use independent history picker
         const historyPickerVal = document.getElementById('historyMonthPicker').value;
         if (historyPickerVal) {
             const [y, m] = historyPickerVal.split('-');
             targetMonth = parseInt(m) - 1;
             targetYear = parseInt(y);
         } else {
-            // Default to current date or workDate if picker is empty on first load
-            const defaultDate = new Date(); // Or read from workDate if preferred default
+            const defaultDate = new Date(); 
             targetMonth = defaultDate.getMonth();
             targetYear = defaultDate.getFullYear();
             
-            // Set the picker value to reflect this default
             const mStr = String(targetMonth + 1).padStart(2, '0');
             document.getElementById('historyMonthPicker').value = `${targetYear}-${mStr}`;
         }
@@ -3031,11 +2822,9 @@ function closeIncompleteModal() {
         document.getElementById('historyDateDisplay').textContent = "แสดงทั้งหมด";
         document.getElementById('historyMonthPicker').value = "";
     } else if (targetMonth !== null) {
-        // Thai Year Full
         const thaiYear = targetYear + 543; 
         document.getElementById('historyDateDisplay').textContent = `${monthsTh[targetMonth]} ${thaiYear}`;
         
-        // Sync hidden input
         const monthStr = String(targetMonth + 1).padStart(2, '0');
         document.getElementById('historyMonthPicker').value = `${targetYear}-${monthStr}`; 
     }
@@ -3046,10 +2835,7 @@ function closeIncompleteModal() {
     let leaveCount = 0; 
     filteredIndices = []; 
 
-    // === BRANCH LOGIC: Daily vs Driver ===
     if(currentHistoryMode === 'driver') {
-        // --- DRIVER SUMMARY MODE ---
-        // Change Table Headers
         document.querySelector('#historyTable thead').innerHTML = `
             <tr>
                 <th class="col-center">#</th>
@@ -3063,28 +2849,23 @@ function closeIncompleteModal() {
             </tr>
         `;
 
-        // Process Data
         const summaryMap = {};
 
-        // Step 1: Pre-fill with ALL registered drivers (so they appear even with 0 data)
         drivers.forEach(d => {
             summaryMap[d.name] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0, hasData: false }; 
         });
         
         otHistory.forEach((item) => {
-            // Filter Logic
             let isMatch = true;
             if (!showAll && targetMonth !== null) {
                 const d = new Date(item.date);
                 if (d.getMonth() !== targetMonth || d.getFullYear() !== targetYear) isMatch = false;
             }
-            // Note: If driver filter is on, we only show that driver, otherwise all.
 
             if(isMatch) {
                 let plainDriverName = getPlainName(item.driver) || "(ไม่ระบุชื่อ)";
 
                 if(!summaryMap[plainDriverName]) {
-                    // If driver not in current list (maybe deleted), just use the key as is
                       summaryMap[plainDriverName] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0 };
                 }
                 
@@ -3102,20 +2883,16 @@ function closeIncompleteModal() {
             }
         });
 
-        // FIX: Sort by original driver list order (index)
         let driverNames = Object.keys(summaryMap);
         
-        // Custom Sort: Match order in 'drivers' array
         driverNames.sort((a, b) => {
             const indexA = drivers.findIndex(d => d.name === a);
             const indexB = drivers.findIndex(d => d.name === b);
-            // If not found in list (e.g. deleted driver but has history), put at end
             if (indexA === -1) return 1;
             if (indexB === -1) return -1;
             return indexA - indexB;
         });
         
-        // Apply Driver Filter if selected
         if (driverFilterVal !== "") {
              let filterNameOnly = getPlainName(driverFilterVal);
             driverNames = driverNames.filter(name => name === filterNameOnly);
@@ -3129,7 +2906,6 @@ function closeIncompleteModal() {
                 const data = summaryMap[name];
                 const totalMins = data.ot15 + data.ot1 + data.ot3;
                 
-                // Sum Global Stats for Dashboard (Top Cards)
                 s15 += data.ot15;
                 s1 += data.ot1;
                 s3 += data.ot3;
@@ -3137,23 +2913,18 @@ function closeIncompleteModal() {
 
                 let missingHtml = '-';
                 if(data.missingCount > 0) {
-                    // Update: Clickable Missing Alert
                     missingHtml = `<span style="background:#fef2f2; color:#ef4444; padding:4px 10px; border-radius:99px; font-weight:700; font-size:0.8rem; border:1px solid #fca5a5; cursor:pointer; transition:transform 0.2s;" onclick="viewDriverMissing('${name}')" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="คลิกเพื่อดูรายละเอียด">⚠️ ขาด ${data.missingCount}</span>`;
                 }
 
-                // 🟢 Check Verified State
                 const monthKey = targetYear !== null ? `${targetYear}-${String(targetMonth+1).padStart(2,'0')}` : "";
                 const isVer = verifiedStatus[monthKey] && verifiedStatus[monthKey][name];
 
-                // Find original index for display #
                 const realIndex = drivers.findIndex(d => d.name === name) + 1;
                 const displayIndex = realIndex > 0 ? realIndex : '-';
 
                 const tr = document.createElement('tr');
-                // 🟢 Add Green Row Class if Verified
                 if(isVer) tr.classList.add('verified-row');
 
-                // 🟢 Build Status Cell Component
                 let verifyBtnHtml = `<button class="btn-verify ${isVer ? 'active' : ''}" onclick="toggleVerification('${name}')">
                     ${isVer ? '✅ ตรวจสอบแล้ว' : '⚪ รอตรวจสอบ'}
                 </button>`;
@@ -3178,15 +2949,12 @@ function closeIncompleteModal() {
         }
 
     } else {
-        // --- DAILY MODE (Original) ---
-        // 🟢 FIX: แยกคอลัมน์ วันที่ และ ประเภท ออกจากกันตาม UI ที่ต้องการ
         document.querySelector('#historyTable thead').innerHTML = `
             <tr>
                 <th width="4%" class="col-center">ลา</th>
                 <th width="20%" style="text-align:left; padding-left:10px;">วันที่</th>
                 <th width="12%" class="col-center">ประเภท</th>
                 <th width="15%" class="col-center">ช่วงเวลา</th>
-                <!-- Compact OT columns -->
                 <th class="col-center th-ot" style="min-width:45px; background:#eff6ff; color:#1e3a8a; border-bottom-color:#bfdbfe;">x1.5</th>
                 <th class="col-center th-ot" style="min-width:45px; background:#ecfeff; color:#0e7490; border-bottom-color:#a5f3fc;">x1</th>
                 <th class="col-center th-ot" style="min-width:45px; background:#fff1f2; color:#be123c; border-bottom-color:#fecdd3;">x3</th>
@@ -3242,12 +3010,10 @@ function closeIncompleteModal() {
                       totalText = fmt(totalMinutes);
                 }
 
-                // 🟢 UPDATE: ปรับ Pill ให้ใหญ่ขึ้นกดง่าย และจัด Column วันที่ใหม่
                 const pillClass = item.type === 'weekday' ? 'pill-weekday' : 'pill-weekend';
                 const pillText = item.type === 'weekday' ? 'วันธรรมดา' : 'วันหยุด';
                 const pillHtml = `<span class="pill ${pillClass}" onclick="toggleType(${originalIndex})" style="font-size:0.85rem; padding:6px 12px; border-radius:12px; cursor:pointer; display:inline-block; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" title="คลิกเพื่อสลับประเภทวัน">${pillText}</span>`;
 
-                // 🟢 FIX: ซ่อนเลขลำดับ (#) ในหน้าสรุปรายเดือน
                 let dNameClean = getPlainName(item.driver);
                 let driverNameHtml = dNameClean ? `<div style="font-size:0.85rem; color:var(--brand); font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:4px;"><span style="opacity:0.6;">👤</span> ${dNameClean}</div>` : '';
                 
@@ -3270,7 +3036,6 @@ function closeIncompleteModal() {
                         leaveTypeContent = '-'; 
                     }
 
-                    // 🟢 FIX: แสดงผลแบบแยกคอลัมน์
                     tr.innerHTML = `
                         <td class="col-center">${checkboxHtml}</td>
                         <td style="padding-left:10px; vertical-align:middle;">
@@ -3355,7 +3120,6 @@ function closeIncompleteModal() {
                             }
                         }, 50);
                     } else {
-                        // 🟢 FIX: แสดงผลแบบแยกคอลัมน์
                         tr.innerHTML = `
                             <td class="col-center">${checkboxHtml}</td>
                             <td style="padding-left:10px; vertical-align:middle;">
@@ -3374,7 +3138,6 @@ function closeIncompleteModal() {
         }
     }
 
-    // Common Footer Update (Same logic for both views)
     document.getElementById('sum15').innerText = (s15/60).toFixed(1); 
     document.getElementById('sum1').innerText = (s1/60).toFixed(1);
     document.getElementById('sum3').innerText = (s3/60).toFixed(1);
@@ -3382,7 +3145,6 @@ function closeIncompleteModal() {
     document.getElementById('sumLeaveDays').innerText = leaveCount;
     document.getElementById('sumTotal_b').innerText = (totalAllMinutes/60).toFixed(1); 
     
-    // 🟢 Update Toolbar Button State
     const btnToolbarVerify = document.getElementById('btnToolbarVerify');
     if(btnToolbarVerify && currentHistoryMode === 'daily') {
         if(driverFilterVal && targetMonth !== null) {
@@ -3406,10 +3168,8 @@ function closeIncompleteModal() {
 
   /* DOMContentLoaded MAIN */
   document.addEventListener('DOMContentLoaded', () => {
-        // Init Helpers
-        initCloudData(); // 🟢 สั่งให้ดึงข้อมูลจาก Cloud ทันทีที่โหลดหน้าเว็บเสร็จ
+        initCloudData(); 
         
-        // 🟢 Load Draft or Reset
         const draftStr = localStorage.getItem('egat_ot_draft');
         if (draftStr) {
             try {
@@ -3434,9 +3194,8 @@ function closeIncompleteModal() {
         }
 
         renderDrivers();
-        renderHistory(); // Ensure history loads initially
+        renderHistory(); 
 
-        // 🟢 Attach Draft Listeners
         ['driverSelect', 'workDate', 'startTime', 'endTime'].forEach(id => {
             const el = document.getElementById(id);
             if(el) {
@@ -3448,29 +3207,24 @@ function closeIncompleteModal() {
             r.addEventListener('change', saveFormDraft);
         });
 
-        // FIX: Dropdown Menu Logic (Moved to JS for reliability)
         const historyBtn = document.getElementById('historyTitleBtn');
         const summaryMenu = document.getElementById('summaryMenu');
         
         if(historyBtn && summaryMenu) {
-            // Toggle Menu
             historyBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Stop bubbling to window
+                e.stopPropagation(); 
                 summaryMenu.classList.toggle('show');
             });
 
-            // Close when clicking outside
             window.addEventListener('click', () => {
                 if (summaryMenu.classList.contains('show')) {
                     summaryMenu.classList.remove('show');
                 }
             });
 
-            // Handle Options
             summaryMenu.querySelectorAll('.menu-opt').forEach(opt => {
                 opt.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Prevent immediate closing logic if needed, but we want to close it actually.
-                    // Let's just handle logic and close
+                    e.stopPropagation(); 
                     const mode = opt.getAttribute('data-mode');
                     setHistoryMode(mode);
                     summaryMenu.classList.remove('show');
@@ -3478,14 +3232,12 @@ function closeIncompleteModal() {
             });
         }
 
-        // History Month Picker Listener
         const historyPicker = document.getElementById('historyMonthPicker');
         if(historyPicker) {
             historyPicker.addEventListener('change', (e) => {
-                const val = e.target.value; // YYYY-MM
+                const val = e.target.value; 
                 if(val) {
                     const [y, m] = val.split('-');
-                    // FIX: NO SYNC back to main page (Independent)
                     
                     updateThaiDateDisplay();
                     showAll = false; 
@@ -3494,7 +3246,6 @@ function closeIncompleteModal() {
             });
         }
 
-        // 1. Sidebar Toggle
         const btnToggle = document.getElementById('btnToggle');
         if(btnToggle) {
             btnToggle.addEventListener('click', ()=>{
@@ -3503,7 +3254,6 @@ function closeIncompleteModal() {
             });
         }
 
-        // 2. Work Date Listeners
         const workDateInput = document.getElementById('workDate');
         if(workDateInput) {
             workDateInput.addEventListener('change', () => {
@@ -3512,18 +3262,15 @@ function closeIncompleteModal() {
             workDateInput.addEventListener('input', updateThaiDateDisplay);
         }
 
-        // 3. Save Button
         const btnSaveLog = document.getElementById('btnSaveLog');
         if(btnSaveLog) {
             btnSaveLog.addEventListener('click', () => {
-                // 🟢 เพิ่มการตรวจสอบ: ต้องใส่ชื่อก่อนบันทึก
                 const driverInput = document.getElementById('driverSelect');
                 const driverName = getPlainName(driverInput.value);
                 
                 if (!driverName) {
                     alert('⚠️ กรุณาระบุ "ชื่อพนักงานขับรถ (พขร.)" ก่อนบันทึกข้อมูลครับ');
-                    driverInput.focus(); // เด้งไปที่ช่องกรอกชื่อ
-                    // เพิ่ม Animation แจ้งเตือนเล็กน้อยที่ช่องชื่อ
+                    driverInput.focus(); 
                     driverInput.style.borderColor = '#ef4444';
                     driverInput.style.boxShadow = '0 0 0 4px #fee2e2';
                     setTimeout(() => {
@@ -3533,10 +3280,30 @@ function closeIncompleteModal() {
                     return;
                 }
 
+                // 🟢 ระบบป้องกันการใส่ข้อมูล "ขอเบิกเวลา OT" เกินเวลาทำงานรวม
+                const reqInput = document.getElementById('requestOTInput');
+                let requestOTVal = 0;
+                if (reqInput) {
+                    const reqVal = parseFloat(reqInput.value);
+                    if (isNaN(reqVal) || reqVal < 0) {
+                        alert('⚠️ กรุณาระบุ "ขอเบิกเวลา OT (ชม.)" เป็นตัวเลขให้ถูกต้องครับ');
+                        reqInput.focus();
+                        return;
+                    }
+                    const maxVal = parseFloat(reqInput.getAttribute('max'));
+                    if (reqVal > maxVal) {
+                        document.getElementById('requestOTError').style.display = 'block';
+                        reqInput.focus();
+                        return;
+                    }
+                    document.getElementById('requestOTError').style.display = 'none';
+                    requestOTVal = reqVal; // เก็บค่าที่ถูกต้องไว้
+                }
+
                 if(!currentCalcResult) return;
 
-                // อัปเดตชื่อในผลลัพธ์ให้เป็นปัจจุบัน (เผื่อเพิ่งพิมพ์ใส่หลังจากกดคำนวณ)
                 currentCalcResult.driver = driverName;
+                currentCalcResult.requestOT = requestOTVal; // 🟢 แทรกลงไปในข้อมูลที่จะส่งไป Google Sheets
 
                 const existingIndex = otHistory.findIndex(item => 
                     item.date === currentCalcResult.date && (getPlainName(item.driver) === currentCalcResult.driver)
@@ -3548,23 +3315,19 @@ function closeIncompleteModal() {
             });
         }
         
-        // 4. Calc Button
         const btnCalc = document.getElementById('btnCalc');
         if(btnCalc) { btnCalc.addEventListener('click', calculateOT); }
 
-        // 5. Radio Buttons
         document.querySelectorAll('input[name="type"]').forEach(r => {
             r.addEventListener('change', updateRadioStyle);
         });
 
-        // 6. Time Inputs (Main Form)
         document.querySelectorAll('.time-manual').forEach(inp => {
             inp.addEventListener('input', formatTimeInput);
             inp.addEventListener('blur', validateTimeInput);
             inp.addEventListener('focus', function() { this.select(); }); 
         });
 
-        // 7. Auto-focus Logic (Main Form)
         const mainStart = document.getElementById('startTime');
         const mainEnd = document.getElementById('endTime');
         if(mainStart && mainEnd) {
@@ -3575,17 +3338,14 @@ function closeIncompleteModal() {
                 }
             });
 
-            // 🟢 เพิ่ม: กด Enter ที่ช่องเวลาออก เพื่อคำนวณทันที
             mainEnd.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
-                    // จัดรูปแบบเวลาให้ถูกต้องก่อนคำนวณ (เช่น 1700 -> 17:00)
                     validateTimeInput({ target: this });
-                    this.blur(); // เอาเคอร์เซอร์ออก
-                    calculateOT(); // สั่งคำนวณ
+                    this.blur(); 
+                    calculateOT(); 
                 }
             });
             
-            // เพิ่ม: กด Enter ที่ช่องเวลาเข้า ให้กระโดดไปช่องเวลาออก
             mainStart.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -3595,7 +3355,6 @@ function closeIncompleteModal() {
             });
         }
 
-        // 8. Global Key Listener for Up/Down Navigation in Edit Mode
         window.addEventListener('keydown', (e) => {
             if(editingRowIndex !== null) {
                 if(e.key === 'ArrowUp') {
@@ -3606,9 +3365,7 @@ function closeIncompleteModal() {
                     moveInline(1);
                 }
             }
-            // ESC to close all modals AND cancel inline edit
             if(e.key === 'Escape') {
-                // Close all modals
                 closeModal();
                 closeDeleteModal();
                 closeResetModal(); 
@@ -3619,14 +3376,12 @@ function closeIncompleteModal() {
                 closeCustomMonthPicker();
                 closeBackupModal();
                 
-                // Cancel inline edit (ยกเลิกการแก้ไขในตาราง)
                 if(editingRowIndex !== null) {
                     cancelInline();
                 }
             }
         });
 
-        // 9. Calculator Logic
         const calcDisplay = document.getElementById('calcDisplay');
         const calcKeys = document.querySelectorAll('.keys button');
         
@@ -3640,7 +3395,6 @@ function closeIncompleteModal() {
                 calcDisplay.value = cur.length > 1 ? cur.slice(0,-1) : '0';
             } else if(k === '=') {
                 try {
-                    // Basic safety for eval
                     if (/[^0-9.+\-*/%]/.test(cur)) throw new Error();
                     calcDisplay.value = new Function('return ' + cur)();
                 } catch(e) {
@@ -3648,13 +3402,11 @@ function closeIncompleteModal() {
                     setTimeout(()=>calcDisplay.value='0', 1000);
                 }
             } else {
-                // Prevent multiple operators
                 const ops = ['+','-','*','/','%'];
                 const last = cur.slice(-1);
                 if(ops.includes(k) && ops.includes(last)) {
                     cur = cur.slice(0,-1);
                 }
-                // Handle initial 0
                 if(cur === '0' && !ops.includes(k) && k !== '.') {
                     calcDisplay.value = k;
                 } else {
@@ -3664,28 +3416,24 @@ function closeIncompleteModal() {
         }
 
         if(calcDisplay && calcKeys.length > 0) {
-            // Click Event
             calcKeys.forEach(btn => {
                 btn.addEventListener('click', () => {
                     handleCalcInput(btn.getAttribute('data-k'));
                 });
             });
 
-            // 🟢 Add Keyboard Support for Calculator
             window.addEventListener('keydown', (e) => {
-                // เช็คว่าหน้าต่างเครื่องคิดเลขเปิดอยู่หรือไม่
                 const calcView = document.getElementById('view-calc');
                 if (!calcView || !calcView.classList.contains('active')) return;
 
                 let k = null;
                 const key = e.key;
 
-                // แมพปุ่มคีย์บอร์ดให้ตรงกับฟังก์ชัน
                 if (/[0-9\.\+\-\*\/%]/.test(key)) {
                     k = key;
                 } else if (key === 'Enter' || key === '=') {
                     k = '=';
-                    e.preventDefault(); // ป้องกันการเกิด Event อื่นทับซ้อน
+                    e.preventDefault(); 
                 } else if (key === 'Backspace') {
                     k = 'BS';
                 } else if (key === 'Escape' || key.toLowerCase() === 'c') {
@@ -3693,7 +3441,6 @@ function closeIncompleteModal() {
                 }
 
                 if (k) {
-                    // สร้าง Visual Feedback เวลากดคีย์บอร์ด
                     const btn = document.querySelector(`.keys button[data-k="${k}"]`);
                     if(btn) {
                         btn.style.transform = 'translateY(4px)';
@@ -3709,7 +3456,6 @@ function closeIncompleteModal() {
             });
         }
 
-        // 10. 🟢 Driver Autocomplete by Index (พิมพ์เลขลำดับแล้วกด Enter) & Auto-select
         const dSelect = document.getElementById('driverSelect');
         const hSelect = document.getElementById('historyDriverFilter');
         
@@ -3717,17 +3463,15 @@ function closeIncompleteModal() {
             if(e.key === 'Enter') {
                 e.preventDefault();
                 let val = inputEl.value.trim();
-                let match = val.match(/^#?(\d+)$/); // ตรวจสอบว่าพิมพ์แค่ตัวเลข หรือ #ตัวเลข
+                let match = val.match(/^#?(\d+)$/); 
                 if(match) {
                     let idx = parseInt(match[1], 10) - 1;
                     if(idx >= 0 && idx < drivers.length) {
-                        // เติมชื่อเต็มให้อัตโนมัติ
                         inputEl.value = `#${idx + 1} ${drivers[idx].name}`;
                     }
                 }
-                inputEl.blur(); // เอาเคอร์เซอร์ออก
+                inputEl.blur(); 
                 
-                // อัปเดตข้อมูลตามหน้าที่กำลังใช้งาน
                 if(isHistory) {
                     handleFilterChange();
                 } else {
@@ -3737,13 +3481,11 @@ function closeIncompleteModal() {
         }
 
         if(dSelect) {
-            // 🟢 เพิ่ม: คลิกหรือ Focus แล้วคลุมดำอัตโนมัติ
             dSelect.addEventListener('focus', function() { this.select(); });
             dSelect.addEventListener('click', function() { this.select(); });
             dSelect.addEventListener('keydown', (e) => autoSelectDriverOnEnter(e, dSelect, false));
         }
         if(hSelect) {
-            // 🟢 เพิ่ม: คลิกหรือ Focus แล้วคลุมดำอัตโนมัติ
             hSelect.addEventListener('focus', function() { this.select(); });
             hSelect.addEventListener('click', function() { this.select(); });
             hSelect.addEventListener('keydown', (e) => autoSelectDriverOnEnter(e, hSelect, true));
