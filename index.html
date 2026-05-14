@@ -768,7 +768,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                         <th class="col-center th-ot" style="min-width:45px; background:#ecfeff; color:#0e7490; border-bottom-color:#a5f3fc;">x1</th>
                         <th class="col-center th-ot" style="min-width:45px; background:#fff1f2; color:#be123c; border-bottom-color:#fecdd3;">x3</th>
                         
-                        <th width="8%" class="col-center th-ot">รวม</th>
+                        <th width="8%" class="col-center th-ot">รวม(ชม.)</th>
+                        <th width="8%" class="col-center th-ot" style="background:#f0f9ff; color:#0284c7;">ขอเบิก(ชม.)</th>
                         <th width="14%" class="col-center sticky-col">เครื่องมือ</th>
                     </tr>
                 </thead>
@@ -1010,7 +1011,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       setItem: function(key, value) {
           localStorage.setItem(key, value); 
           
-          // ไม่ส่งร่างข้อมูลและสถานะเมนูด้านข้างขึ้น Cloud (ประหยัดเน็ต)
           if (key === 'egat_ot_draft' || key === 'egat_sidebar_collapsed') return; 
 
           fetch(WEB_APP_URL, {
@@ -1880,14 +1880,18 @@ function renderDrivers() {
           totalBoxTop = `<div class="total-line"><span class="k">รวม ×3</span><span class="v">${fmt(ot3)}</span></div><div class="total-line"><span class="k">รวม ×1</span><span class="v">${fmt(ot1)}</span></div>`;
       }
 
-      // สร้างหน้าตาช่องกรอกขอเบิก OT (ซ่อนอยู่ในตัวแปร reqHtml)
-      const maxHours = (dispTotal / 60).toFixed(2);
+      // สร้างหน้าตาช่องกรอกขอเบิก OT
+      const maxHours = dispTotal / 60;
+      const maxHoursClean = maxHours % 1 === 0 ? maxHours : maxHours.toFixed(2);
+      
       const reqHtml = `
           <div class="total-line" style="margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 12px; align-items: center;">
               <span class="k" style="color:#0284c7; font-weight:800;">📝 ขอเบิกเวลา OT (ชม.)</span>
-              <input type="number" id="requestOTInput" class="mini-input" style="width:100px; border-color:#38bdf8; background:#f0f9ff;" min="0" max="${maxHours}" step="0.1" placeholder="เช่น 4">
+              <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                  <input type="number" id="requestOTInput" class="mini-input" style="width:100px; border-color:#38bdf8; background:#f0f9ff; font-size:1.1rem; text-align:center;" min="0" max="${maxHours}" step="0.5" value="${maxHoursClean}" placeholder="เช่น 4">
+                  <div id="requestOTError" style="color:var(--danger); font-size:0.75rem; display:none; margin-top:4px;">❌ ห้ามเกิน ${maxHoursClean} ชม.</div>
+              </div>
           </div>
-          <div id="requestOTError" style="color:var(--danger); font-size:0.85rem; text-align:right; display:none; margin-top:6px;">❌ เบิกได้สูงสุด ${fmt(dispTotal)}</div>
       `;
 
       if (type === 'weekday') {
@@ -1917,20 +1921,23 @@ function renderDrivers() {
 
       const timeRange = `${fmtTime(startMin)} - ${fmtTime(endMin)}`;
       let ot15=0, ot1=0, ot3=0, html = '', maxOTMinutes = 0;
+      let dispTotalMinutes = 0;
 
       if(type === 'weekday'){
           const wk15 = computeWeekday15(startMin, endMin); 
           ot15 = wk15.total15; 
           html = generateResultHTML(type, dateVal, startMin, endMin, totalMinutes, wk15);
           maxOTMinutes = wk15.total15;
+          dispTotalMinutes = Math.max(0, totalMinutes - WORKDAY_MINUTES);
       } else {
           const wk = computeWeekend(startMin, endMin);
           ot1 = wk.totals[1] || 0;
           ot3 = wk.totals[3] || 0;
           html = generateResultHTML(type, dateVal, startMin, endMin, totalMinutes, wk);
           maxOTMinutes = (wk.totals[1]||0) + (wk.totals[3]||0);
+          dispTotalMinutes = wk.totalMinutes;
       }
-      return { date: dateVal, type: type, timeRange: timeRange, start: start, end: end, ot15: ot15, ot1: ot1, ot3: ot3, html: html, maxOTMinutes: maxOTMinutes };
+      return { date: dateVal, type: type, timeRange: timeRange, start: start, end: end, ot15: ot15, ot1: ot1, ot3: ot3, html: html, maxOTMinutes: maxOTMinutes, dispTotalMinutes: dispTotalMinutes };
   }
 
   function computeWeekday15(startMin,endMin){
@@ -2066,6 +2073,15 @@ function renderDrivers() {
               newResult.incompleteReason = originalItem.incompleteReason;
           }
 
+          // 🟢 ตรวจสอบและจำกัดเวลาขอเบิก (Request OT) ไม่ให้เกินเวลาที่คำนวณได้ใหม่จากการแก้ไขตาราง
+          let oldReq = parseFloat(originalItem.requestOT);
+          let newMaxHr = newResult.dispTotalMinutes / 60;
+          if (!isNaN(oldReq)) {
+              newResult.requestOT = oldReq > newMaxHr ? newMaxHr : oldReq;
+          } else {
+              newResult.requestOT = newMaxHr;
+          }
+
           otHistory[index] = newResult;
           
           sortHistory(); 
@@ -2194,7 +2210,7 @@ function renderDrivers() {
           if(isMatch) {
               item.isPending = true; item.isLeave = false;
               delete item.leaveType; delete item.isIncomplete; delete item.incompleteReason;
-              item.start = '07:30'; item.end = '17:00'; item.ot15 = 0; item.ot1 = 0; item.ot3 = 0;
+              item.start = '07:30'; item.end = '17:00'; item.ot15 = 0; item.ot1 = 0; item.ot3 = 0; item.requestOT = 0;
               count++;
           }
       });
@@ -2313,6 +2329,7 @@ function renderDrivers() {
   item.ot15 = 0;
   item.ot1 = 0;
   item.ot3 = 0;
+  item.requestOT = 0;
   CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
   renderHistory();
 }
@@ -2430,7 +2447,7 @@ function closeIncompleteModal() {
                const newItem = {
                   id: Date.now() + dayNum, date: dateString, type: 'weekday', driver: driverName,
                   isPending: true, isIncomplete: true, incompleteReason: note,
-                  ot15: 0, ot1: 0, ot3: 0, start: '07:30', end: '17:00'
+                  ot15: 0, ot1: 0, ot3: 0, start: '07:30', end: '17:00', requestOT: 0
               };
               otHistory.push(newItem);
               newCount++;
@@ -2650,7 +2667,7 @@ function closeIncompleteModal() {
                       driver: drvName, 
                       isPending: true, 
                       ot15: 0, ot1: 0, ot3: 0, 
-                      start: '07:30', end: '17:00' 
+                      start: '07:30', end: '17:00', requestOT: 0 
                   };
                   otHistory.push(pendingItem);
                   addedCount++;
@@ -2684,9 +2701,9 @@ function closeIncompleteModal() {
   function toggleLeaveFromTable(index, isChecked) {
       const item = otHistory[index];
       if(isChecked) {
-          item.isLeave = true; item.leaveType = 'ลา'; item.ot15 = 0; item.ot1 = 0; item.ot3 = 0; item.start = '-'; item.end = '-';
+          item.isLeave = true; item.leaveType = 'ลา'; item.ot15 = 0; item.ot1 = 0; item.ot3 = 0; item.requestOT = 0; item.start = '-'; item.end = '-';
       } else {
-          item.isLeave = false; item.isPending = true; item.leaveType = undefined; item.start = '07:30'; item.end = '17:00';
+          item.isLeave = false; item.isPending = true; item.leaveType = undefined; item.start = '07:30'; item.end = '17:00'; item.requestOT = 0;
       }
       try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
       renderHistory();
@@ -2836,6 +2853,7 @@ function closeIncompleteModal() {
     filteredIndices = []; 
 
     if(currentHistoryMode === 'driver') {
+        // 🟢 เพิ่มคอลัมน์ ขอเบิก ในตารางรวม
         document.querySelector('#historyTable thead').innerHTML = `
             <tr>
                 <th class="col-center">#</th>
@@ -2843,7 +2861,8 @@ function closeIncompleteModal() {
                 <th class="col-center th-ot" style="background:#eff6ff; color:#1e3a8a;">x1.5</th>
                 <th class="col-center th-ot" style="background:#ecfeff; color:#0e7490;">x1</th>
                 <th class="col-center th-ot" style="background:#fff1f2; color:#be123c;">x3</th>
-                <th class="col-center th-ot">รวม</th>
+                <th class="col-center th-ot">รวม(ชม.)</th>
+                <th class="col-center th-ot" style="background:#f0f9ff; color:#0284c7;">ขอเบิก(ชม.)</th>
                 <th class="col-center">ลา</th>
                 <th class="col-center sticky-col">สถานะ</th>
             </tr>
@@ -2852,7 +2871,7 @@ function closeIncompleteModal() {
         const summaryMap = {};
 
         drivers.forEach(d => {
-            summaryMap[d.name] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0, hasData: false }; 
+            summaryMap[d.name] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0, requestOT:0, hasData: false }; 
         });
         
         otHistory.forEach((item) => {
@@ -2866,7 +2885,7 @@ function closeIncompleteModal() {
                 let plainDriverName = getPlainName(item.driver) || "(ไม่ระบุชื่อ)";
 
                 if(!summaryMap[plainDriverName]) {
-                      summaryMap[plainDriverName] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0 };
+                      summaryMap[plainDriverName] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0, requestOT:0 };
                 }
                 
                 if(item.isLeave) {
@@ -2875,6 +2894,7 @@ function closeIncompleteModal() {
                     summaryMap[plainDriverName].ot15 += (item.ot15 || 0);
                     summaryMap[plainDriverName].ot1 += (item.ot1 || 0);
                     summaryMap[plainDriverName].ot3 += (item.ot3 || 0);
+                    summaryMap[plainDriverName].requestOT += parseFloat(item.requestOT || 0); // รวมยอดขอเบิก
                 }
 
                 if(item.isIncomplete) {
@@ -2941,6 +2961,7 @@ function closeIncompleteModal() {
                     <td class="col-center">${fmtShort(data.ot1)}</td>
                     <td class="col-center">${fmtShort(data.ot3)}</td>
                     <td class="col-center" style="font-weight:800;">${fmtShort(totalMins)}</td>
+                    <td class="col-center" style="font-weight:800; color:#0284c7;">${parseFloat(data.requestOT).toFixed(1).replace('.0','')}</td>
                     <td class="col-center" style="color:#ef4444; font-weight:700;">${data.leave}</td>
                     <td class="col-center sticky-col">${statusCellHtml}</td>
                 `;
@@ -2949,6 +2970,7 @@ function closeIncompleteModal() {
         }
 
     } else {
+        // 🟢 เพิ่มคอลัมน์ขอเบิกในหน้าประวัติ
         document.querySelector('#historyTable thead').innerHTML = `
             <tr>
                 <th width="4%" class="col-center">ลา</th>
@@ -2959,7 +2981,8 @@ function closeIncompleteModal() {
                 <th class="col-center th-ot" style="min-width:45px; background:#ecfeff; color:#0e7490; border-bottom-color:#a5f3fc;">x1</th>
                 <th class="col-center th-ot" style="min-width:45px; background:#fff1f2; color:#be123c; border-bottom-color:#fecdd3;">x3</th>
                 
-                <th width="8%" class="col-center th-ot">รวม</th>
+                <th width="8%" class="col-center th-ot">รวม(ชม.)</th>
+                <th width="8%" class="col-center th-ot" style="background:#f0f9ff; color:#0284c7;">ขอเบิก(ชม.)</th>
                 <th width="14%" class="col-center sticky-col">เครื่องมือ</th>
             </tr>
         `;
@@ -3047,6 +3070,7 @@ function closeIncompleteModal() {
                         <td class="col-center" style="background:#f9fafb; opacity:0.5;">-</td>
                         <td class="col-center" style="background:#f9fafb; opacity:0.5;">-</td>
                         <td class="col-center">-</td>
+                        <td class="col-center" style="background:#f9fafb; opacity:0.5;">-</td>
                         <td class="col-center">
                             ${item.isIncomplete ? `<button class="action-btn view-btn" onclick="resolveIncomplete(${originalIndex})" title="ได้รับเอกสารแล้ว" style="color:#10b981; background:#ecfdf5; margin-right:4px;">✅</button>` : ''}
                             <button class="action-btn del-btn" onclick="deleteHistory(${originalIndex})" title="ลบ">🗑️</button>
@@ -3057,6 +3081,18 @@ function closeIncompleteModal() {
                     let otHtml = '';
                     let actionBtnHtml = '';
                     
+                    // 🟢 โชว์ข้อมูลการเบิก OT
+                    let reqValDisplay = '-';
+                    if(!item.isPending) {
+                        reqValDisplay = item.requestOT !== undefined ? parseFloat(item.requestOT).toFixed(1).replace('.0','') : '-';
+                    }
+                    let requestHtml = '';
+                    if(item.isPending) {
+                        requestHtml = `<td class="col-center" style="color:#cbd5e1">-</td>`;
+                    } else {
+                        requestHtml = `<td class="col-center" style="font-weight:800; color:#0284c7; font-size:0.95rem; vertical-align:middle;">${reqValDisplay}</td>`;
+                    }
+
                     if(item.isPending) {
                          timeContent = `<span class="time-range pending" onclick="editInline(${originalIndex})" title="คลิกเพื่อระบุเวลา">➕ เพิ่ม</span>`;
                     } else {
@@ -3095,6 +3131,7 @@ function closeIncompleteModal() {
                                 </div>
                             </td>
                             <td class="col-center"><span style="color:#94a3b8; font-size:0.8rem;">...</span></td>
+                            <td class="col-center"><span style="color:#94a3b8; font-size:0.8rem;">...</span></td>
                             <td class="col-center sticky-col">...</td>
                         `;
                          setTimeout(() => {
@@ -3129,6 +3166,7 @@ function closeIncompleteModal() {
                             <td class="col-center" style="vertical-align:middle;">${timeContent}</td>
                             ${otHtml}
                             <td class="col-center" style="font-weight:800; color:var(--brand); font-size:0.95rem; vertical-align:middle;">${totalText}</td>
+                            ${requestHtml}
                             <td class="col-center sticky-col" style="vertical-align:middle;">${actionBtnHtml}</td>
                         `;
                     }
@@ -3280,7 +3318,7 @@ function closeIncompleteModal() {
                     return;
                 }
 
-                // 🟢 ระบบป้องกันการใส่ข้อมูล "ขอเบิกเวลา OT" เกินเวลาทำงานรวม
+                // 🟢 ตรวจสอบความถูกต้องของการขอเบิก OT ก่อนบันทึก
                 const reqInput = document.getElementById('requestOTInput');
                 let requestOTVal = 0;
                 if (reqInput) {
@@ -3291,19 +3329,19 @@ function closeIncompleteModal() {
                         return;
                     }
                     const maxVal = parseFloat(reqInput.getAttribute('max'));
-                    if (reqVal > maxVal) {
+                    if (reqVal > maxVal + 0.01) { // เผื่อจุดทศนิยม 0.01 
                         document.getElementById('requestOTError').style.display = 'block';
                         reqInput.focus();
                         return;
                     }
                     document.getElementById('requestOTError').style.display = 'none';
-                    requestOTVal = reqVal; // เก็บค่าที่ถูกต้องไว้
+                    requestOTVal = reqVal; 
                 }
 
                 if(!currentCalcResult) return;
 
                 currentCalcResult.driver = driverName;
-                currentCalcResult.requestOT = requestOTVal; // 🟢 แทรกลงไปในข้อมูลที่จะส่งไป Google Sheets
+                currentCalcResult.requestOT = requestOTVal; // ส่งข้อมูลขอเบิกลงตาราง
 
                 const existingIndex = otHistory.findIndex(item => 
                     item.date === currentCalcResult.date && (getPlainName(item.driver) === currentCalcResult.driver)
