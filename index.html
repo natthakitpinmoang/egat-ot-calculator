@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<title>EGAT OT (v7.1 Final Fix - Cloud Sync)</title>
+<title>EGAT OT (v7.2 Final Fix + Auto-Pilot)</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -1620,6 +1620,44 @@ function renderDrivers() {
 
   const fmtTime = mins => { const h = Math.floor(mins/60)%24; const m = mins%60; return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; };
 
+  // ✈️ ฟังก์ชัน Auto-Pilot หั่นเวลา OT อัตโนมัติ
+  window.handleAutoPilotOT = function(reqHoursStr) {
+      if (!currentCalcResult) return;
+      let reqHours = parseFloat(reqHoursStr);
+      if (isNaN(reqHours) || reqHours < 0) reqHours = 0;
+
+      let reqMins = Math.round(reqHours * 60);
+
+      // ดึงค่า Max สูงสุดที่ระบบคำนวณได้ตอนแรก
+      let max15 = currentCalcResult.baseOt15 || 0;
+      let max1  = currentCalcResult.baseOt1 || 0;
+      let max3  = currentCalcResult.baseOt3 || 0;
+
+      if (currentCalcResult.type === 'weekday') {
+          let allocate15 = Math.min(reqMins, max15);
+          currentCalcResult.ot15 = allocate15; 
+          
+          let disp15 = document.getElementById('disp_total15');
+          if (disp15) {
+              disp15.innerHTML = fmt(allocate15) + (allocate15 < max15 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
+          }
+      } else {
+          // วันหยุด: Priority เติมกล่อง x3 ให้เต็มก่อน แล้วค่อยเทไป x1
+          let allocate3 = Math.min(reqMins, max3);
+          let remMins = Math.max(0, reqMins - allocate3);
+          let allocate1 = Math.min(remMins, max1);
+
+          currentCalcResult.ot3 = allocate3;
+          currentCalcResult.ot1 = allocate1;
+
+          let disp3 = document.getElementById('disp_total3');
+          let disp1 = document.getElementById('disp_total1');
+
+          if (disp3) disp3.innerHTML = fmt(allocate3) + (allocate3 < max3 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
+          if (disp1) disp1.innerHTML = fmt(allocate1) + (allocate1 < max1 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
+      }
+  };
+
   function rowHTML(range, rateClass, rateText, mins){
     return `<div class="row"><div class="time">${range}</div><div class="rate ${rateClass}">${rateText}</div><div class="dur">${fmt(mins)}</div></div>`;
   }
@@ -1635,12 +1673,12 @@ function renderDrivers() {
 
       if (type === 'weekday') {
           dispTotal = Math.max(0, totalMinutes - WORKDAY_MINUTES);
-          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1.5</span><span class="v">${fmt(wkResult.total15)}</span></div>`;
+          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1.5</span><span class="v" id="disp_total15">${fmt(wkResult.total15)}</span></div>`;
       } else {
           const ot1 = wkResult.totals[1] || 0;
           const ot3 = wkResult.totals[3] || 0;
           dispTotal = wkResult.totalMinutes;
-          totalBoxTop = `<div class="total-line"><span class="k">รวม ×3</span><span class="v">${fmt(ot3)}</span></div><div class="total-line"><span class="k">รวม ×1</span><span class="v">${fmt(ot1)}</span></div>`;
+          totalBoxTop = `<div class="total-line"><span class="k">รวม ×3</span><span class="v" id="disp_total3">${fmt(ot3)}</span></div><div class="total-line"><span class="k">รวม ×1</span><span class="v" id="disp_total1">${fmt(ot1)}</span></div>`;
       }
 
       const maxHours = dispTotal / 60;
@@ -1648,9 +1686,12 @@ function renderDrivers() {
       
       const reqHtml = `
           <div class="total-line" style="margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 12px; align-items: center;">
-              <span class="k" style="color:#0284c7; font-weight:800;">📝 ขอเบิกเวลา OT (ชม.)</span>
+              <span class="k" style="color:#0284c7; font-weight:800;">
+                  📝 ขอเบิกเวลา OT (ชม.) 
+                  <span style="background:#fef08a; color:#854d0e; padding:2px 6px; border-radius:6px; font-size:0.7rem; vertical-align:middle; margin-left:4px; box-shadow:0 1px 2px rgba(0,0,0,0.1);">✨ Auto-Pilot</span>
+              </span>
               <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                  <input type="number" id="requestOTInput" class="mini-input" style="width:100px; border-color:#38bdf8; background:#f0f9ff; font-size:1.1rem; text-align:center;" min="0" max="${maxHours}" step="0.5" value="${maxHoursClean}" placeholder="เช่น 4">
+                  <input type="number" id="requestOTInput" class="mini-input" style="width:100px; border-color:#38bdf8; background:#f0f9ff; font-size:1.1rem; text-align:center;" min="0" max="${maxHours}" step="0.5" value="${maxHoursClean}" placeholder="เช่น 4" oninput="handleAutoPilotOT(this.value)">
                   <div id="requestOTError" style="color:var(--danger); font-size:0.75rem; display:none; margin-top:4px;">❌ ห้ามเกิน ${maxHoursClean} ชม.</div>
               </div>
           </div>
@@ -1771,7 +1812,15 @@ function renderDrivers() {
     const result = calculateCore(start, end, dateVal, type); 
     if(!result) { document.getElementById('result').innerText='❌ เวลาไม่ถูกต้อง'; return; }
 
-    currentCalcResult = { ...result, id: Date.now(), driver: driver };
+    currentCalcResult = { 
+        ...result, 
+        id: Date.now(), 
+        driver: driver,
+        baseOt15: result.ot15,
+        baseOt1: result.ot1,
+        baseOt3: result.ot3
+    };
+
     document.getElementById('result').innerHTML = result.html;
     document.getElementById('saveSection').style.display = 'flex';
     const btn = document.getElementById('btnSaveLog');
@@ -1837,10 +1886,22 @@ function renderDrivers() {
 
           let oldReq = parseFloat(originalItem.requestOT);
           let newMaxHr = newResult.dispTotalMinutes / 60;
-          if (!isNaN(oldReq)) {
-              newResult.requestOT = oldReq > newMaxHr ? newMaxHr : oldReq;
+          if (!isNaN(oldReq) && oldReq <= newMaxHr) {
+              newResult.requestOT = oldReq;
           } else {
               newResult.requestOT = newMaxHr;
+          }
+
+          // ✈️ Auto-pilot ตัดเวลาให้อัตโนมัติในโหมด Inline Edit
+          let finalReqMins = Math.round(newResult.requestOT * 60);
+          if (newResult.type === 'weekday') {
+              newResult.ot15 = Math.min(finalReqMins, newResult.ot15);
+          } else {
+              let max3 = newResult.ot3;
+              let max1 = newResult.ot1;
+              newResult.ot3 = Math.min(finalReqMins, max3);
+              let rem = Math.max(0, finalReqMins - newResult.ot3);
+              newResult.ot1 = Math.min(rem, max1);
           }
 
           otHistory[index] = newResult;
@@ -1861,17 +1922,17 @@ function renderDrivers() {
               } else {
                   const workDateVal = document.getElementById('workDate').value;
                   if (workDateVal) {
-                      const d = new Date(workDateVal);
-                      targetMonth = d.getMonth();
-                      targetYear = d.getFullYear();
+                      const dateObj = new Date(workDateVal);
+                      targetMonth = dateObj.getMonth();
+                      targetYear = dateObj.getFullYear();
                   }
               }
           }
 
           const currentFiltered = otHistory.filter(item => {
               if(!showAll && targetMonth !== null) {
-                  const d = new Date(item.date);
-                  if(d.getMonth() !== targetMonth || d.getFullYear() !== targetYear) return false;
+                  const dateObj = new Date(item.date);
+                  if(dateObj.getMonth() !== targetMonth || dateObj.getFullYear() !== targetYear) return false;
               }
               if (driverFilterVal !== "") {
                   if (getPlainName(item.driver) !== getPlainName(driverFilterVal)) return false;
