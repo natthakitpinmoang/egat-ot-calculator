@@ -1653,19 +1653,17 @@ function renderDrivers() {
 
   const fmtTime = mins => { const h = Math.floor(mins/60)%24; const m = mins%60; return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; };
 
-  // ✈️ ฟังก์ชัน Auto-Pilot หั่นเวลา OT อัตโนมัติ
-  window.handleAutoPilotOT = function(reqHoursStr) {
-      if (!currentCalcResult) return;
-      let reqHours = parseFloat(reqHoursStr);
-      if (isNaN(reqHours) || reqHours < 0) reqHours = 0;
-
-      let reqMins = Math.round(reqHours * 60);
-
-      // ดึงค่า Max สูงสุดที่ระบบคำนวณได้ตอนแรก
-      let max15 = currentCalcResult.baseOt15 || 0;
-      let max1  = currentCalcResult.baseOt1 || 0;
-      let max3  = currentCalcResult.baseOt3 || 0;
-
+// ✈️ Auto-pilot ตัดเวลาให้อัตโนมัติในโหมด Inline Edit
+          let finalReqMins = Math.round(newResult.requestOT * 60);
+          if (newResult.type === 'weekday') {
+              newResult.ot15 = Math.min(finalReqMins, newResult.ot15);
+          } else {
+              let max1 = newResult.ot1;
+              let max3 = newResult.ot3;
+              newResult.ot1 = Math.min(finalReqMins, max1); // ใส่ x1 ก่อน
+              let rem = Math.max(0, finalReqMins - newResult.ot1);
+              newResult.ot3 = Math.min(rem, max3); // ที่เหลือไปใส่ x3
+          }
       if (currentCalcResult.type === 'weekday') {
           let allocate15 = Math.min(reqMins, max15);
           currentCalcResult.ot15 = allocate15; 
@@ -1674,20 +1672,20 @@ function renderDrivers() {
           if (disp15) {
               disp15.innerHTML = fmt(allocate15) + (allocate15 < max15 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
           }
-      } else {
-          // วันหยุด: Priority เติมกล่อง x3 ให้เต็มก่อน แล้วค่อยเทไป x1
-          let allocate3 = Math.min(reqMins, max3);
-          let remMins = Math.max(0, reqMins - allocate3);
-          let allocate1 = Math.min(remMins, max1);
+} else {
+          // วันหยุด: Priority เติมกล่อง x1 ให้เต็มก่อน แล้วถ้ามีเศษเหลือค่อยไปใส่ x3
+          let allocate1 = Math.min(reqMins, max1);
+          let remMins = Math.max(0, reqMins - allocate1);
+          let allocate3 = Math.min(remMins, max3);
 
-          currentCalcResult.ot3 = allocate3;
           currentCalcResult.ot1 = allocate1;
+          currentCalcResult.ot3 = allocate3;
 
-          let disp3 = document.getElementById('disp_total3');
           let disp1 = document.getElementById('disp_total1');
+          let disp3 = document.getElementById('disp_total3');
 
-          if (disp3) disp3.innerHTML = fmt(allocate3) + (allocate3 < max3 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
           if (disp1) disp1.innerHTML = fmt(allocate1) + (allocate1 < max1 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
+          if (disp3) disp3.innerHTML = fmt(allocate3) + (allocate3 < max3 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
       }
   };
 
