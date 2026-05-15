@@ -11,92 +11,147 @@
 
 <style>
 :root {
-  --brand: #00306e;
+  /* Color Palette */
+  --brand: #00306e;       /* EGAT Blue */
   --brand-dark: #002352;
   --brand-light: #ebf5ff;
-  --accent: #f59e0b;
+  --accent: #f59e0b;      /* Amber */
   --accent-light: #fffbeb;
   --success: #10b981;
   --danger: #ef4444;
-  --bg-body: #f8fafc;
+  --danger-soft: #fef2f2;
+
+  /* UI Colors */
+  --bg-body: #f8fafc;     /* Very Light Grey */
   --bg-card: #ffffff;
-  --bg-input-zone: #f1f5f9;
-  --text-main: #334155;
+  --bg-input-zone: #f1f5f9; /* Soft Grey for Grouping */
+  --text-main: #334155;   /* Softer Black */
   --text-muted: #64748b;
   --border: #e2e8f0;
+
   --radius: 20px;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
 }
+
 * { box-sizing: border-box }
 body { margin: 0; background: var(--bg-body); font-family: 'Sarabun', system-ui, -apple-system, Segoe UI; color: var(--text-main); -webkit-font-smoothing: antialiased; }
 .app { min-height: 100vh; display: flex; }
+
+/* Sidebar */
 .sidebar { width: 250px; background: #fff; border-right: 1px solid var(--border); padding: 24px 16px; display: flex; flex-direction: column; gap: 12px; transition: width .2s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10; box-shadow: var(--shadow-sm); }
 .sidebar.collapsed { width: 76px; }
+
 .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; color: var(--brand); padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #fff, #f8fafc); border: 1px solid var(--border); justify-content: space-between; margin-bottom: 12px; }
 .brand .left { display: flex; align-items: center; gap: 10px }
 .brand .dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2); }
 .brand .txt { font-size: 1.1rem; letter-spacing: -0.5px; }
+
 .collapse-btn { all: unset; cursor: pointer; padding: 6px; border-radius: 8px; color: var(--text-muted); display: grid; place-items: center; transition: all 0.2s; }
 .collapse-btn:hover { background: var(--bg-body); color: var(--brand); }
+
 .menu { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+
 .menu-item { display: flex; gap: 12px; align-items: center; text-decoration: none; color: var(--text-muted); padding: 14px 16px; border-radius: 12px; cursor: pointer; transition: all 0.2s; font-weight: 500; position: relative; }
 .menu-item:hover { background: var(--bg-body); color: var(--brand); transform: translateX(2px); }
 .menu-item.active { background: var(--brand-light); color: var(--brand); font-weight: 700; box-shadow: inset 3px 0 0 var(--brand); }
+
+/* Submenu Styles */
 .submenu { display: none; flex-direction: column; gap: 4px; padding-left: 20px; margin-top: -4px; margin-bottom: 8px; }
 .submenu.open { display: flex; animation: slideDown 0.2s ease-out; }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
 .submenu-item { display: flex; gap: 10px; align-items: center; padding: 10px 16px; border-radius: 12px; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
 .submenu-item:hover { background: var(--bg-body); color: var(--brand); }
 .submenu-item.active { background: #f1f5f9; color: var(--brand); font-weight: 700; box-shadow: inset 2px 0 0 var(--accent); }
+
 .icon { width: 24px; height: 24px; display: inline-grid; place-items: center; font-size: 1.2rem; flex-shrink: 0; }
 .label { white-space: nowrap; flex: 1; overflow: hidden; text-overflow: ellipsis; }
 .arrow-icon { font-size: 0.7em; opacity: 0.5; transition: transform 0.2s; }
 .menu-item.expanded .arrow-icon { transform: rotate(180deg); }
+
 .badge { background: var(--danger); color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 99px; font-weight: 700; display: none; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3); }
 .sidebar.collapsed .label, .sidebar.collapsed .badge, .sidebar.collapsed .arrow-icon { display: none }
 .sidebar.collapsed .brand .left span.txt { display: none }
 .sidebar.collapsed .submenu { display: none !important; }
+
+/* Content Area */
 .content { flex: 1; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; background-color: var(--bg-body); scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+
+/* View Container */
 .view { display: none; animation: fadeIn 0.3s; }
 .view.active { display: flex; justify-content: center; align-items: flex-start; flex-grow: 1; padding: 20px; min-height: 100%; box-sizing: border-box; }
+
+/* Compact Card Style */
 .card { width: 100%; max-width: 1100px; margin: 0 auto; background: var(--bg-card); border-radius: var(--radius); border-top: 6px solid var(--accent); box-shadow: var(--shadow-lg); padding: 24px; transition: all 0.3s ease; position: relative; }
+
 h2 { margin: 0 0 20px 0; color: var(--brand); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+
+/* Input Zone */
 .input-zone { background-color: var(--bg-input-zone); border-radius: 16px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px; }
+
+/* Form Grid */
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 640px) { .grid { grid-template-columns: 1fr; gap: 12px; } }
+
 label { font-weight: 700; color: var(--text-main); font-size: 0.95rem; margin-bottom: 6px; display: block; opacity: 0.9; }
 input, select, button, textarea { font-family: inherit; font-size: 1rem; }
+
+/* Inputs */
 input[type="date"], input[type="text"], input[type="tel"], input[type="number"], select, input[type="month"] { width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 12px; background: #fff; color: var(--text-main); transition: all 0.2s; font-weight: 500; }
 input:hover, select:hover { border-color: #94a3b8; background-color: #fcfcfc; }
 input:focus, select:focus { outline: none; border-color: var(--brand); background-color: #fff; box-shadow: 0 0 0 4px var(--brand-light); }
+
+/* Custom Select Arrow */
 select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; padding-right: 2.5rem; }
+
+/* SEARCH INPUT WRAPPER */
 .search-wrapper { position: relative; display: flex; align-items: center; }
 .search-wrapper .search-icon { position: absolute; left: 14px; font-size: 1.1rem; color: #94a3b8; pointer-events: none; z-index: 10; }
-.search-wrapper input { padding-left: 42px; background-color: #f8fafc; border-color: #e2e8f0; }
+.search-wrapper input { padding-left: 42px; /* Space for icon */ background-color: #f8fafc; border-color: #e2e8f0; }
 .search-wrapper input:focus { background-color: #fff; border-color: var(--brand); }
 .search-wrapper input::placeholder { color: #94a3b8; font-weight: 400; }
+
+/* Custom Date Input Wrapper */
 .custom-date-input { position: relative; width: 100%; background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; display: flex; align-items: center; padding: 0; overflow: hidden; height: 44px; transition: all 0.2s; }
 .custom-date-input:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0, 48, 110, 0.1); }
 .real-date-input { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; padding: 0; }
 .fake-date-display { flex: 1; padding: 0 16px; font-size: 16px; font-weight: 500; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
 .icon-cal { padding-right: 16px; color: var(--text-muted); font-size: 1.2rem; pointer-events: none; }
+
+/* Time Inputs */
 input.time-manual { border: 1px solid #cbd5e1; background-color: #fff; color: var(--brand); font-weight: 700; font-size: 1.2rem; letter-spacing: 1px; text-align: center; padding: 8px; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03); }
 input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0, 48, 110, 0.1); }
+
+/* Radio Line */
 .radio-line { display: flex; width: 100%; margin-top: 0; background: #e2e8f0; border-radius: 12px; padding: 4px; gap: 4px; }
 .radio-line label { flex: 1; margin: 0; padding: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; transition: all 0.2s; font-weight: 600; color: var(--text-muted); font-size: 0.95rem; }
 .radio-line label:hover { background: rgba(255, 255, 255, 0.8); color: var(--brand); }
 .radio-line label.active { background: #fff; color: var(--brand); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
 .radio-line input { display: none; }
-.actions { margin-top: 20px; }
-.primary { background: linear-gradient(135deg, var(--brand), #004e9a); color: #fff; border: none; padding: 14px; border-radius: 14px; cursor: pointer; font-weight: 700; width: 100%; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0, 47, 108, 0.2); transition: all 0.2s; }
-.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0, 47, 108, 0.25); }
-.primary:active { transform: scale(0.98); }
+
+/* 🟢 Actions Grid (NEW Layout for Main Screen) */
+.actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+.actions-grid .primary { grid-column: 1 / -1; background: linear-gradient(135deg, var(--brand), #004e9a); color: #fff; border: none; padding: 14px; border-radius: 14px; cursor: pointer; font-weight: 700; width: 100%; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0, 47, 108, 0.2); transition: all 0.2s; display:flex; justify-content:center; align-items:center; gap:8px; }
+.actions-grid .primary:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0, 47, 108, 0.25); }
+.actions-grid .primary:active { transform: scale(0.98); }
+
+.btn-leave { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; padding: 12px; border-radius: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 1rem; display:flex; justify-content:center; align-items:center; gap:6px; box-shadow: var(--shadow-sm); }
+.btn-leave:hover { background: #ffe4e6; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.15); }
+.btn-leave:active { transform: scale(0.98); }
+
+.btn-incomplete { background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; padding: 12px; border-radius: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 1rem; display:flex; justify-content:center; align-items:center; gap:6px; box-shadow: var(--shadow-sm); }
+.btn-incomplete:hover { background: #fef3c7; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.15); }
+.btn-incomplete:active { transform: scale(0.98); }
+
 .btn-secondary { background: #f1f5f9; color: var(--text-muted); border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 700; width: auto; font-size: 1rem; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); transition: all 0.1s; }
 .btn-secondary:hover { background: #e2e8f0; color: var(--text-main); }
+
+/* Result Area */
 #result { margin-top: 20px; animation: slideUp 0.3s ease-out; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
 .result-wrap { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); background: #fff; }
 .result-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: #fff; border-bottom: 1px solid var(--border); }
 .result-head .tt { font-weight: 800; color: var(--brand); font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
@@ -106,38 +161,50 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .result-section { padding: 18px; border-bottom: 1px solid var(--border); }
 .result-section:last-child { border-bottom: none; background: #f9fafb; }
 .result-title { font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.95rem; }
+
 .row { display: grid; grid-template-columns: 130px 70px 1fr; gap: 10px; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: #fff; margin-bottom: 6px; transition: transform 0.1s; font-size: 0.95rem; }
 .row:hover { border-color: var(--brand-light); transform: translateX(4px); }
 @media (max-width:560px) { .row { grid-template-columns: 1fr 60px 1fr; } }
+
 .time { font-variant-numeric: tabular-nums; font-weight: 500; color: var(--text-main); }
 .rate { justify-self: center; font-weight: 800; padding: 3px 8px; border-radius: 8px; font-size: .8rem; letter-spacing: 0.5px; }
 .rate.x1 { background: #ecfeff; color: #0e7490; }
 .rate.x15 { background: var(--brand-light); color: var(--brand); }
 .rate.x3 { background: #fff1f2; color: #be123c; }
 .dur { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+
 .breaks { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .break-chip { background: #f1f5f9; color: var(--text-muted); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; font-size: .8rem; }
+
 .total-box { display: grid; gap: 6px; }
 .total-line { display: flex; justify-content: space-between; font-weight: 600; color: var(--text-muted); font-size: 0.95rem; }
 .total-line .v { font-weight: 800; color: var(--text-main); }
 .total-line.em { border-top: 1px dashed var(--border); padding-top: 10px; margin-top: 6px; color: var(--brand); font-size: 1.05rem; }
+
+/* Save Buttons */
 .btn-group { display: flex; gap: 10px; width: 100%; margin-top: 18px; }
 .btn-save { background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 700; flex: 2; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3); font-size: 1rem; }
 .btn-save:hover { transform: translateY(-2px); box-shadow: 0 8px 10px -2px rgba(16, 185, 129, 0.4); }
 .btn-save:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; }
-.btn-next { background: #fff; color: var(--text-muted); border: 2px solid var(--border); padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 700; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; font-size: 1rem; }
-.btn-next:hover { background: #f8fafc; color: var(--text-main); border-color: var(--text-muted); }
+
+/* Utility Display */
 .thai-date-display { grid-column: 1 / -1; font-size: 0.95rem; color: var(--brand); font-weight: 700; margin: 8px 0; background: var(--brand-light); display: block; padding: 10px; border-radius: 12px; width: 100%; text-align: center; border: 1px dashed #bfdbfe; }
+
+/* History Section Beautification */
 .month-selector-group { display: flex; align-items: center; gap: 10px; margin-bottom: 0; }
 .history-date-text { font-size: 1.6rem; font-weight: 800; color: var(--brand); border-bottom: 2px dashed rgba(0, 47, 108, 0.2); cursor: pointer; position: relative; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
 .history-date-text:hover { color: var(--accent); border-bottom-color: var(--accent); }
 .history-date-text::after { content: '▼'; font-size: 0.4em; opacity: 0.5; }
 .history-date-input-hidden { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; display: none; }
+
+/* Driver Filter Styles */
 .driver-filter-wrapper { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--border); padding: 6px 14px; border-radius: 50px; box-shadow: var(--shadow-sm); transition: all 0.2s; margin-left: auto; }
 .driver-filter-wrapper:hover { box-shadow: var(--shadow); border-color: var(--brand-light); }
 .filter-label { margin: 0; font-weight: 700; color: var(--text-muted); font-size: 0.9rem; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
 .filter-select { border: none; background: transparent; padding: 4px 8px; font-weight: 700; font-size: 1rem; color: var(--brand); outline: none; cursor: pointer; min-width: 140px; }
 .filter-select:hover { color: var(--brand-dark); }
+
+/* HEADER & FILTER STYLES */
 .history-header-container { display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch; background: linear-gradient(to right, #e2e8f0, #f8fafc); padding: 16px 20px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #cbd5e1; gap: 12px; box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.05); }
 .left-group { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px; margin-bottom: 4px; width: 100%; }
 .right-group { margin-left: 0; width: 100%; display: flex; justify-content: flex-start; }
@@ -148,6 +215,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .month-text { font-size: 1.4rem; font-weight: 700; color: var(--text-muted); }
 .month-text:hover { color: var(--brand); }
 .filter-bar { display: none; }
+
+/* Toolbar Styles */
 .history-toolbar-container { margin-top: 15px; margin-bottom: 20px; padding: 6px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 18px; display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 6px; align-items: stretch; justify-content: space-between; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03); -ms-overflow-style: none; scrollbar-width: none; }
 .history-toolbar-container::-webkit-scrollbar { display: none; }
 .tool-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 4px; border-radius: 12px; border: 1px solid transparent; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); color: var(--text-muted); white-space: nowrap; min-width: fit-content; }
@@ -162,6 +231,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .tool-btn.t-view { color: #475569; background: linear-gradient(to bottom, #fff, #f8fafc); border-color: #cbd5e1; }
 .tool-btn.t-view:hover { background: #f1f5f9; }
 .tool-divider { display: none; }
+
+/* Summary Cards - Compact */
 .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
 .sum-card { padding: 16px; border-radius: 16px; color: white; text-align: center; box-shadow: var(--shadow-lg); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; min-height: 100px; transition: transform 0.2s; }
 .sum-card:hover { transform: translateY(-3px); }
@@ -173,6 +244,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .sum-card .val { font-size: 2rem; font-weight: 800; line-height: 1; margin: 2px 0; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
 .sum-card .unit { font-size: 0.75rem; opacity: 0.8; font-weight: 500; }
 
+/* Total Summary Bar - Split Style */
 .total-summary-section { background: #fff; border: 1px solid var(--border); border-radius: 16px; margin-top: 20px; display: flex; overflow: hidden; box-shadow: var(--shadow); padding: 0; }
 .summary-half { flex: 1; padding: 16px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
 .summary-half:not(:last-child) { border-right: 1px dashed var(--border); }
@@ -187,6 +259,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .summary-half.leave .val { color: var(--accent); }
 .summary-half.ot .val { color: var(--brand); }
 
+/* Table Styles (Compact & Fit & Sticky) */
 .table-container { border-radius: 16px; box-shadow: var(--shadow); background: #fff; border: 1px solid var(--border); margin-top: 20px; overflow-x: auto; position: relative; }
 .history-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 100%; font-size: 0.8rem; }
 .history-table thead th { background: #f8fafc; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem; font-weight: 800; padding: 10px 2px; border-bottom: 2px solid var(--border); white-space: nowrap; vertical-align: middle; }
@@ -398,9 +471,13 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
               </div>
             </div>
         </div>
-        <div class="actions">
-          <button class="primary" id="btnCalc">คำนวณ OT</button>
+
+        <div class="actions-grid">
+          <button class="primary" id="btnCalc">⏱️ คำนวณ OT</button>
+          <button class="btn-leave" onclick="markAsLeave()">🏖️ บันทึกวันลา</button>
+          <button class="btn-incomplete" onclick="markAsIncomplete()">⚠️ แจ้งเอกสารไม่ครบ</button>
         </div>
+
         <div id="result"></div>
         <div id="saveSection" class="btn-group" style="display:none;">
             <button class="btn-save" id="btnSaveLog">📥 บันทึกข้อมูล</button>
@@ -409,7 +486,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       </div>
     </section>
 
-    <!-- History View -->
     <section id="view-history" class="view">
       <div class="card">
         <div class="history-header-container">
@@ -498,7 +574,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       </div>
     </section>
 
-    <!-- Drivers -->
     <section id="view-drivers" class="view">
       <div class="card">
         <div class="driver-header-flex" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -511,7 +586,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       </div>
     </section>
 
-    <!-- Calculator -->
     <section id="view-calc" class="view">
       <div class="card">
         <h2>เครื่องคิดเลข</h2>
@@ -2537,7 +2611,7 @@ function closeIncompleteModal() {
     tbody.innerHTML = '';
     let s15=0, s1=0, s3=0;
     let leaveCount = 0; 
-    let totalRequestOT = 0;
+    let totalRequestOT = 0; 
     filteredIndices = []; 
 
     if(currentHistoryMode === 'driver') {
@@ -2711,7 +2785,7 @@ function closeIncompleteModal() {
                     s15 += item.ot15 || 0; 
                     s1 += item.ot1 || 0; 
                     s3 += item.ot3 || 0;
-                    totalRequestOT += (parseFloat(item.requestOT) || 0);
+                    totalRequestOT += (parseFloat(item.requestOT) || 0); 
                 }
                 
                 const tr = document.createElement('tr');
@@ -3219,6 +3293,105 @@ function closeIncompleteModal() {
    
   /* Service Worker Kill Switch */
   if ('serviceWorker' in navigator) { try { navigator.serviceWorker.getRegistrations().then(function(registrations) { for(let registration of registrations) { registration.unregister(); } }).catch(function(err) {}); } catch(e) {} }
+
+  // 🟢 ฟังก์ชันสำหรับปุ่มจัดการด่วน (ลา / ขาดเอกสาร) ในหน้าคำนวณ OT
+  window.markAsLeave = function() {
+      const driverInput = document.getElementById('driverSelect').value;
+      const driverName = getPlainName(driverInput);
+      const dateVal = document.getElementById('workDate').value;
+
+      if (!driverName) { alert('⚠️ กรุณาระบุชื่อ พขร. ด้านบนก่อนครับ'); return; }
+      if (!dateVal) { alert('⚠️ กรุณาเลือกวันที่ครับ'); return; }
+
+      if (!confirm(`ยืนยันบันทึก "ลาพัก" ให้กับ\n👤 ${driverName}\n📅 วันที่ ${formatThaiDate(dateVal)} ใช่หรือไม่?`)) return;
+
+      const d = new Date(dateVal);
+      const dayOfWeek = d.getDay();
+      const type = (dayOfWeek === 0 || dayOfWeek === 6) ? 'weekend' : 'weekday';
+
+      let existingIndex = otHistory.findIndex(item => item.date === dateVal && getPlainName(item.driver) === driverName);
+      
+      const leaveItem = {
+          id: existingIndex !== -1 ? otHistory[existingIndex].id : Date.now(),
+          date: dateVal,
+          type: type,
+          driver: driverName,
+          isLeave: true,
+          isPending: false,
+          isIncomplete: false,
+          incompleteReason: "",
+          leaveType: 'ลา',
+          ot15: 0, ot1: 0, ot3: 0, requestOT: 0,
+          start: '-', end: '-'
+      };
+
+      if (existingIndex !== -1) {
+          otHistory[existingIndex] = leaveItem;
+      } else {
+          otHistory.push(leaveItem);
+      }
+
+      sortHistory();
+      try { 
+          CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); 
+          alert('✅ บันทึกวันลาเรียบร้อยแล้วครับ');
+          resetFormForNext();
+          renderHistory();
+      } catch(e) { alert('❌ บันทึกไม่สำเร็จ'); }
+  };
+
+  window.markAsIncomplete = function() {
+      const driverInput = document.getElementById('driverSelect').value;
+      const driverName = getPlainName(driverInput);
+      const dateVal = document.getElementById('workDate').value;
+
+      if (!driverName) { alert('⚠️ กรุณาระบุชื่อ พขร. ด้านบนก่อนครับ'); return; }
+      if (!dateVal) { alert('⚠️ กรุณาเลือกวันที่ครับ'); return; }
+
+      const reason = prompt(`แจ้งขาดเอกสารของ ${driverName} \nวันที่ ${formatThaiDate(dateVal)}\n\nโปรดระบุเอกสารที่ขาด (เช่น ขาดใบ OT):`, "ขาดใบ OT");
+      if (reason === null) return; 
+      const finalReason = reason.trim() || "ขาดเอกสาร";
+
+      const d = new Date(dateVal);
+      const dayOfWeek = d.getDay();
+      const type = (dayOfWeek === 0 || dayOfWeek === 6) ? 'weekend' : 'weekday';
+
+      let existingIndex = otHistory.findIndex(item => item.date === dateVal && getPlainName(item.driver) === driverName);
+      
+      let targetItem;
+      if (existingIndex !== -1) {
+          targetItem = { ...otHistory[existingIndex] };
+          targetItem.isIncomplete = true;
+          targetItem.incompleteReason = finalReason;
+      } else {
+          targetItem = {
+              id: Date.now(),
+              date: dateVal,
+              type: type,
+              driver: driverName,
+              isLeave: false,
+              isPending: true, 
+              isIncomplete: true,
+              incompleteReason: finalReason,
+              ot15: 0, ot1: 0, ot3: 0, requestOT: 0,
+              start: '07:30', end: '17:00'
+          };
+      }
+
+      if (existingIndex !== -1) {
+          otHistory[existingIndex] = targetItem;
+      } else {
+          otHistory.push(targetItem);
+      }
+
+      sortHistory();
+      try { 
+          CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); 
+          alert('✅ บันทึกแจ้งขาดเอกสารเรียบร้อยแล้วครับ');
+          resetFormForNext();
+          renderHistory();
+      } catch(e) { alert('❌ บันทึกไม่สำเร็จ'); }
+  };
 </script>
 </body>
 </html>
