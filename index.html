@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<title>EGAT OT (v7.4 Modern Summary)</title>
+<title>EGAT OT (v7.5 Flexible Override)</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -109,7 +109,7 @@ select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF
 /* SEARCH INPUT WRAPPER */
 .search-wrapper { position: relative; display: flex; align-items: center; }
 .search-wrapper .search-icon { position: absolute; left: 14px; font-size: 1.1rem; color: #94a3b8; pointer-events: none; z-index: 10; }
-.search-wrapper input { padding-left: 42px; background-color: #f8fafc; border-color: #e2e8f0; }
+.search-wrapper input { padding-left: 42px; /* Space for icon */ background-color: #f8fafc; border-color: #e2e8f0; }
 .search-wrapper input:focus { background-color: #fff; border-color: var(--brand); }
 .search-wrapper input::placeholder { color: #94a3b8; font-weight: 400; }
 
@@ -1708,7 +1708,7 @@ function renderDrivers() {
           
           let disp15 = document.getElementById('disp_total15');
           if (disp15) {
-              disp15.innerHTML = fmt(allocate15) + (allocate15 < max15 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
+              disp15.innerHTML = fmt(allocate15) + ' <span style="font-size:0.75rem; color:#d97706;">✏️</span>';
           }
       } else {
           // วันหยุด: Priority เติมกล่อง x1 ให้เต็มก่อน แล้วค่อยเทส่วนที่เหลือไป x3
@@ -1722,8 +1722,8 @@ function renderDrivers() {
           let disp1 = document.getElementById('disp_total1');
           let disp3 = document.getElementById('disp_total3');
 
-          if (disp1) disp1.innerHTML = fmt(allocate1) + (allocate1 < max1 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
-          if (disp3) disp3.innerHTML = fmt(allocate3) + (allocate3 < max3 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
+          if (disp1) disp1.innerHTML = fmt(allocate1) + ' <span style="font-size:0.75rem; color:#d97706;">✏️</span>';
+          if (disp3) disp3.innerHTML = fmt(allocate3) + ' <span style="font-size:0.75rem; color:#d97706;">✏️</span>';
       }
   };
 
@@ -1740,14 +1740,15 @@ function renderDrivers() {
       let dispTotal = 0;
       let totalBoxTop = '';
 
+      // 🛠️ อัปเดตให้คลิกแก้ตัวเลขได้อิสระก่อนกดบันทึก
       if (type === 'weekday') {
           dispTotal = Math.max(0, totalMinutes - WORKDAY_MINUTES);
-          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1.5</span><span class="v" id="disp_total15">${fmt(wkResult.total15)}</span></div>`;
+          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1.5</span><span class="v" id="disp_total15" style="cursor:pointer; color:var(--brand); text-decoration:underline; text-underline-offset:3px;" onclick="manualOverrideOT('15')" title="คลิกเพื่อแก้ไขตัวเลขเอง">${fmt(wkResult.total15)} ✏️</span></div>`;
       } else {
           const ot1 = wkResult.totals[1] || 0;
           const ot3 = wkResult.totals[3] || 0;
           dispTotal = wkResult.totalMinutes;
-          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1</span><span class="v" id="disp_total1">${fmt(ot1)}</span></div><div class="total-line"><span class="k">รวม ×3</span><span class="v" id="disp_total3">${fmt(ot3)}</span></div>`;
+          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1</span><span class="v" id="disp_total1" style="cursor:pointer; color:var(--brand); text-decoration:underline; text-underline-offset:3px;" onclick="manualOverrideOT('1')" title="คลิกเพื่อแก้ไขตัวเลขเอง">${fmt(ot1)} ✏️</span></div><div class="total-line"><span class="k">รวม ×3</span><span class="v" id="disp_total3" style="cursor:pointer; color:var(--brand); text-decoration:underline; text-underline-offset:3px;" onclick="manualOverrideOT('3')" title="คลิกเพื่อแก้ไขตัวเลขเอง">${fmt(ot3)} ✏️</span></div>`;
       }
 
       const maxHours = dispTotal / 60;
@@ -1773,6 +1774,70 @@ function renderDrivers() {
       }
       return `<div class="result-wrap" style="outline:none;">${head}${body}</div>`;
   }
+
+  // 🛠️ เพิ่มฟังก์ชัน Manual Override ตรงนี้ (ไม่ให้เกินเวลารวม)
+  window.manualOverrideOT = function(rateKey) {
+      if (!currentCalcResult) return;
+      
+      let currentVal = 0, label = "";
+      let maxTotalLimit = 0;
+
+      // คำนวณเพดานสูงสุดของ "เวลารวมทั้งหมดที่ทำงาน" (ไม่สนว่า x1 หรือ x3)
+      if (currentCalcResult.type === 'weekday') {
+          maxTotalLimit = currentCalcResult.baseOt15 || 0;
+      } else {
+          maxTotalLimit = (currentCalcResult.baseOt1 || 0) + (currentCalcResult.baseOt3 || 0);
+      }
+      
+      if (rateKey === '15') { currentVal = currentCalcResult.ot15 / 60; label = "OT x1.5"; }
+      if (rateKey === '1') { currentVal = currentCalcResult.ot1 / 60; label = "OT x1"; }
+      if (rateKey === '3') { currentVal = currentCalcResult.ot3 / 60; label = "OT x3"; }
+      
+      let maxTotalHours = (maxTotalLimit/60).toFixed(2).replace('.00','');
+      let promptText = `🛠️ ปรับแก้ชั่วโมง ${label} ด้วยตัวเอง\n(เวลารวมสูงสุดที่ทำได้คือ: ${maxTotalHours} ชม.)\n\n*กรอกตัวเลขชั่วโมงที่ต้องการ:`;
+      
+      let newValStr = prompt(promptText, currentVal.toFixed(2).replace('.00', '').replace(/0$/, ''));
+      if (newValStr !== null) {
+          let newVal = parseFloat(newValStr);
+          if (isNaN(newVal) || newVal < 0) { alert('❌ ระบุตัวเลขไม่ถูกต้อง'); return; }
+          let newValMins = Math.round(newVal * 60);
+          
+          let proposedTotal = 0;
+          if (rateKey === '15') {
+              proposedTotal = newValMins;
+          } else if (rateKey === '1') {
+              proposedTotal = newValMins + (currentCalcResult.ot3 || 0);
+          } else if (rateKey === '3') {
+              proposedTotal = (currentCalcResult.ot1 || 0) + newValMins;
+          }
+
+          if (proposedTotal > Math.round(maxTotalLimit) + 1) { 
+              alert(`❌ เวลารวมทั้งหมด (${(proposedTotal/60).toFixed(2)}) เกินเวลาทำงานจริง (${maxTotalHours} ชม.)\n*กรุณาลดเวลาช่องอื่นลงก่อน หรือแก้เวลาเข้า-ออกให้ครอบคลุมครับ`); 
+              return; 
+          }
+          
+          if (rateKey === '15') { 
+              currentCalcResult.ot15 = newValMins; 
+              document.getElementById('disp_total15').innerHTML = fmt(newValMins) + ' <span style="font-size:0.75rem; color:#d97706;">(แก้เอง) ✏️</span>'; 
+          }
+          if (rateKey === '1') { 
+              currentCalcResult.ot1 = newValMins; 
+              document.getElementById('disp_total1').innerHTML = fmt(newValMins) + ' <span style="font-size:0.75rem; color:#d97706;">(แก้เอง) ✏️</span>'; 
+          }
+          if (rateKey === '3') { 
+              currentCalcResult.ot3 = newValMins; 
+              document.getElementById('disp_total3').innerHTML = fmt(newValMins) + ' <span style="font-size:0.75rem; color:#d97706;">(แก้เอง) ✏️</span>'; 
+          }
+          
+          // อัปเดตช่อง "ขอเบิกเวลา OT" ให้ตรงกับผลบวก
+          let sumMins = (currentCalcResult.ot15 || 0) + (currentCalcResult.ot1 || 0) + (currentCalcResult.ot3 || 0);
+          let reqInput = document.getElementById('requestOTInput');
+          if(reqInput) {
+              reqInput.value = (sumMins / 60).toFixed(2).replace('.00', '').replace(/0$/, '');
+              currentCalcResult.requestOT = sumMins / 60;
+          }
+      }
+  };
 
   function calculateCore(start, end, dateVal, type) {
       if(!start || !end || !dateVal) return null;
@@ -2604,21 +2669,28 @@ function closeIncompleteModal() {
       renderHistory(); 
   }
 
+  // 🛠️ อัปเดตฟังก์ชันแก้ไขเวลาให้รวมยอดไม่ให้เกินเวลางานทั้งหมด
   function editOTHours(index, rateKey) {
       const item = otHistory[index];
       const limitCalc = calculateCore(item.start, item.end, item.date, item.type);
-      let currentVal = 0, maxLimit = 0, label = "";
+      let currentVal = 0, label = "";
       
-      if(rateKey === '15') { currentVal = item.ot15/60; maxLimit = limitCalc.ot15; label = "OT x1.5"; }
-      if(rateKey === '1')  { currentVal = item.ot1/60; maxLimit = limitCalc.ot1; label = "OT x1"; }
-      if(rateKey === '3')  { currentVal = item.ot3/60; maxLimit = limitCalc.ot3; label = "OT x3"; }
+      let maxTotalLimit = 0;
+      if (item.type === 'weekday') {
+          maxTotalLimit = limitCalc.ot15 || 0;
+      } else {
+          maxTotalLimit = (limitCalc.ot1 || 0) + (limitCalc.ot3 || 0);
+      }
       
-      const newValStr = prompt(`แก้ไขชั่วโมง ${label} (สูงสุด ${(maxLimit/60).toFixed(2)})`, currentVal.toFixed(1));
+      if(rateKey === '15') { currentVal = item.ot15/60; label = "OT x1.5"; }
+      if(rateKey === '1')  { currentVal = item.ot1/60; label = "OT x1"; }
+      if(rateKey === '3')  { currentVal = item.ot3/60; label = "OT x3"; }
+      
+      const newValStr = prompt(`แก้ไขชั่วโมง ${label} \n(ระบบจับเวลากะทำงานรวมสูงสุด: ${(maxTotalLimit/60).toFixed(2).replace('.00','')} ชม.)`, currentVal.toFixed(2).replace('.00','').replace(/0$/,''));
       if(newValStr !== null) {
           const newVal = parseFloat(newValStr);
           if(isNaN(newVal) || newVal < 0) { alert('❌ ตัวเลขไม่ถูกต้อง'); return; }
           const newValMinutes = Math.round(newVal * 60);
-          if(newValMinutes > maxLimit + 1) { alert(`❌ เกินเวลาจริง (${(maxLimit/60).toFixed(2)})`); return; }
 
           let proposedTotal = 0;
           if(rateKey === '15') proposedTotal = newValMinutes; 
@@ -2626,13 +2698,19 @@ function closeIncompleteModal() {
               let ot1 = (rateKey === '1') ? newValMinutes : (item.ot1||0);
               let ot3 = (rateKey === '3') ? newValMinutes : (item.ot3||0);
               proposedTotal = ot1 + ot3;
-              const maxTotal = (limitCalc.ot1 || 0) + (limitCalc.ot3 || 0);
-              if(proposedTotal > maxTotal + 1) { alert(`❌ เวลารวมเกิน (${(maxTotal/60).toFixed(2)})`); return; }
+          }
+          
+          if(proposedTotal > Math.round(maxTotalLimit) + 1) { 
+               alert(`❌ เวลารวมทั้งหมด (${(proposedTotal/60).toFixed(2)}) เกินเวลาทำงานจริง (${(maxTotalLimit/60).toFixed(2).replace('.00','')} ชม.)`); 
+               return; 
           }
           
           if(rateKey === '15') item.ot15 = newValMinutes;
           if(rateKey === '1')  item.ot1 = newValMinutes;
           if(rateKey === '3')  item.ot3 = newValMinutes;
+          
+          let sumMins = (item.ot15 || 0) + (item.ot1 || 0) + (item.ot3 || 0);
+          item.requestOT = sumMins / 60;
           
           try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
           renderHistory();
@@ -3400,203 +3478,6 @@ function closeIncompleteModal() {
             hSelect.addEventListener('keydown', (e) => autoSelectDriverOnEnter(e, hSelect, true));
         }
   });
-   
-  /* Service Worker Kill Switch */
-  if ('serviceWorker' in navigator) { try { navigator.serviceWorker.getRegistrations().then(function(registrations) { for(let registration of registrations) { registration.unregister(); } }).catch(function(err) {}); } catch(e) {} }
-
-  /* Actions Trigger in main calculation UI */
-  window.markAsLeave = function() {
-      const driverInput = document.getElementById('driverSelect').value;
-      const driverName = getPlainName(driverInput);
-      const dateVal = document.getElementById('workDate').value;
-
-      if (!driverName) { alert('⚠️ กรุณาระบุชื่อ พขร. ด้านบนก่อนครับ'); return; }
-      if (!dateVal) { alert('⚠️ กรุณาเลือกวันที่ครับ'); return; }
-
-      if (!confirm(`ยืนยันบันทึก "ลาพัก" ให้กับ\n👤 ${driverName}\n📅 วันที่ ${formatThaiDate(dateVal)} ใช่หรือไม่?`)) return;
-
-      const d = new Date(dateVal);
-      const dayOfWeek = d.getDay();
-      const type = (dayOfWeek === 0 || dayOfWeek === 6) ? 'weekend' : 'weekday';
-
-      let existingIndex = otHistory.findIndex(item => item.date === dateVal && getPlainName(item.driver) === driverName);
-      
-      const leaveItem = {
-          id: existingIndex !== -1 ? otHistory[existingIndex].id : Date.now(),
-          date: dateVal,
-          type: type,
-          driver: driverName,
-          isLeave: true,
-          isPending: false,
-          isIncomplete: false,
-          incompleteReason: "",
-          leaveType: 'ลา',
-          ot15: 0, ot1: 0, ot3: 0, requestOT: 0,
-          start: '-', end: '-'
-      };
-
-      if (existingIndex !== -1) {
-          otHistory[existingIndex] = leaveItem;
-      } else {
-          otHistory.push(leaveItem);
-      }
-
-      sortHistory();
-      try { 
-          CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); 
-          alert('✅ บันทึกวันลาเรียบร้อยแล้วครับ');
-          renderHistory();
-      } catch(e) { alert('❌ บันทึกไม่สำเร็จ'); }
-  };
-
-  window.markAsIncomplete = function() {
-      const driverInput = document.getElementById('driverSelect').value;
-      const driverName = getPlainName(driverInput);
-      const dateVal = document.getElementById('workDate').value;
-
-      if (!driverName) { alert('⚠️ กรุณาระบุชื่อ พขร. ด้านบนก่อนครับ'); return; }
-      if (!dateVal) { alert('⚠️ กรุณาเลือกวันที่ครับ'); return; }
-
-      const reason = prompt(`แจ้งขาดเอกสารของ ${driverName} \nวันที่ ${formatThaiDate(dateVal)}\n\nโปรดระบุเอกสารที่ขาด (เช่น ขาดใบ OT):`, "ขาดใบ OT");
-      if (reason === null) return; 
-      const finalReason = reason.trim() || "ขาดเอกสาร";
-
-      const d = new Date(dateVal);
-      const dayOfWeek = d.getDay();
-      const type = (dayOfWeek === 0 || dayOfWeek === 6) ? 'weekend' : 'weekday';
-
-      let existingIndex = otHistory.findIndex(item => item.date === dateVal && getPlainName(item.driver) === driverName);
-      
-      let targetItem;
-      if (existingIndex !== -1) {
-          targetItem = { ...otHistory[existingIndex] };
-          targetItem.isIncomplete = true;
-          targetItem.incompleteReason = finalReason;
-      } else {
-          targetItem = {
-              id: Date.now(),
-              date: dateVal,
-              type: type,
-              driver: driverName,
-              isLeave: false,
-              isPending: true, 
-              isIncomplete: true,
-              incompleteReason: finalReason,
-              ot15: 0, ot1: 0, ot3: 0, requestOT: 0,
-              start: '07:30', end: '17:00'
-          };
-      }
-
-      if (existingIndex !== -1) {
-          otHistory[existingIndex] = targetItem;
-      } else {
-          otHistory.push(targetItem);
-      }
-
-      sortHistory();
-      try { 
-          CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); 
-          alert('✅ บันทึกแจ้งขาดเอกสารเรียบร้อยแล้วครับ');
-          renderHistory();
-      } catch(e) { alert('❌ บันทึกไม่สำเร็จ'); }
-  };
-
-  /* Quick Summary Modal */
-  window.openQuickSummaryModal = function() {
-      const driverInput = document.getElementById('driverSelect').value;
-      const driverName = getPlainName(driverInput);
-      const dateVal = document.getElementById('workDate').value;
-
-      if (!driverName) {
-          alert('⚠️ กรุณาระบุ "ชื่อ พขร." ก่อนเพื่อดูสรุปครับ');
-          document.getElementById('driverSelect').focus();
-          return;
-      }
-      if (!dateVal) {
-          alert('⚠️ กรุณาเลือก "วันที่" เพื่อให้ระบบทราบว่าจะดูของเดือนไหนครับ');
-          return;
-      }
-
-      const [y, m] = dateVal.split('-');
-      const targetYear = parseInt(y);
-      const targetMonth = parseInt(m) - 1;
-
-      const titleEl = document.getElementById('quickSummaryTitle');
-      const badgesEl = document.getElementById('quickSummaryBadges');
-      const tbody = document.getElementById('quickSummaryList');
-
-      titleEl.innerHTML = `<span>📊</span> ตรวจสอบยอด: ${driverName} <span style="font-size:0.9rem; color:var(--text-muted);">(${getThaiMonthYearFull(dateVal.substring(0,7))})</span>`;
-      
-      // คัดกรองข้อมูล
-      let s15 = 0, s1 = 0, s3 = 0, sReq = 0, sLeave = 0;
-      const items = otHistory.filter(item => {
-          const itemDate = new Date(item.date);
-          return getPlainName(item.driver) === driverName && 
-                 itemDate.getMonth() === targetMonth && 
-                 itemDate.getFullYear() === targetYear;
-      });
-
-      items.sort((a,b) => new Date(a.date) - new Date(b.date));
-      tbody.innerHTML = '';
-      
-      if (items.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" style="padding:50px; color:#94a3b8; text-align:center;">
-              <div style="font-size:3rem; margin-bottom:10px;">📭</div>ยังไม่มีข้อมูลบันทึกในเดือนนี้</td></tr>`;
-      } else {
-          items.forEach(item => {
-              const tr = document.createElement('tr');
-              let isPend = item.isPending && !item.isLeave;
-              if(isPend) tr.className = 'qs-row-pending';
-              if(item.isLeave) tr.className = 'qs-row-leave';
-
-              let rowHtml = `<td style="text-align:left; padding-left:20px; font-weight:700;">${formatThaiDate(item.date)}</td>`;
-              
-              let typeColor = item.type === 'weekday' ? '#3b82f6' : '#ef4444';
-              rowHtml += `<td><span style="color:${typeColor}; font-weight:700; font-size:0.8rem;">${item.type === 'weekday' ? 'วันธรรมดา' : 'วันหยุด'}</span></td>`;
-              
-              if (item.isLeave) {
-                  sLeave++;
-                  rowHtml += `<td class="col-center" colspan="3"><span class="pill" style="background:#ffe4e6; color:#e11d48; border:1px solid #fecaca; padding:4px 15px; border-radius:20px; font-weight:700; font-size:0.85rem;">🏖️ ลาพักผ่อน</span></td>`;
-                  rowHtml += `<td class="col-center" style="color:#cbd5e1;">-</td>`;
-                  rowHtml += `<td class="col-center"><span style="color:#10b981;">✔️</span></td>`;
-              } else if (item.isPending) {
-                  rowHtml += `<td class="col-center" colspan="3" style="font-style:italic; letter-spacing:0.5px; color:#94a3b8;">- รอระบุเวลาเข้าออก -</td>`;
-                  rowHtml += `<td class="col-center" style="color:#cbd5e1;">-</td>`;
-                  rowHtml += `<td class="col-center"><span>⏳</span></td>`;
-              } else {
-                  s15 += item.ot15 || 0;
-                  s1 += item.ot1 || 0;
-                  s3 += item.ot3 || 0;
-                  sReq += parseFloat(item.requestOT) || 0;
-
-                  rowHtml += `<td class="col-center" style="font-weight:600; color:#1e40af;">${item.ot15 ? fmtShort(item.ot15) : '-'}</td>`;
-                  rowHtml += `<td class="col-center" style="font-weight:600; color:#0e7490;">${item.ot1 ? fmtShort(item.ot1) : '-'}</td>`;
-                  rowHtml += `<td class="col-center" style="font-weight:600; color:#be123c;">${item.ot3 ? fmtShort(item.ot3) : '-'}</td>`;
-                  
-                  let reqVal = item.requestOT !== undefined ? parseFloat(item.requestOT).toFixed(1).replace('.0','') : '0';
-                  rowHtml += `<td class="col-center">  <b style="color:#2563eb; font-size:1.05rem;">${reqVal}</b></td>`;
-                  
-                  if(item.isIncomplete) {
-                      rowHtml += `<td class="col-center"><span title="${item.incompleteReason}" style="background:#fff7ed; color:#ea580c; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:800; border:1px solid #ffedd5;">⚠️ เอกสารขาด</span></td>`;
-                  } else {
-                      rowHtml += `<td class="col-center"><span style="color:#10b981; font-weight:bold;">✔️</span></td>`;
-                  }
-              }
-              tr.innerHTML = rowHtml;
-              tbody.appendChild(tr);
-          });
-      }
-
-      badgesEl.innerHTML = `
-          <div class="qs-stat-card qs-blue"><div class="qs-lbl">x1.5 (ธรรมดา)</div><div class="qs-val">${(s15/60).toFixed(1)}</div></div>
-          <div class="qs-stat-card qs-cyan"><div class="qs-lbl">x1 (วันหยุด)</div><div class="qs-val">${(s1/60).toFixed(1)}</div></div>
-          <div class="qs-stat-card qs-rose"><div class="qs-lbl">x3 (วันหยุด)</div><div class="qs-val">${(s3/60).toFixed(1)}</div></div>
-          <div class="qs-stat-card qs-primary"><div class="qs-lbl">ยอดเบิกรวม</div><div class="qs-val">${sReq.toFixed(1).replace('.0','')} <small style="font-size:0.8rem;">ชม.</small></div></div>
-          <div class="qs-stat-card qs-amber"><div class="qs-lbl">วันลา</div><div class="qs-val">${sLeave} <small style="font-size:0.8rem;">วัน</small></div></div>
-      `;
-
-      document.getElementById('quickSummaryModal').classList.add('show');
-  };
 </script>
 </body>
 </html>
