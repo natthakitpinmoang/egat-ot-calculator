@@ -115,7 +115,7 @@ select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF
 
 /* Custom Date Input Wrapper */
 .custom-date-input { position: relative; width: 100%; background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; display: flex; align-items: center; padding: 0; overflow: hidden; height: 44px; transition: all 0.2s; }
-.custom-date-input:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0, 48, 110, 0.1); }
+.custom-date-input:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0, 35, 82, 0.1); }
 .real-date-input { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; padding: 0; }
 .fake-date-display { flex: 1; padding: 0 16px; font-size: 16px; font-weight: 500; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
 .icon-cal { padding-right: 16px; color: var(--text-muted); font-size: 1.2rem; pointer-events: none; }
@@ -353,41 +353,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .modal.show { display: flex; animation: fadeIn 0.2s; }
 .modal-content { background-color: #ffffff; padding: 30px 24px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 1px solid #f1f5f9; width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto; position: relative; }
 
-/* ปรับแต่งปุ่มปิด Modal ใหม่ให้สวยงามและมีมิติ */
-.close-modal { 
-  position: absolute; 
-  top: 16px; 
-  right: 16px; 
-  width: 36px; 
-  height: 36px; 
-  background-color: #ffffff; 
-  color: #64748b; 
-  border-radius: 50%; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  font-size: 22px; 
-  cursor: pointer; 
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-  z-index: 100; 
-  line-height: 1;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-}
-
-/* เอฟเฟกต์เมื่อนำเมาส์ไปชี้ */
-.close-modal:hover { 
-  background-color: #ef4444; 
-  color: #ffffff; 
-  border-color: #ef4444;
-  transform: rotate(90deg) scale(1.1); 
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-.close-modal:active {
-  transform: rotate(90deg) scale(0.95);
-}
-
 .driver-form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
 .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 8px; }
 .day-item { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.2s; background: #fff; color: var(--text-muted); user-select: none; }
@@ -484,6 +449,111 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .qs-table td { padding: 12px 10px; text-align: center; vertical-align: middle; }
 .qs-row-pending { opacity: 0.5; color: #94a3b8; }
 .qs-row-leave { background-color: #fffafb !important; color: #e11d48; }
+
+/* =========================================================
+   อัปเดตดีไซน์ปุ่ม: ทรงแคปซูล (Pill-shaped) ธีมน้ำเงิน/เหลือง
+   ========================================================= */
+
+/* 1. ปุ่มปิดหน้าต่าง Modal (เปลี่ยน &times; เดิมให้เป็นข้อความ + ไอคอน X) */
+.close-modal {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: auto !important;
+    height: 38px !important;
+    padding: 0 16px !important;
+    background-color: #ffffff !important;
+    border: 2px solid #fcd34d !important;
+    border-radius: 50px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0 !important;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+.close-modal::before {
+    content: '✖';
+    font-size: 0.85rem;
+    color: #475569;
+    transition: color 0.2s;
+}
+
+.close-modal::after {
+    content: 'ปิด';
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--brand); 
+    font-family: inherit;
+}
+
+.close-modal:hover {
+    background-color: #fef3c7 !important;
+    border-color: #f59e0b !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 14px rgba(245, 158, 11, 0.25) !important;
+}
+.close-modal:hover::before { color: #d97706; }
+.close-modal:hover::after { color: var(--brand-dark); }
+.close-modal:active { transform: translateY(0) scale(0.95) !important; }
+
+/* 2. ปุ่ม "+ เพิ่มคนใหม่" ในหน้ารายชื่อ พขร. */
+#view-drivers .driver-header-flex .primary {
+    border-radius: 50px !important;
+    background: linear-gradient(135deg, var(--brand), #004e9a);
+    border: 2px solid #fcd34d !important;
+    box-shadow: 0 4px 10px rgba(0, 48, 110, 0.15);
+    transition: all 0.3s ease;
+}
+#view-drivers .driver-header-flex .primary:hover {
+    border-color: #f59e0b !important;
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.25);
+    transform: translateY(-2px);
+}
+
+/* 3. คลาสใหม่สำหรับปุ่ม Action (แก้ไข/ลบ) ทรงแคปซูล */
+.action-btn-pill {
+    border: none;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-edit-pill {
+    background-color: var(--brand-light);
+    color: var(--brand);
+    border: 1px solid #bfdbfe;
+}
+.btn-edit-pill:hover {
+    background-color: var(--brand);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 48, 110, 0.2);
+}
+
+.btn-del-pill {
+    background-color: #fef2f2;
+    color: #ef4444;
+    border: 1px solid #fca5a5;
+}
+.btn-del-pill:hover {
+    background-color: #ef4444;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+}
 </style>
 </head>
 
@@ -1600,8 +1670,8 @@ function renderDrivers() {
                 <div class="d-sub">${detailsHtml}</div>
             </div>
             <div class="d-actions">
-                <button onclick="editDriver('${d.id}')" class="action-btn-sm btn-view-sm" title="แก้ไข">✏️</button>
-                <button onclick="removeDriverByName('${d.name}')" class="action-btn-sm btn-reset-sm" style="color:#ef4444; background:#fef2f2;" title="ลบ">🗑️</button>
+                <button onclick="editDriver('${d.id}')" class="action-btn-pill btn-edit-pill">✏️ แก้ไข</button>
+                <button onclick="removeDriverByName('${d.name}')" class="action-btn-pill btn-del-pill">🗑️ ลบ</button>
             </div>
           `;
           
