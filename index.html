@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<title>EGAT OT (v7.6 Ultimate Fix)</title>
+<title>EGAT OT (v7.4 Modern Summary)</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -1689,14 +1689,15 @@ function renderDrivers() {
 
   const fmtTime = mins => { const h = Math.floor(mins/60)%24; const m = mins%60; return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; };
 
-  // ✈️ ฟังก์ชัน Auto-Pilot หั่นเวลา OT อัตโนมัติ (แก้ไขแบบ Standard Function)
-  function handleAutoPilotOT(reqHoursStr) {
+  // ✈️ ฟังก์ชัน Auto-Pilot หั่นเวลา OT อัตโนมัติ
+  window.handleAutoPilotOT = function(reqHoursStr) {
       if (!currentCalcResult) return;
       let reqHours = parseFloat(reqHoursStr);
       if (isNaN(reqHours) || reqHours < 0) reqHours = 0;
 
       let reqMins = Math.round(reqHours * 60);
 
+      // ดึงค่า Max สูงสุดที่ระบบคำนวณได้ตอนแรก
       let max15 = currentCalcResult.baseOt15 || 0;
       let max1  = currentCalcResult.baseOt1 || 0;
       let max3  = currentCalcResult.baseOt3 || 0;
@@ -1707,10 +1708,10 @@ function renderDrivers() {
           
           let disp15 = document.getElementById('disp_total15');
           if (disp15) {
-              disp15.innerHTML = fmt(allocate15) + ' <span style="font-size:0.75rem; color:#d97706;">✏️</span>';
+              disp15.innerHTML = fmt(allocate15) + (allocate15 < max15 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
           }
       } else {
-          // วันหยุด: เติม x1 ก่อน x3
+          // วันหยุด: Priority เติมกล่อง x1 ให้เต็มก่อน แล้วค่อยเทส่วนที่เหลือไป x3
           let allocate1 = Math.min(reqMins, max1);
           let remMins = Math.max(0, reqMins - allocate1);
           let allocate3 = Math.min(remMins, max3);
@@ -1721,10 +1722,10 @@ function renderDrivers() {
           let disp1 = document.getElementById('disp_total1');
           let disp3 = document.getElementById('disp_total3');
 
-          if (disp1) disp1.innerHTML = fmt(allocate1) + ' <span style="font-size:0.75rem; color:#d97706;">✏️</span>';
-          if (disp3) disp3.innerHTML = fmt(allocate3) + ' <span style="font-size:0.75rem; color:#d97706;">✏️</span>';
+          if (disp1) disp1.innerHTML = fmt(allocate1) + (allocate1 < max1 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
+          if (disp3) disp3.innerHTML = fmt(allocate3) + (allocate3 < max3 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
       }
-  }
+  };
 
   function rowHTML(range, rateClass, rateText, mins){
     return `<div class="row"><div class="time">${range}</div><div class="rate ${rateClass}">${rateText}</div><div class="dur">${fmt(mins)}</div></div>`;
@@ -1741,12 +1742,12 @@ function renderDrivers() {
 
       if (type === 'weekday') {
           dispTotal = Math.max(0, totalMinutes - WORKDAY_MINUTES);
-          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1.5</span><span class="v" id="disp_total15" style="cursor:pointer; color:var(--brand); text-decoration:underline; text-underline-offset:3px;" onclick="manualOverrideOT('15')" title="คลิกเพื่อแก้ไขตัวเลขเอง">${fmt(wkResult.total15)} ✏️</span></div>`;
+          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1.5</span><span class="v" id="disp_total15">${fmt(wkResult.total15)}</span></div>`;
       } else {
           const ot1 = wkResult.totals[1] || 0;
           const ot3 = wkResult.totals[3] || 0;
           dispTotal = wkResult.totalMinutes;
-          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1</span><span class="v" id="disp_total1" style="cursor:pointer; color:var(--brand); text-decoration:underline; text-underline-offset:3px;" onclick="manualOverrideOT('1')" title="คลิกเพื่อแก้ไขตัวเลขเอง">${fmt(ot1)} ✏️</span></div><div class="total-line"><span class="k">รวม ×3</span><span class="v" id="disp_total3" style="cursor:pointer; color:var(--brand); text-decoration:underline; text-underline-offset:3px;" onclick="manualOverrideOT('3')" title="คลิกเพื่อแก้ไขตัวเลขเอง">${fmt(ot3)} ✏️</span></div>`;
+          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1</span><span class="v" id="disp_total1">${fmt(ot1)}</span></div><div class="total-line"><span class="k">รวม ×3</span><span class="v" id="disp_total3">${fmt(ot3)}</span></div>`;
       }
 
       const maxHours = dispTotal / 60;
@@ -1771,68 +1772,6 @@ function renderDrivers() {
           body = `<div class="result-section"><div class="result-title"><span class="i">🔔</span>ช่วงเวลาที่นับงานและเรตค่าตอบแทน</div><div class="rows">${wkResult.rowsHTML || '<div class="note-sub">ไม่มีช่วงเวลาที่ทับ</div>'}</div>${wkResult.breaks.length?`<div class="breaks">${wkResult.breaks.map(b=>`<span class="break-chip">${b}</span>`).join('')}</div>`:''}</div><div class="result-section"><div class="total-box">${totalBoxTop}<div class="total-line em"><span class="k">⏱️ เวลาทำงานรวม</span><span class="v">${fmt(dispTotal)}</span></div>${reqHtml}</div></div>`;
       }
       return `<div class="result-wrap" style="outline:none;">${head}${body}</div>`;
-  }
-
-  // 🛠️ ฟังก์ชัน Manual Override (แก้เป็น Standard Function)
-  function manualOverrideOT(rateKey) {
-      if (!currentCalcResult) return;
-      
-      let currentVal = 0, label = "";
-      let maxTotalLimit = 0;
-
-      if (currentCalcResult.type === 'weekday') {
-          maxTotalLimit = currentCalcResult.baseOt15 || 0;
-      } else {
-          maxTotalLimit = (currentCalcResult.baseOt1 || 0) + (currentCalcResult.baseOt3 || 0);
-      }
-      
-      if (rateKey === '15') { currentVal = currentCalcResult.ot15 / 60; label = "OT x1.5"; }
-      if (rateKey === '1') { currentVal = currentCalcResult.ot1 / 60; label = "OT x1"; }
-      if (rateKey === '3') { currentVal = currentCalcResult.ot3 / 60; label = "OT x3"; }
-      
-      let maxTotalHours = (maxTotalLimit/60).toFixed(2).replace('.00','');
-      let promptText = `🛠️ ปรับแก้ชั่วโมง ${label} ด้วยตัวเอง\n(เวลารวมสูงสุดที่ทำได้คือ: ${maxTotalHours} ชม.)\n\n*กรอกตัวเลขชั่วโมงที่ต้องการ:`;
-      
-      let newValStr = prompt(promptText, currentVal.toFixed(2).replace('.00', '').replace(/0$/, ''));
-      if (newValStr !== null) {
-          let newVal = parseFloat(newValStr);
-          if (isNaN(newVal) || newVal < 0) { alert('❌ ระบุตัวเลขไม่ถูกต้อง'); return; }
-          let newValMins = Math.round(newVal * 60);
-          
-          let proposedTotal = 0;
-          if (rateKey === '15') {
-              proposedTotal = newValMins;
-          } else if (rateKey === '1') {
-              proposedTotal = newValMins + (currentCalcResult.ot3 || 0);
-          } else if (rateKey === '3') {
-              proposedTotal = (currentCalcResult.ot1 || 0) + newValMins;
-          }
-
-          if (proposedTotal > Math.round(maxTotalLimit) + 1) { 
-              alert(`❌ เวลารวมทั้งหมด (${(proposedTotal/60).toFixed(2)}) เกินเวลาทำงานจริง (${maxTotalHours} ชม.)\n*กรุณาลดเวลาช่องอื่นลงก่อน หรือแก้เวลาเข้า-ออกให้ครอบคลุมครับ`); 
-              return; 
-          }
-          
-          if (rateKey === '15') { 
-              currentCalcResult.ot15 = newValMins; 
-              document.getElementById('disp_total15').innerHTML = fmt(newValMins) + ' <span style="font-size:0.75rem; color:#d97706;">(แก้เอง) ✏️</span>'; 
-          }
-          if (rateKey === '1') { 
-              currentCalcResult.ot1 = newValMins; 
-              document.getElementById('disp_total1').innerHTML = fmt(newValMins) + ' <span style="font-size:0.75rem; color:#d97706;">(แก้เอง) ✏️</span>'; 
-          }
-          if (rateKey === '3') { 
-              currentCalcResult.ot3 = newValMins; 
-              document.getElementById('disp_total3').innerHTML = fmt(newValMins) + ' <span style="font-size:0.75rem; color:#d97706;">(แก้เอง) ✏️</span>'; 
-          }
-          
-          let sumMins = (currentCalcResult.ot15 || 0) + (currentCalcResult.ot1 || 0) + (currentCalcResult.ot3 || 0);
-          let reqInput = document.getElementById('requestOTInput');
-          if(reqInput) {
-              reqInput.value = (sumMins / 60).toFixed(2).replace('.00', '').replace(/0$/, '');
-              currentCalcResult.requestOT = sumMins / 60;
-          }
-      }
   }
 
   function calculateCore(start, end, dateVal, type) {
@@ -2022,6 +1961,7 @@ function renderDrivers() {
               newResult.requestOT = newMaxHr;
           }
 
+          // ✈️ Auto-pilot ตัดเวลาให้อัตโนมัติในโหมด Inline Edit 
           let finalReqMins = Math.round(newResult.requestOT * 60);
           if (newResult.type === 'weekday') {
               newResult.ot15 = Math.min(finalReqMins, newResult.ot15);
@@ -2254,156 +2194,59 @@ function renderDrivers() {
   }
 
   function resetHistoryItem(index) {
-      if (!confirm('เคลียร์รายการนี้เป็นแบบร่าง (Pending)?')) return;
-      const item = otHistory[index];
-      item.isPending = true;
-      item.start = '07:30';
-      item.end = '17:00';
-      item.ot15 = 0;
-      item.ot1 = 0;
-      item.ot3 = 0;
-      item.requestOT = 0;
-      CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
-      renderHistory();
+  if (!confirm('เคลียร์รายการนี้เป็นแบบร่าง (Pending)?')) return;
+  const item = otHistory[index];
+  item.isPending = true;
+  item.start = '07:30';
+  item.end = '17:00';
+  item.ot15 = 0;
+  item.ot1 = 0;
+  item.ot3 = 0;
+  item.requestOT = 0;
+  CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
+  renderHistory();
+}
+
+function openIncompleteModal() {
+  let driverName = getPlainName(document.getElementById('historyDriverFilter').value);
+  if (!driverName) {
+      driverName = getPlainName(document.getElementById('driverSelect').value);
+  }
+  
+  if (!driverName) {
+      alert('⚠️ กรุณาเลือก "พขร." ที่ต้องการแจ้งขาดก่อนครับ\n(เลือกที่ตัวกรองขวาบน หรือที่หน้าคำนวณก็ได้)');
+      return;
   }
 
-  // 🛠️ ฟังก์ชันปุ่มกดต่างๆ เปลี่ยนเป็น Standard Functions ทั้งหมดแล้ว
-  function markAsLeave() {
-      const driverInput = document.getElementById('driverSelect').value;
-      const driverName = getPlainName(driverInput);
-      const dateVal = document.getElementById('workDate').value;
-
-      if (!driverName) { alert('⚠️ กรุณาระบุชื่อ พขร. ด้านบนก่อนครับ'); return; }
-      if (!dateVal) { alert('⚠️ กรุณาเลือกวันที่ครับ'); return; }
-
-      if (!confirm(`ยืนยันบันทึก "ลาพัก" ให้กับ\n👤 ${driverName}\n📅 วันที่ ${formatThaiDate(dateVal)} ใช่หรือไม่?`)) return;
-
-      const d = new Date(dateVal);
-      const dayOfWeek = d.getDay();
-      const type = (dayOfWeek === 0 || dayOfWeek === 6) ? 'weekend' : 'weekday';
-
-      let existingIndex = otHistory.findIndex(item => item.date === dateVal && getPlainName(item.driver) === driverName);
-      
-      const leaveItem = {
-          id: existingIndex !== -1 ? otHistory[existingIndex].id : Date.now(),
-          date: dateVal,
-          type: type,
-          driver: driverName,
-          isLeave: true,
-          isPending: false,
-          isIncomplete: false,
-          incompleteReason: "",
-          leaveType: 'ลา',
-          ot15: 0, ot1: 0, ot3: 0, requestOT: 0,
-          start: '-', end: '-'
-      };
-
-      if (existingIndex !== -1) {
-          otHistory[existingIndex] = leaveItem;
-      } else {
-          otHistory.push(leaveItem);
+  let monthVal = document.getElementById('historyMonthPicker').value; 
+  if (!monthVal) {
+      const workDateVal = document.getElementById('workDate').value;
+      if (workDateVal) {
+          monthVal = workDateVal.substring(0, 7);
       }
-
-      sortHistory();
-      try { 
-          CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); 
-          alert('✅ บันทึกวันลาเรียบร้อยแล้วครับ');
-          renderHistory();
-      } catch(e) { alert('❌ บันทึกไม่สำเร็จ'); }
+  }
+  
+  if (!monthVal) {
+      alert('⚠️ กรุณาเลือก "เดือน" ที่ต้องการบันทึกก่อนครับ');
+      return;
   }
 
-  function markAsIncomplete() {
-      const driverInput = document.getElementById('driverSelect').value;
-      const driverName = getPlainName(driverInput);
-      const dateVal = document.getElementById('workDate').value;
+  document.getElementById('incDriverSelect').value = driverName;
+  document.getElementById('incMonth').value = monthVal;
 
-      if (!driverName) { alert('⚠️ กรุณาระบุชื่อ พขร. ด้านบนก่อนครับ'); return; }
-      if (!dateVal) { alert('⚠️ กรุณาเลือกวันที่ครับ'); return; }
-
-      const reason = prompt(`แจ้งขาดเอกสารของ ${driverName} \nวันที่ ${formatThaiDate(dateVal)}\n\nโปรดระบุเอกสารที่ขาด (เช่น ขาดใบ OT):`, "ขาดใบ OT");
-      if (reason === null) return; 
-      const finalReason = reason.trim() || "ขาดเอกสาร";
-
-      const d = new Date(dateVal);
-      const dayOfWeek = d.getDay();
-      const type = (dayOfWeek === 0 || dayOfWeek === 6) ? 'weekend' : 'weekday';
-
-      let existingIndex = otHistory.findIndex(item => item.date === dateVal && getPlainName(item.driver) === driverName);
-      
-      let targetItem;
-      if (existingIndex !== -1) {
-          targetItem = { ...otHistory[existingIndex] };
-          targetItem.isIncomplete = true;
-          targetItem.incompleteReason = finalReason;
-      } else {
-          targetItem = {
-              id: Date.now(),
-              date: dateVal,
-              type: type,
-              driver: driverName,
-              isLeave: false,
-              isPending: true, 
-              isIncomplete: true,
-              incompleteReason: finalReason,
-              ot15: 0, ot1: 0, ot3: 0, requestOT: 0,
-              start: '07:30', end: '17:00'
-          };
-      }
-
-      if (existingIndex !== -1) {
-          otHistory[existingIndex] = targetItem;
-      } else {
-          otHistory.push(targetItem);
-      }
-
-      sortHistory();
-      try { 
-          CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); 
-          alert('✅ บันทึกแจ้งขาดเอกสารเรียบร้อยแล้วครับ');
-          renderHistory();
-      } catch(e) { alert('❌ บันทึกไม่สำเร็จ'); }
+  const displayEl = document.getElementById('incContextDisplay');
+  if(displayEl) {
+      displayEl.innerHTML = `<div style="font-size:1.1rem; margin-bottom:4px;">👤 ${driverName}</div><div style="font-size:0.95rem; opacity:0.8;">📅 เดือน ${getThaiMonthYearFull(monthVal)}</div>`;
   }
 
-  function openIncompleteModal() {
-      let driverName = getPlainName(document.getElementById('historyDriverFilter').value);
-      if (!driverName) {
-          driverName = getPlainName(document.getElementById('driverSelect').value);
-      }
-      
-      if (!driverName) {
-          alert('⚠️ กรุณาเลือก "พขร." ที่ต้องการแจ้งขาดก่อนครับ\n(เลือกที่ตัวกรองขวาบน หรือที่หน้าคำนวณก็ได้)');
-          return;
-      }
+  document.getElementById('incNote').value = '';
+  renderIncDays(); 
+  document.getElementById('incompleteModal').classList.add('show');
+}
 
-      let monthVal = document.getElementById('historyMonthPicker').value; 
-      if (!monthVal) {
-          const workDateVal = document.getElementById('workDate').value;
-          if (workDateVal) {
-              monthVal = workDateVal.substring(0, 7);
-          }
-      }
-      
-      if (!monthVal) {
-          alert('⚠️ กรุณาเลือก "เดือน" ที่ต้องการบันทึกก่อนครับ');
-          return;
-      }
-
-      document.getElementById('incDriverSelect').value = driverName;
-      document.getElementById('incMonth').value = monthVal;
-
-      const displayEl = document.getElementById('incContextDisplay');
-      if(displayEl) {
-          displayEl.innerHTML = `<div style="font-size:1.1rem; margin-bottom:4px;">👤 ${driverName}</div><div style="font-size:0.95rem; opacity:0.8;">📅 เดือน ${getThaiMonthYearFull(monthVal)}</div>`;
-      }
-
-      document.getElementById('incNote').value = '';
-      renderIncDays(); 
-      document.getElementById('incompleteModal').classList.add('show');
-  }
-
-  function closeIncompleteModal() {
-      document.getElementById('incompleteModal').classList.remove('show');
-  }
+function closeIncompleteModal() {
+  document.getElementById('incompleteModal').classList.remove('show');
+}
 
   function renderIncDays() {
       const monthVal = document.getElementById('incMonth').value;
@@ -2492,7 +2335,7 @@ function renderDrivers() {
       } catch(e) { alert('Error saving'); }
   }
    
-  function viewDriverMissing(driverName) {
+  window.viewDriverMissing = function(driverName) {
     const listContainer = document.getElementById('summaryList');
     listContainer.innerHTML = '';
     
@@ -2566,9 +2409,9 @@ function renderDrivers() {
     }
 
     document.getElementById('summaryModal').classList.add('show');
-  }
+  };
 
-  function resolveFromModal(index, driverName) {
+  window.resolveFromModal = function(index, driverName) {
       if(!confirm('ยืนยันได้รับเอกสารแล้ว?')) return;
 
       const item = otHistory[index];
@@ -2639,105 +2482,6 @@ function renderDrivers() {
    
   function closeCreateOptionModal() {
       document.getElementById('createOptionModal').classList.remove('show');
-  }
-
-  function openQuickSummaryModal() {
-      const driverInput = document.getElementById('driverSelect').value;
-      const driverName = getPlainName(driverInput);
-      const dateVal = document.getElementById('workDate').value;
-
-      if (!driverName) {
-          alert('⚠️ กรุณาระบุ "ชื่อ พขร." ก่อนเพื่อดูสรุปครับ');
-          document.getElementById('driverSelect').focus();
-          return;
-      }
-      if (!dateVal) {
-          alert('⚠️ กรุณาเลือก "วันที่" เพื่อให้ระบบทราบว่าจะดูของเดือนไหนครับ');
-          return;
-      }
-
-      const [y, m] = dateVal.split('-');
-      const targetYear = parseInt(y);
-      const targetMonth = parseInt(m) - 1;
-
-      const titleEl = document.getElementById('quickSummaryTitle');
-      const badgesEl = document.getElementById('quickSummaryBadges');
-      const tbody = document.getElementById('quickSummaryList');
-
-      titleEl.innerHTML = `<span>📊</span> ตรวจสอบยอด: ${driverName} <span style="font-size:0.9rem; color:var(--text-muted);">(${getThaiMonthYearFull(dateVal.substring(0,7))})</span>`;
-      
-      let s15 = 0, s1 = 0, s3 = 0, sReq = 0, sLeave = 0;
-      const items = otHistory.filter(item => {
-          const itemDate = new Date(item.date);
-          return getPlainName(item.driver) === driverName && 
-                 itemDate.getMonth() === targetMonth && 
-                 itemDate.getFullYear() === targetYear;
-      });
-
-      items.sort((a,b) => new Date(a.date) - new Date(b.date));
-      tbody.innerHTML = '';
-      
-      if (items.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" style="padding:50px; color:#94a3b8; text-align:center;">
-              <div style="font-size:3rem; margin-bottom:10px;">📭</div>ยังไม่มีข้อมูลบันทึกในเดือนนี้</td></tr>`;
-      } else {
-          items.forEach(item => {
-              const tr = document.createElement('tr');
-              let isPend = item.isPending && !item.isLeave;
-              if(isPend) tr.className = 'qs-row-pending';
-              if(item.isLeave) tr.className = 'qs-row-leave';
-
-              let rowHtml = `<td style="text-align:left; padding-left:20px; font-weight:700;">${formatThaiDate(item.date)}</td>`;
-              
-              let typeColor = item.type === 'weekday' ? '#3b82f6' : '#ef4444';
-              rowHtml += `<td><span style="color:${typeColor}; font-weight:700; font-size:0.8rem;">${item.type === 'weekday' ? 'วันธรรมดา' : 'วันหยุด'}</span></td>`;
-              
-              if (item.isLeave) {
-                  sLeave++;
-                  rowHtml += `<td class="col-center" colspan="3"><span style="background:#ffe4e6; color:#e11d48; padding:4px 15px; border-radius:20px; font-weight:700; font-size:0.85rem;">🏖️ ลาพักผ่อน</span></td>`;
-                  rowHtml += `<td class="col-center" style="color:#cbd5e1;">-</td>`;
-                  rowHtml += `<td class="col-center"><span style="color:#10b981;">✔️</span></td>`;
-              } else if (item.isPending) {
-                  rowHtml += `<td class="col-center" colspan="3" style="font-style:italic; letter-spacing:0.5px; color:#94a3b8;">- รอระบุเวลา -</td>`;
-                  rowHtml += `<td class="col-center" style="color:#cbd5e1;">-</td>`;
-                  rowHtml += `<td class="col-center"><span>⏳</span></td>`;
-              } else {
-                  s15 += item.ot15 || 0;
-                  s1 += item.ot1 || 0;
-                  s3 += item.ot3 || 0;
-                  sReq += parseFloat(item.requestOT) || 0;
-
-                  rowHtml += `<td class="col-center" style="font-weight:600; color:#1e40af;">${item.ot15 ? fmtShort(item.ot15) : '-'}</td>`;
-                  rowHtml += `<td class="col-center" style="font-weight:600; color:#0e7490;">${item.ot1 ? fmtShort(item.ot1) : '-'}</td>`;
-                  rowHtml += `<td class="col-center" style="font-weight:600; color:#be123c;">${item.ot3 ? fmtShort(item.ot3) : '-'}</td>`;
-                  
-                  let reqVal = item.requestOT !== undefined ? parseFloat(item.requestOT).toFixed(1).replace('.0','') : '0';
-                  rowHtml += `<td class="col-center"><b style="color:#2563eb; font-size:1.05rem;">${reqVal}</b></td>`;
-                  
-                  if(item.isIncomplete) {
-                      rowHtml += `<td class="col-center"><span title="${item.incompleteReason}" style="background:#fff7ed; color:#ea580c; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:800; border:1px solid #ffedd5;">⚠️ ขาด</span></td>`;
-                  } else {
-                      rowHtml += `<td class="col-center"><span style="color:#10b981; font-weight:bold;">✔️</span></td>`;
-                  }
-              }
-              tr.innerHTML = rowHtml;
-              tbody.appendChild(tr);
-          });
-      }
-
-      badgesEl.innerHTML = `
-          <div class="qs-stat-card qs-blue"><div class="qs-lbl">x1.5 (ธรรมดา)</div><div class="qs-val">${(s15/60).toFixed(1)}</div></div>
-          <div class="qs-stat-card qs-cyan"><div class="qs-lbl">x1 (วันหยุด)</div><div class="qs-val">${(s1/60).toFixed(1)}</div></div>
-          <div class="qs-stat-card qs-rose"><div class="qs-lbl">x3 (วันหยุด)</div><div class="qs-val">${(s3/60).toFixed(1)}</div></div>
-          <div class="qs-stat-card qs-primary"><div class="qs-lbl">ยอดเบิกรวม</div><div class="qs-val">${sReq.toFixed(1).replace('.0','')} <small style="font-size:0.8rem;">ชม.</small></div></div>
-          <div class="qs-stat-card qs-amber"><div class="qs-lbl">วันลา</div><div class="qs-val">${sLeave} <small style="font-size:0.8rem;">วัน</small></div></div>
-      `;
-
-      document.getElementById('quickSummaryModal').classList.add('show');
-  }
-
-  function closeQuickSummaryModal() {
-      document.getElementById('quickSummaryModal').classList.remove('show');
   }
    
   function initiateAutoFill(mode) {
@@ -2826,6 +2570,1033 @@ function renderDrivers() {
           alert(`✅ เพิ่มรายการเรียบร้อย ${addedCount} รายการ`);
       } catch(e) { alert('บันทึกไม่สำเร็จ'); }
   }
+
+  function toggleLeaveFromTable(index, isChecked) {
+      const item = otHistory[index];
+      if(isChecked) {
+          item.isLeave = true; item.leaveType = 'ลา'; item.ot15 = 0; item.ot1 = 0; item.ot3 = 0; item.requestOT = 0; item.start = '-'; item.end = '-';
+      } else {
+          item.isLeave = false; item.isPending = true; item.leaveType = undefined; item.start = '07:30'; item.end = '17:00'; item.requestOT = 0;
+      }
+      try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
+      renderHistory();
+  }
+
+  function toggleType(index) {
+      const sourceItem = otHistory[index];
+      const targetDate = sourceItem.date;
+      const newType = sourceItem.type === 'weekday' ? 'weekend' : 'weekday';
+      
+      otHistory.forEach(item => {
+          if(item.date === targetDate) {
+              item.type = newType;
+              if (!item.isPending && !item.isLeave) { 
+                   const result = calculateCore(item.start, item.end, item.date, newType);
+                   if(result) {
+                       item.ot15 = result.ot15; item.ot1 = result.ot1; item.ot3 = result.ot3; 
+                       item.html = result.html; item.timeRange = result.timeRange; item.maxOTMinutes = result.maxOTMinutes;
+                   }
+              }
+          }
+      });
+      
+      try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
+      renderHistory(); 
+  }
+
+  function editOTHours(index, rateKey) {
+      const item = otHistory[index];
+      const limitCalc = calculateCore(item.start, item.end, item.date, item.type);
+      let currentVal = 0, maxLimit = 0, label = "";
+      
+      if(rateKey === '15') { currentVal = item.ot15/60; maxLimit = limitCalc.ot15; label = "OT x1.5"; }
+      if(rateKey === '1')  { currentVal = item.ot1/60; maxLimit = limitCalc.ot1; label = "OT x1"; }
+      if(rateKey === '3')  { currentVal = item.ot3/60; maxLimit = limitCalc.ot3; label = "OT x3"; }
+      
+      const newValStr = prompt(`แก้ไขชั่วโมง ${label} (สูงสุด ${(maxLimit/60).toFixed(2)})`, currentVal.toFixed(1));
+      if(newValStr !== null) {
+          const newVal = parseFloat(newValStr);
+          if(isNaN(newVal) || newVal < 0) { alert('❌ ตัวเลขไม่ถูกต้อง'); return; }
+          const newValMinutes = Math.round(newVal * 60);
+          if(newValMinutes > maxLimit + 1) { alert(`❌ เกินเวลาจริง (${(maxLimit/60).toFixed(2)})`); return; }
+
+          let proposedTotal = 0;
+          if(rateKey === '15') proposedTotal = newValMinutes; 
+          else {
+              let ot1 = (rateKey === '1') ? newValMinutes : (item.ot1||0);
+              let ot3 = (rateKey === '3') ? newValMinutes : (item.ot3||0);
+              proposedTotal = ot1 + ot3;
+              const maxTotal = (limitCalc.ot1 || 0) + (limitCalc.ot3 || 0);
+              if(proposedTotal > maxTotal + 1) { alert(`❌ เวลารวมเกิน (${(maxTotal/60).toFixed(2)})`); return; }
+          }
+          
+          if(rateKey === '15') item.ot15 = newValMinutes;
+          if(rateKey === '1')  item.ot1 = newValMinutes;
+          if(rateKey === '3')  item.ot3 = newValMinutes;
+          
+          try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
+          renderHistory();
+      }
+  }
+
+  function viewDetail(index) {
+      const item = otHistory[index];
+      if(!item) return;
+      document.getElementById('modalBody').innerHTML = item.html;
+      document.getElementById('detailModal').classList.add('show');
+  }
+
+  function closeModal() { document.getElementById('detailModal').classList.remove('show'); }
+   
+  function deleteHistory(index) {
+    if(!confirm('ยืนยันลบ?')) return;
+    otHistory.splice(index, 1);
+    try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); updateBadge(); renderHistory(); } catch(e) {}
+  }
+
+  function resetOT() {
+    const s = document.getElementById('startTime');
+    const e = document.getElementById('endTime');
+    if(s) s.value = '07:30';
+    if(e) e.value = '17:00';
+    
+    const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Bangkok"}));
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+      
+    const dateInput = document.getElementById('workDate');
+    if(dateInput) {
+        dateInput.value = `${year}-${month}-${day}`;
+        syncDateDisplay('workDate', 'workDateShow');
+    }
+      
+    updateThaiDateDisplay();
+      
+    const dayOfWeek = now.getDay();
+    const typeVal = (dayOfWeek===0||dayOfWeek===6)?'weekend':'weekday';
+    const rad = document.querySelector(`input[name="type"][value="${typeVal}"]`);
+    if(rad) { rad.checked=true; updateRadioStyle(); }
+
+    const res = document.getElementById('result');
+    if(res) res.innerHTML = '';
+    const saveSec = document.getElementById('saveSection');
+    if(saveSec) saveSec.style.display = 'none';
+    editingRowIndex = null; 
+  }
+
+  function renderHistory() {
+    let targetMonth = null;
+    let targetYear = null;
+      
+    if (!showAll) {
+        const historyPickerVal = document.getElementById('historyMonthPicker').value;
+        if (historyPickerVal) {
+            const [y, m] = historyPickerVal.split('-');
+            targetMonth = parseInt(m) - 1;
+            targetYear = parseInt(y);
+        } else {
+            const defaultDate = new Date(); 
+            targetMonth = defaultDate.getMonth();
+            targetYear = defaultDate.getFullYear();
+            
+            const mStr = String(targetMonth + 1).padStart(2, '0');
+            document.getElementById('historyMonthPicker').value = `${targetYear}-${mStr}`;
+        }
+    }
+
+    const driverFilterVal = document.getElementById('historyDriverFilter').value;
+    const monthsTh = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+      
+    if (showAll) {
+        document.getElementById('historyDateDisplay').textContent = "แสดงทั้งหมด";
+        document.getElementById('historyMonthPicker').value = "";
+    } else if (targetMonth !== null) {
+        const thaiYear = targetYear + 543; 
+        document.getElementById('historyDateDisplay').textContent = `${monthsTh[targetMonth]} ${thaiYear}`;
+        
+        const monthStr = String(targetMonth + 1).padStart(2, '0');
+        document.getElementById('historyMonthPicker').value = `${targetYear}-${monthStr}`; 
+    }
+
+    const tbody = document.getElementById('historyList');
+    tbody.innerHTML = '';
+    let s15=0, s1=0, s3=0;
+    let leaveCount = 0; 
+    let totalRequestOT = 0; 
+    filteredIndices = []; 
+
+    if(currentHistoryMode === 'driver') {
+        document.querySelector('#historyTable thead').innerHTML = `
+            <tr>
+                <th class="col-center">#</th>
+                <th>ชื่อ พขร.</th>
+                <th class="col-center th-ot" style="background:#eff6ff; color:#1e3a8a;">x1.5</th>
+                <th class="col-center th-ot" style="background:#ecfeff; color:#0e7490;">x1</th>
+                <th class="col-center th-ot" style="background:#fff1f2; color:#be123c;">x3</th>
+                <th class="col-center th-ot">รวม(ชม.)</th>
+                <th class="col-center th-ot" style="background:#f0f9ff; color:#0284c7;">ขอเบิก(ชม.)</th>
+                <th class="col-center">ลา</th>
+                <th class="col-center sticky-col">สถานะ</th>
+            </tr>
+        `;
+
+        const summaryMap = {};
+
+        drivers.forEach(d => {
+            summaryMap[d.name] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0, requestOT:0, hasData: false }; 
+        });
+        
+        otHistory.forEach((item) => {
+            let isMatch = true;
+            if (!showAll && targetMonth !== null) {
+                const d = new Date(item.date);
+                if (d.getMonth() !== targetMonth || d.getFullYear() !== targetYear) isMatch = false;
+            }
+
+            if(isMatch) {
+                let plainDriverName = getPlainName(item.driver) || "(ไม่ระบุชื่อ)";
+
+                if(!summaryMap[plainDriverName]) {
+                      summaryMap[plainDriverName] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0, requestOT:0 };
+                }
+                
+                if(item.isLeave) {
+                    summaryMap[plainDriverName].leave++;
+                } else if(!item.isPending) {
+                    summaryMap[plainDriverName].ot15 += (item.ot15 || 0);
+                    summaryMap[plainDriverName].ot1 += (item.ot1 || 0);
+                    summaryMap[plainDriverName].ot3 += (item.ot3 || 0);
+                    summaryMap[plainDriverName].requestOT += parseFloat(item.requestOT || 0); 
+                }
+
+                if(item.isIncomplete) {
+                    summaryMap[plainDriverName].missingCount++;
+                }
+            }
+        });
+
+        let driverNames = Object.keys(summaryMap);
+        
+        driverNames.sort((a, b) => {
+            const indexA = drivers.findIndex(d => d.name === a);
+            const indexB = drivers.findIndex(d => d.name === b);
+            if (indexA === -1) return 1;
+            if (indexB === -1) return -1;
+            return indexA - indexB;
+        });
+        
+        if (driverFilterVal !== "") {
+             let filterNameOnly = getPlainName(driverFilterVal);
+            driverNames = driverNames.filter(name => name === filterNameOnly);
+        }
+
+        if(driverNames.length === 0) {
+            document.getElementById('emptyMsg').style.display = 'block';
+        } else {
+            document.getElementById('emptyMsg').style.display = 'none';
+            driverNames.forEach((name, idx) => {
+                const data = summaryMap[name];
+                const totalMins = data.ot15 + data.ot1 + data.ot3;
+                
+                s15 += data.ot15;
+                s1 += data.ot1;
+                s3 += data.ot3;
+                leaveCount += data.leave;
+                totalRequestOT += (parseFloat(data.requestOT) || 0); 
+
+                let missingHtml = '-';
+                if(data.missingCount > 0) {
+                    missingHtml = `<span style="background:#fef2f2; color:#ef4444; padding:4px 10px; border-radius:99px; font-weight:700; font-size:0.8rem; border:1px solid #fca5a5; cursor:pointer; transition:transform 0.2s;" onclick="viewDriverMissing('${name}')" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="คลิกเพื่อดูรายละเอียด">⚠️ ขาด ${data.missingCount}</span>`;
+                }
+
+                const monthKey = targetYear !== null ? `${targetYear}-${String(targetMonth+1).padStart(2,'0')}` : "";
+                const isVer = verifiedStatus[monthKey] && verifiedStatus[monthKey][name];
+
+                const realIndex = drivers.findIndex(d => d.name === name) + 1;
+                const displayIndex = realIndex > 0 ? realIndex : '-';
+
+                const tr = document.createElement('tr');
+                if(isVer) tr.classList.add('verified-row');
+
+                let verifyBtnHtml = `<button class="btn-verify ${isVer ? 'active' : ''}" onclick="toggleVerification('${name}')">
+                    ${isVer ? '✅ ตรวจสอบแล้ว' : '⚪ รอตรวจสอบ'}
+                </button>`;
+                
+                let statusCellHtml = `<div style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+                    ${verifyBtnHtml}
+                    ${missingHtml !== '-' ? missingHtml : ''}
+                </div>`;
+
+                tr.innerHTML = `
+                    <td class="col-center">${displayIndex}</td>
+                    <td style="font-weight:700; color:var(--brand); font-size:0.95rem;">${name}</td>
+                    <td class="col-center">${fmtShort(data.ot15)}</td>
+                    <td class="col-center">${fmtShort(data.ot1)}</td>
+                    <td class="col-center">${fmtShort(data.ot3)}</td>
+                    <td class="col-center" style="font-weight:800;">${fmtShort(totalMins)}</td>
+                    <td class="col-center" style="font-weight:800; color:#0284c7;">${parseFloat(data.requestOT).toFixed(1).replace('.0','')}</td>
+                    <td class="col-center" style="color:#ef4444; font-weight:700;">${data.leave}</td>
+                    <td class="col-center sticky-col">${statusCellHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+    } else {
+        document.querySelector('#historyTable thead').innerHTML = `
+            <tr>
+                <th width="4%" class="col-center">ลา</th>
+                <th width="20%" style="text-align:left; padding-left:10px;">วันที่</th>
+                <th width="12%" class="col-center">ประเภท</th>
+                <th width="15%" class="col-center">ช่วงเวลา</th>
+                <th class="col-center th-ot" style="min-width:45px; background:#eff6ff; color:#1e3a8a; border-bottom-color:#bfdbfe;">x1.5</th>
+                <th class="col-center th-ot" style="min-width:45px; background:#ecfeff; color:#0e7490; border-bottom-color:#a5f3fc;">x1</th>
+                <th class="col-center th-ot" style="min-width:45px; background:#fff1f2; color:#be123c; border-bottom-color:#fecdd3;">x3</th>
+                <th width="8%" class="col-center th-ot">รวม(ชม.)</th>
+                <th width="8%" class="col-center th-ot" style="background:#f0f9ff; color:#0284c7;">ขอเบิก(ชม.)</th>
+                <th width="14%" class="col-center sticky-col">เครื่องมือ</th>
+            </tr>
+        `;
+
+        otHistory.forEach((item, index) => {
+            let isMatch = true;
+            if (!showAll) {
+                 if (targetMonth !== null) {
+                    const itemDate = new Date(item.date);
+                    if (itemDate.getMonth() !== targetMonth || itemDate.getFullYear() !== targetYear) {
+                        isMatch = false;
+                    }
+                 }
+            }
+            if (driverFilterVal !== "") {
+                const dName = getPlainName(item.driver);
+                const filterName = getPlainName(driverFilterVal);
+                if(dName !== filterName) {
+                    isMatch = false;
+                }
+            }
+
+            if (isMatch) {
+                filteredIndices.push(index); 
+            }
+        });
+
+        if(filteredIndices.length === 0) {
+            document.getElementById('emptyMsg').style.display = 'block';
+        } else {
+            document.getElementById('emptyMsg').style.display = 'none';
+            
+            filteredIndices.forEach((originalIndex, i) => {
+                const item = otHistory[originalIndex];
+                
+                if(item.isLeave) { leaveCount++; }
+
+                if(!item.isPending && !item.isLeave) {
+                    s15 += item.ot15 || 0; 
+                    s1 += item.ot1 || 0; 
+                    s3 += item.ot3 || 0;
+                    totalRequestOT += (parseFloat(item.requestOT) || 0); 
+                }
+                
+                const tr = document.createElement('tr');
+                let totalText = '-';
+                if(!item.isPending && !item.isLeave) {
+                      const totalMinutes = (item.ot15||0) + (item.ot1||0) + (item.ot3||0);
+                      totalText = fmt(totalMinutes);
+                }
+
+                const pillClass = item.type === 'weekday' ? 'pill-weekday' : 'pill-weekend';
+                const pillText = item.type === 'weekday' ? 'วันธรรมดา' : 'วันหยุด';
+                const pillHtml = `<span class="pill ${pillClass}" onclick="toggleType(${originalIndex})" style="font-size:0.85rem; padding:6px 12px; border-radius:12px; cursor:pointer; display:inline-block; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" title="คลิกเพื่อสลับประเภทวัน">${pillText}</span>`;
+
+                let dNameClean = getPlainName(item.driver);
+                let driverNameHtml = dNameClean ? `<div style="font-size:0.85rem; color:var(--brand); font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:4px;"><span style="opacity:0.6;">👤</span> ${dNameClean}</div>` : '';
+                
+                let dateStrHtml = `<div style="font-weight:600; color:${item.isPending ? '#64748b' : 'var(--text-main)'}; font-size:0.9rem; padding-left:2px;">${formatThaiDate(item.date)}</div>`;
+                let dateColContent = `${driverNameHtml}${dateStrHtml}`;
+
+                const isChecked = item.isLeave ? 'checked' : '';
+                const checkboxHtml = `<input type="checkbox" ${isChecked} onchange="toggleLeaveFromTable(${originalIndex}, this.checked)" style="width:16px; height:16px; cursor:pointer;">`;
+
+                if(item.isLeave) {
+                    const leavePill = `<span class="pill" style="background:#fef2f2; color:#ef4444; border:1px solid #fecaca; cursor:default; font-size:0.85rem; padding:6px 12px; border-radius:12px;">ลา</span>`;
+                    
+                    let leaveDateStrHtml = `<div style="font-weight:600; color:#ef4444; font-size:0.9rem; padding-left:2px;">${formatThaiDate(item.date)}</div>`;
+                    let leaveDateColContent = `${driverNameHtml}${leaveDateStrHtml}`;
+
+                    let leaveTypeContent = ''; 
+                    if(item.isIncomplete) {
+                           leaveTypeContent = `<div class="inc-box" style="margin:0 auto;"><i>📝</i><span>${item.incompleteReason || 'ขาดเอกสาร'}</span></div>`;
+                    } else {
+                        leaveTypeContent = '-'; 
+                    }
+
+                    tr.innerHTML = `
+                        <td class="col-center">${checkboxHtml}</td>
+                        <td style="padding-left:10px; vertical-align:middle;">
+                            ${leaveDateColContent}
+                        </td>
+                        <td class="col-center" style="vertical-align:middle;">${leavePill}</td>
+                        <td class="col-center" style="font-weight:bold; color:#ef4444; vertical-align:middle;">${leaveTypeContent}</td>
+                        <td class="col-center" style="background:#f9fafb; opacity:0.5;">-</td>
+                        <td class="col-center" style="background:#f9fafb; opacity:0.5;">-</td>
+                        <td class="col-center" style="background:#f9fafb; opacity:0.5;">-</td>
+                        <td class="col-center">-</td>
+                        <td class="col-center" style="background:#f9fafb; opacity:0.5;">-</td>
+                        <td class="col-center">
+                            ${item.isIncomplete ? `<button class="action-btn view-btn" onclick="resolveIncomplete(${originalIndex})" title="ได้รับเอกสารแล้ว" style="color:#10b981; background:#ecfdf5; margin-right:4px;">✅</button>` : ''}
+                            <button class="action-btn del-btn" onclick="deleteHistory(${originalIndex})" title="ลบ">🗑️</button>
+                        </td>
+                    `;
+                } else {
+                    let timeContent = '';
+                    let otHtml = '';
+                    let actionBtnHtml = '';
+                    
+                    let reqValDisplay = '-';
+                    if(!item.isPending) {
+                        reqValDisplay = item.requestOT !== undefined ? parseFloat(item.requestOT).toFixed(1).replace('.0','') : '-';
+                    }
+                    let requestHtml = '';
+                    if(item.isPending) {
+                        requestHtml = `<td class="col-center" style="color:#cbd5e1">-</td>`;
+                    } else {
+                        requestHtml = `<td class="col-center" style="font-weight:800; color:#0284c7; font-size:0.95rem; vertical-align:middle;">${reqValDisplay}</td>`;
+                    }
+
+                    if(item.isPending) {
+                         timeContent = `<span class="time-range pending" onclick="editInline(${originalIndex})" title="คลิกเพื่อระบุเวลา">➕ เพิ่ม</span>`;
+                    } else {
+                         timeContent = `<span class="time-range" onclick="editInline(${originalIndex})" title="คลิกเพื่อแก้ไขเวลา">${item.timeRange}</span>`;
+                    }
+                    
+                    if(item.isIncomplete) {
+                        timeContent += `<div class="inc-box" style="margin:6px auto 0;"><i>📝</i><span>${item.incompleteReason || 'ขาดเอกสาร'}</span></div>`;
+                    }
+
+                    if(item.isPending) {
+                         otHtml = `<td class="col-center" style="color:#cbd5e1">-</td><td class="col-center" style="color:#cbd5e1">-</td><td class="col-center" style="color:#cbd5e1">-</td>`;
+                         actionBtnHtml = `<button class="action-btn del-btn" onclick="deleteHistory(${originalIndex})" title="ลบ">🗑️</button>`;
+                    } else {
+                         otHtml = `<td class="col-center"><span class="ot-val val-15" onclick="editOTHours(${originalIndex}, '15')">${fmtShort(item.ot15)}</span></td><td class="col-center"><span class="ot-val val-1" onclick="editOTHours(${originalIndex}, '1')">${fmtShort(item.ot1)}</span></td><td class="col-center"><span class="ot-val val-3" onclick="editOTHours(${originalIndex}, '3')">${fmtShort(item.ot3)}</span></td>`;
+                         actionBtnHtml = `<button class="action-btn view-btn" onclick="viewDetail(${originalIndex})" title="ดูรายละเอียด">🔍</button><button class="action-btn reset-btn" onclick="resetHistoryItem(${originalIndex})" title="เคลียร์เป็นแบบร่าง">🧹</button>`;
+                    }
+                    
+                    if(item.isIncomplete) {
+                         actionBtnHtml = `<button class="action-btn view-btn" onclick="resolveIncomplete(${originalIndex})" title="ได้รับเอกสารแล้ว" style="color:#10b981; background:#ecfdf5; margin-right:4px;">✅</button>` + actionBtnHtml;
+                    }
+
+                    if(editingRowIndex === originalIndex) {
+                        tr.innerHTML = `
+                            <td class="col-center">${checkboxHtml}</td>
+                            <td style="padding-left:10px; vertical-align:middle;">
+                                ${driverNameHtml}
+                                <input type="date" id="editDate" value="${item.date}" class="mini-input" style="width:100%; min-width:110px; padding:4px;" lang="th-TH">
+                            </td>
+                            <td class="col-center" style="vertical-align:middle;">${pillHtml}</td>
+                            <td class="col-center" colspan="4">
+                                <div class="edit-row-wrap" style="gap:4px;">
+                                    <input type="tel" id="editStart" value="${item.start || '07:30'}" class="mini-input" style="width:70px;"><span>-</span><input type="tel" id="editEnd" value="${item.end || '17:00'}" class="mini-input" style="width:70px;">
+                                    <button onclick="saveInline(${originalIndex})" class="mini-btn ok">✔</button>
+                                    <button onclick="cancelInline()" class="mini-btn cancel">✖</button>
+                                </div>
+                            </td>
+                            <td class="col-center"><span style="color:#94a3b8; font-size:0.8rem;">...</span></td>
+                            <td class="col-center"><span style="color:#94a3b8; font-size:0.8rem;">...</span></td>
+                            <td class="col-center sticky-col">...</td>
+                        `;
+                         setTimeout(() => {
+                            const s = document.getElementById('editStart');
+                            const e = document.getElementById('editEnd');
+
+                            if(s) {
+                                s.focus(); s.select(); 
+                                s.addEventListener('input', function(ev) {
+                                    formatTimeInput(ev); 
+                                    if(this.value.length === 5) { if(e) { e.focus(); e.select(); } }
+                                });
+                                s.addEventListener('keydown', function(ev) {
+                                    if(ev.key === 'Enter') { ev.preventDefault(); if(e) { e.focus(); e.select(); } }
+                                });
+                            }
+
+                            if(e) {
+                                e.addEventListener('input', formatTimeInput);
+                                e.addEventListener('keydown', function(ev) {
+                                    if(ev.key === 'Enter') { ev.preventDefault(); saveInline(originalIndex); }
+                                });
+                            }
+                        }, 50);
+                    } else {
+                        tr.innerHTML = `
+                            <td class="col-center">${checkboxHtml}</td>
+                            <td style="padding-left:10px; vertical-align:middle;">
+                                ${dateColContent}
+                            </td>
+                            <td class="col-center" style="vertical-align:middle;">${pillHtml}</td>
+                            <td class="col-center" style="vertical-align:middle;">${timeContent}</td>
+                            ${otHtml}
+                            <td class="col-center" style="font-weight:800; color:var(--brand); font-size:0.95rem; vertical-align:middle;">${totalText}</td>
+                            ${requestHtml}
+                            <td class="col-center sticky-col" style="vertical-align:middle;">${actionBtnHtml}</td>
+                        `;
+                    }
+                }
+                tbody.appendChild(tr);
+            });
+        }
+    }
+
+    document.getElementById('sum15').innerText = (s15/60).toFixed(1); 
+    document.getElementById('sum1').innerText = (s1/60).toFixed(1);
+    document.getElementById('sum3').innerText = (s3/60).toFixed(1);
+    let totalAllMinutes = s15 + s1 + s3;
+    document.getElementById('sumLeaveDays').innerText = leaveCount;
+    document.getElementById('sumTotal_b').innerText = (totalAllMinutes/60).toFixed(1); 
+    document.getElementById('sumRequestOT').innerText = totalRequestOT.toFixed(1).replace('.0', ''); 
+    
+    const btnToolbarVerify = document.getElementById('btnToolbarVerify');
+    if(btnToolbarVerify && currentHistoryMode === 'daily') {
+        if(driverFilterVal && targetMonth !== null) {
+            let plainName = getPlainName(driverFilterVal);
+            const monthKey = `${targetYear}-${String(targetMonth+1).padStart(2,'0')}`;
+            const isV = verifiedStatus[monthKey] && verifiedStatus[monthKey][plainName];
+
+            if(isV) {
+                btnToolbarVerify.classList.add('active');
+                btnToolbarVerify.innerHTML = `✅ ตรวจสอบแล้ว`;
+            } else {
+                btnToolbarVerify.classList.remove('active');
+                btnToolbarVerify.innerHTML = `⚪ รอตรวจสอบ`;
+            }
+        } else {
+            btnToolbarVerify.classList.remove('active');
+            btnToolbarVerify.innerHTML = `⚪ รอตรวจสอบ`;
+        }
+    }
+  }
+
+  /* DOMContentLoaded MAIN */
+  document.addEventListener('DOMContentLoaded', () => {
+        initCloudData(); 
+        
+        const draftStr = localStorage.getItem('egat_ot_draft');
+        if (draftStr) {
+            try {
+                const draft = JSON.parse(draftStr);
+                if(document.getElementById('driverSelect')) document.getElementById('driverSelect').value = draft.driver || '';
+                if(document.getElementById('workDate')) {
+                    document.getElementById('workDate').value = draft.date || '';
+                    syncDateDisplay('workDate', 'workDateShow');
+                }
+                if(document.getElementById('startTime')) document.getElementById('startTime').value = draft.start || '07:30';
+                if(document.getElementById('endTime')) document.getElementById('endTime').value = draft.end || '17:00';
+                
+                updateThaiDateDisplay();
+                
+                const rad = document.querySelector(`input[name="type"][value="${draft.type}"]`);
+                if(rad) { rad.checked = true; updateRadioStyle(); }
+            } catch(e) {
+                window.resetOT();
+            }
+        } else {
+            window.resetOT();
+        }
+
+        renderDrivers();
+        renderHistory(); 
+
+        ['driverSelect', 'workDate', 'startTime', 'endTime'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('input', saveFormDraft);
+                el.addEventListener('change', saveFormDraft);
+            }
+        });
+        document.querySelectorAll('input[name="type"]').forEach(r => {
+            r.addEventListener('change', saveFormDraft);
+        });
+
+        const historyBtn = document.getElementById('historyTitleBtn');
+        const summaryMenu = document.getElementById('summaryMenu');
+        
+        if(historyBtn && summaryMenu) {
+            historyBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                summaryMenu.classList.toggle('show');
+            });
+
+            window.addEventListener('click', () => {
+                if (summaryMenu.classList.contains('show')) {
+                    summaryMenu.classList.remove('show');
+                }
+            });
+
+            summaryMenu.querySelectorAll('.menu-opt').forEach(opt => {
+                opt.addEventListener('click', (e) => {
+                    e.stopPropagation(); 
+                    const mode = opt.getAttribute('data-mode');
+                    setHistoryMode(mode);
+                    summaryMenu.classList.remove('show');
+                });
+            });
+        }
+
+        const historyPicker = document.getElementById('historyMonthPicker');
+        if(historyPicker) {
+            historyPicker.addEventListener('change', (e) => {
+                const val = e.target.value; 
+                if(val) {
+                    updateThaiDateDisplay();
+                    showAll = false; 
+                    renderHistory();
+                }
+            });
+        }
+
+        const btnToggle = document.getElementById('btnToggle');
+        if(btnToggle) {
+            btnToggle.addEventListener('click', ()=>{
+                sidebar.classList.toggle('collapsed');
+                try { CloudStorage.setItem('egat_sidebar_collapsed', sidebar.classList.contains('collapsed')?'1':'0'); } catch(e){}
+            });
+        }
+
+        const workDateInput = document.getElementById('workDate');
+        if(workDateInput) {
+            workDateInput.addEventListener('change', () => {
+                updateThaiDateDisplay();
+            });
+            workDateInput.addEventListener('input', updateThaiDateDisplay);
+        }
+
+        const btnSaveLog = document.getElementById('btnSaveLog');
+        if(btnSaveLog) {
+            btnSaveLog.addEventListener('click', () => {
+                const driverInput = document.getElementById('driverSelect');
+                const driverName = getPlainName(driverInput.value);
+                
+                if (!driverName) {
+                    alert('⚠️ กรุณาระบุ "ชื่อพนักงานขับรถ (พขร.)" ก่อนบันทึกข้อมูลครับ');
+                    driverInput.focus(); 
+                    driverInput.style.borderColor = '#ef4444';
+                    driverInput.style.boxShadow = '0 0 0 4px #fee2e2';
+                    setTimeout(() => {
+                        driverInput.style.borderColor = '';
+                        driverInput.style.boxShadow = '';
+                    }, 2000);
+                    return;
+                }
+
+                const reqInput = document.getElementById('requestOTInput');
+                let requestOTVal = 0;
+                if (reqInput) {
+                    const reqVal = parseFloat(reqInput.value);
+                    if (isNaN(reqVal) || reqVal < 0) {
+                        alert('⚠️ กรุณาระบุ "ขอเบิกเวลา OT (ชม.)" เป็นตัวเลขให้ถูกต้องครับ');
+                        reqInput.focus();
+                        return;
+                    }
+                    const maxVal = parseFloat(reqInput.getAttribute('max'));
+                    if (reqVal > maxVal + 0.01) {  
+                        document.getElementById('requestOTError').style.display = 'block';
+                        reqInput.focus();
+                        return;
+                    }
+                    document.getElementById('requestOTError').style.display = 'none';
+                    requestOTVal = reqVal; 
+                }
+
+                if(!currentCalcResult) return;
+
+                currentCalcResult.driver = driverName;
+                currentCalcResult.requestOT = requestOTVal; 
+
+                const existingIndex = otHistory.findIndex(item => 
+                    item.date === currentCalcResult.date && (getPlainName(item.driver) === currentCalcResult.driver)
+                );
+                if(existingIndex !== -1) { currentCalcResult.id = otHistory[existingIndex].id; otHistory[existingIndex] = currentCalcResult; } 
+                else { otHistory.push(currentCalcResult); }
+                sortHistory(); 
+                try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); const btn = document.getElementById('btnSaveLog'); btn.innerHTML = '✅ บันทึกเรียบร้อย'; btn.disabled = true; btn.style.background = '#64748b'; updateBadge(); renderHistory(); } catch(e) { alert('บันทึกไม่สำเร็จ (Storage เต็ม)'); }
+            });
+        }
+        
+        const btnCalc = document.getElementById('btnCalc');
+        if(btnCalc) { btnCalc.addEventListener('click', calculateOT); }
+
+        document.querySelectorAll('input[name="type"]').forEach(r => {
+            r.addEventListener('change', updateRadioStyle);
+        });
+
+        document.querySelectorAll('.time-manual').forEach(inp => {
+            inp.addEventListener('input', formatTimeInput);
+            inp.addEventListener('blur', validateTimeInput);
+            inp.addEventListener('focus', function() { this.select(); }); 
+        });
+
+        const mainStart = document.getElementById('startTime');
+        const mainEnd = document.getElementById('endTime');
+        if(mainStart && mainEnd) {
+            mainStart.addEventListener('input', function() {
+                if(this.value.length === 5) {
+                    mainEnd.focus();
+                    mainEnd.select(); 
+                }
+            });
+
+            mainEnd.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    validateTimeInput({ target: this });
+                    this.blur(); 
+                    calculateOT(); 
+                }
+            });
+            
+            mainStart.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    mainEnd.focus();
+                    mainEnd.select();
+                }
+            });
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if(editingRowIndex !== null) {
+                if(e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    moveInline(-1);
+                } else if(e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    moveInline(1);
+                }
+            }
+            if(e.key === 'Escape') {
+                closeModal();
+                closeDeleteModal();
+                closeResetModal(); 
+                closeIncompleteModal();
+                closeAddDriverModal();
+                closeSummaryModal();
+                closeCreateOptionModal();
+                closeCustomMonthPicker();
+                closeBackupModal();
+                closeQuickSummaryModal();
+                
+                if(editingRowIndex !== null) {
+                    cancelInline();
+                }
+            }
+        });
+
+        const calcDisplay = document.getElementById('calcDisplay');
+        const calcKeys = document.querySelectorAll('.keys button');
+        
+        function handleCalcInput(k) {
+            if(!calcDisplay) return;
+            let cur = calcDisplay.value;
+            
+            if(k === 'C') {
+                calcDisplay.value = '0';
+            } else if(k === 'BS') {
+                calcDisplay.value = cur.length > 1 ? cur.slice(0,-1) : '0';
+            } else if(k === '=') {
+                try {
+                    if (/[^0-9.+\-*/%]/.test(cur)) throw new Error();
+                    calcDisplay.value = new Function('return ' + cur)();
+                } catch(e) {
+                    calcDisplay.value = 'Error';
+                    setTimeout(()=>calcDisplay.value='0', 1000);
+                }
+            } else {
+                const ops = ['+','-','*','/','%'];
+                const last = cur.slice(-1);
+                if(ops.includes(k) && ops.includes(last)) {
+                    cur = cur.slice(0,-1);
+                }
+                if(cur === '0' && !ops.includes(k) && k !== '.') {
+                    calcDisplay.value = k;
+                } else {
+                    calcDisplay.value = cur + k;
+                }
+            }
+        }
+
+        if(calcDisplay && calcKeys.length > 0) {
+            calcKeys.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    handleCalcInput(btn.getAttribute('data-k'));
+                });
+            });
+
+            window.addEventListener('keydown', (e) => {
+                const calcView = document.getElementById('view-calc');
+                if (!calcView || !calcView.classList.contains('active')) return;
+
+                let k = null;
+                const key = e.key;
+
+                if (/[0-9\.\+\-\*\/%]/.test(key)) {
+                    k = key;
+                } else if (key === 'Enter' || key === '=') {
+                    k = '=';
+                    e.preventDefault(); 
+                } else if (key === 'Backspace') {
+                    k = 'BS';
+                } else if (key === 'Escape' || key.toLowerCase() === 'c') {
+                    k = 'C';
+                }
+
+                if (k) {
+                    const btn = document.querySelector(`.keys button[data-k="${k}"]`);
+                    if(btn) {
+                        btn.style.transform = 'translateY(4px)';
+                        btn.style.boxShadow = 'none';
+                        setTimeout(() => {
+                            btn.style.transform = '';
+                            btn.style.boxShadow = '';
+                        }, 100);
+                    }
+                    
+                    handleCalcInput(k);
+                }
+            });
+        }
+
+        const dSelect = document.getElementById('driverSelect');
+        const hSelect = document.getElementById('historyDriverFilter');
+        
+        function autoSelectDriverOnEnter(e, inputEl, isHistory) {
+            if(e.key === 'Enter') {
+                e.preventDefault();
+                let val = inputEl.value.trim();
+                let match = val.match(/^#?(\d+)$/); 
+                if(match) {
+                    let idx = parseInt(match[1], 10) - 1;
+                    if(idx >= 0 && idx < drivers.length) {
+                        inputEl.value = `#${idx + 1} ${drivers[idx].name}`;
+                    }
+                }
+                inputEl.blur(); 
+                
+                if(isHistory) {
+                    handleFilterChange();
+                } else {
+                    saveFormDraft();
+                }
+            }
+        }
+
+        if(dSelect) {
+            dSelect.addEventListener('focus', function() { this.select(); });
+            dSelect.addEventListener('click', function() { this.select(); });
+            dSelect.addEventListener('keydown', (e) => autoSelectDriverOnEnter(e, dSelect, false));
+        }
+        if(hSelect) {
+            hSelect.addEventListener('focus', function() { this.select(); });
+            hSelect.addEventListener('click', function() { this.select(); });
+            hSelect.addEventListener('keydown', (e) => autoSelectDriverOnEnter(e, hSelect, true));
+        }
+  });
+   
+  /* Service Worker Kill Switch */
+  if ('serviceWorker' in navigator) { try { navigator.serviceWorker.getRegistrations().then(function(registrations) { for(let registration of registrations) { registration.unregister(); } }).catch(function(err) {}); } catch(e) {} }
+
+  /* Actions Trigger in main calculation UI */
+  window.markAsLeave = function() {
+      const driverInput = document.getElementById('driverSelect').value;
+      const driverName = getPlainName(driverInput);
+      const dateVal = document.getElementById('workDate').value;
+
+      if (!driverName) { alert('⚠️ กรุณาระบุชื่อ พขร. ด้านบนก่อนครับ'); return; }
+      if (!dateVal) { alert('⚠️ กรุณาเลือกวันที่ครับ'); return; }
+
+      if (!confirm(`ยืนยันบันทึก "ลาพัก" ให้กับ\n👤 ${driverName}\n📅 วันที่ ${formatThaiDate(dateVal)} ใช่หรือไม่?`)) return;
+
+      const d = new Date(dateVal);
+      const dayOfWeek = d.getDay();
+      const type = (dayOfWeek === 0 || dayOfWeek === 6) ? 'weekend' : 'weekday';
+
+      let existingIndex = otHistory.findIndex(item => item.date === dateVal && getPlainName(item.driver) === driverName);
+      
+      const leaveItem = {
+          id: existingIndex !== -1 ? otHistory[existingIndex].id : Date.now(),
+          date: dateVal,
+          type: type,
+          driver: driverName,
+          isLeave: true,
+          isPending: false,
+          isIncomplete: false,
+          incompleteReason: "",
+          leaveType: 'ลา',
+          ot15: 0, ot1: 0, ot3: 0, requestOT: 0,
+          start: '-', end: '-'
+      };
+
+      if (existingIndex !== -1) {
+          otHistory[existingIndex] = leaveItem;
+      } else {
+          otHistory.push(leaveItem);
+      }
+
+      sortHistory();
+      try { 
+          CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); 
+          alert('✅ บันทึกวันลาเรียบร้อยแล้วครับ');
+          renderHistory();
+      } catch(e) { alert('❌ บันทึกไม่สำเร็จ'); }
+  };
+
+  window.markAsIncomplete = function() {
+      const driverInput = document.getElementById('driverSelect').value;
+      const driverName = getPlainName(driverInput);
+      const dateVal = document.getElementById('workDate').value;
+
+      if (!driverName) { alert('⚠️ กรุณาระบุชื่อ พขร. ด้านบนก่อนครับ'); return; }
+      if (!dateVal) { alert('⚠️ กรุณาเลือกวันที่ครับ'); return; }
+
+      const reason = prompt(`แจ้งขาดเอกสารของ ${driverName} \nวันที่ ${formatThaiDate(dateVal)}\n\nโปรดระบุเอกสารที่ขาด (เช่น ขาดใบ OT):`, "ขาดใบ OT");
+      if (reason === null) return; 
+      const finalReason = reason.trim() || "ขาดเอกสาร";
+
+      const d = new Date(dateVal);
+      const dayOfWeek = d.getDay();
+      const type = (dayOfWeek === 0 || dayOfWeek === 6) ? 'weekend' : 'weekday';
+
+      let existingIndex = otHistory.findIndex(item => item.date === dateVal && getPlainName(item.driver) === driverName);
+      
+      let targetItem;
+      if (existingIndex !== -1) {
+          targetItem = { ...otHistory[existingIndex] };
+          targetItem.isIncomplete = true;
+          targetItem.incompleteReason = finalReason;
+      } else {
+          targetItem = {
+              id: Date.now(),
+              date: dateVal,
+              type: type,
+              driver: driverName,
+              isLeave: false,
+              isPending: true, 
+              isIncomplete: true,
+              incompleteReason: finalReason,
+              ot15: 0, ot1: 0, ot3: 0, requestOT: 0,
+              start: '07:30', end: '17:00'
+          };
+      }
+
+      if (existingIndex !== -1) {
+          otHistory[existingIndex] = targetItem;
+      } else {
+          otHistory.push(targetItem);
+      }
+
+      sortHistory();
+      try { 
+          CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); 
+          alert('✅ บันทึกแจ้งขาดเอกสารเรียบร้อยแล้วครับ');
+          renderHistory();
+      } catch(e) { alert('❌ บันทึกไม่สำเร็จ'); }
+  };
+
+  /* Quick Summary Modal */
+  window.openQuickSummaryModal = function() {
+      const driverInput = document.getElementById('driverSelect').value;
+      const driverName = getPlainName(driverInput);
+      const dateVal = document.getElementById('workDate').value;
+
+      if (!driverName) {
+          alert('⚠️ กรุณาระบุ "ชื่อ พขร." ก่อนเพื่อดูสรุปครับ');
+          document.getElementById('driverSelect').focus();
+          return;
+      }
+      if (!dateVal) {
+          alert('⚠️ กรุณาเลือก "วันที่" เพื่อให้ระบบทราบว่าจะดูของเดือนไหนครับ');
+          return;
+      }
+
+      const [y, m] = dateVal.split('-');
+      const targetYear = parseInt(y);
+      const targetMonth = parseInt(m) - 1;
+
+      const titleEl = document.getElementById('quickSummaryTitle');
+      const badgesEl = document.getElementById('quickSummaryBadges');
+      const tbody = document.getElementById('quickSummaryList');
+
+      titleEl.innerHTML = `<span>📊</span> ตรวจสอบยอด: ${driverName} <span style="font-size:0.9rem; color:var(--text-muted);">(${getThaiMonthYearFull(dateVal.substring(0,7))})</span>`;
+      
+      // คัดกรองข้อมูล
+      let s15 = 0, s1 = 0, s3 = 0, sReq = 0, sLeave = 0;
+      const items = otHistory.filter(item => {
+          const itemDate = new Date(item.date);
+          return getPlainName(item.driver) === driverName && 
+                 itemDate.getMonth() === targetMonth && 
+                 itemDate.getFullYear() === targetYear;
+      });
+
+      items.sort((a,b) => new Date(a.date) - new Date(b.date));
+      tbody.innerHTML = '';
+      
+      if (items.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="padding:50px; color:#94a3b8; text-align:center;">
+              <div style="font-size:3rem; margin-bottom:10px;">📭</div>ยังไม่มีข้อมูลบันทึกในเดือนนี้</td></tr>`;
+      } else {
+          items.forEach(item => {
+              const tr = document.createElement('tr');
+              let isPend = item.isPending && !item.isLeave;
+              if(isPend) tr.className = 'qs-row-pending';
+              if(item.isLeave) tr.className = 'qs-row-leave';
+
+              let rowHtml = `<td style="text-align:left; padding-left:20px; font-weight:700;">${formatThaiDate(item.date)}</td>`;
+              
+              let typeColor = item.type === 'weekday' ? '#3b82f6' : '#ef4444';
+              rowHtml += `<td><span style="color:${typeColor}; font-weight:700; font-size:0.8rem;">${item.type === 'weekday' ? 'วันธรรมดา' : 'วันหยุด'}</span></td>`;
+              
+              if (item.isLeave) {
+                  sLeave++;
+                  rowHtml += `<td class="col-center" colspan="3"><span class="pill" style="background:#ffe4e6; color:#e11d48; border:1px solid #fecaca; padding:4px 15px; border-radius:20px; font-weight:700; font-size:0.85rem;">🏖️ ลาพักผ่อน</span></td>`;
+                  rowHtml += `<td class="col-center" style="color:#cbd5e1;">-</td>`;
+                  rowHtml += `<td class="col-center"><span style="color:#10b981;">✔️</span></td>`;
+              } else if (item.isPending) {
+                  rowHtml += `<td class="col-center" colspan="3" style="font-style:italic; letter-spacing:0.5px; color:#94a3b8;">- รอระบุเวลาเข้าออก -</td>`;
+                  rowHtml += `<td class="col-center" style="color:#cbd5e1;">-</td>`;
+                  rowHtml += `<td class="col-center"><span>⏳</span></td>`;
+              } else {
+                  s15 += item.ot15 || 0;
+                  s1 += item.ot1 || 0;
+                  s3 += item.ot3 || 0;
+                  sReq += parseFloat(item.requestOT) || 0;
+
+                  rowHtml += `<td class="col-center" style="font-weight:600; color:#1e40af;">${item.ot15 ? fmtShort(item.ot15) : '-'}</td>`;
+                  rowHtml += `<td class="col-center" style="font-weight:600; color:#0e7490;">${item.ot1 ? fmtShort(item.ot1) : '-'}</td>`;
+                  rowHtml += `<td class="col-center" style="font-weight:600; color:#be123c;">${item.ot3 ? fmtShort(item.ot3) : '-'}</td>`;
+                  
+                  let reqVal = item.requestOT !== undefined ? parseFloat(item.requestOT).toFixed(1).replace('.0','') : '0';
+                  rowHtml += `<td class="col-center">  <b style="color:#2563eb; font-size:1.05rem;">${reqVal}</b></td>`;
+                  
+                  if(item.isIncomplete) {
+                      rowHtml += `<td class="col-center"><span title="${item.incompleteReason}" style="background:#fff7ed; color:#ea580c; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:800; border:1px solid #ffedd5;">⚠️ เอกสารขาด</span></td>`;
+                  } else {
+                      rowHtml += `<td class="col-center"><span style="color:#10b981; font-weight:bold;">✔️</span></td>`;
+                  }
+              }
+              tr.innerHTML = rowHtml;
+              tbody.appendChild(tr);
+          });
+      }
+
+      badgesEl.innerHTML = `
+          <div class="qs-stat-card qs-blue"><div class="qs-lbl">x1.5 (ธรรมดา)</div><div class="qs-val">${(s15/60).toFixed(1)}</div></div>
+          <div class="qs-stat-card qs-cyan"><div class="qs-lbl">x1 (วันหยุด)</div><div class="qs-val">${(s1/60).toFixed(1)}</div></div>
+          <div class="qs-stat-card qs-rose"><div class="qs-lbl">x3 (วันหยุด)</div><div class="qs-val">${(s3/60).toFixed(1)}</div></div>
+          <div class="qs-stat-card qs-primary"><div class="qs-lbl">ยอดเบิกรวม</div><div class="qs-val">${sReq.toFixed(1).replace('.0','')} <small style="font-size:0.8rem;">ชม.</small></div></div>
+          <div class="qs-stat-card qs-amber"><div class="qs-lbl">วันลา</div><div class="qs-val">${sLeave} <small style="font-size:0.8rem;">วัน</small></div></div>
+      `;
+
+      document.getElementById('quickSummaryModal').classList.add('show');
+  };
 </script>
 </body>
 </html>
