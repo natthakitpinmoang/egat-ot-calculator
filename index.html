@@ -554,6 +554,21 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
 }
+
+/* คลาสสำหรับตัวเลขที่คลิกแก้ไขได้ในหน้าคำนวณสด */
+.ot-editable {
+    cursor: pointer;
+    color: var(--brand) !important;
+    border-bottom: 1.5px dashed #94a3b8;
+    transition: all 0.2s;
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+.ot-editable:hover {
+    background: #e0f2fe;
+    border-color: transparent;
+    color: #0284c7 !important;
+}
 </style>
 </head>
 
@@ -1808,11 +1823,6 @@ function renderDrivers() {
       if (currentCalcResult.type === 'weekday') {
           let allocate15 = Math.min(reqMins, max15);
           currentCalcResult.ot15 = allocate15; 
-          
-          let disp15 = document.getElementById('disp_total15');
-          if (disp15) {
-              disp15.innerHTML = fmt(allocate15) + (allocate15 < max15 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
-          }
       } else {
           // วันหยุด: Priority เติมกล่อง x1 ให้เต็มก่อน แล้วค่อยเทส่วนที่เหลือไป x3
           let allocate1 = Math.min(reqMins, max1);
@@ -1821,12 +1831,84 @@ function renderDrivers() {
 
           currentCalcResult.ot1 = allocate1;
           currentCalcResult.ot3 = allocate3;
+      }
 
+      // ให้ Badge กลับมาเป็น Auto-Pilot เวลาพิมพ์ในช่องรวม
+      const autoPilotBadge = document.getElementById('autoPilotBadge');
+      if (autoPilotBadge) {
+          autoPilotBadge.innerHTML = '✨ Auto-Pilot';
+          autoPilotBadge.style.background = '#fef08a';
+          autoPilotBadge.style.color = '#854d0e';
+      }
+
+      if (currentCalcResult.type === 'weekday') {
+          let disp15 = document.getElementById('disp_total15');
+          if (disp15) {
+              disp15.innerHTML = fmt(currentCalcResult.ot15) + (currentCalcResult.ot15 < max15 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '') + ' ✏️';
+          }
+      } else {
           let disp1 = document.getElementById('disp_total1');
           let disp3 = document.getElementById('disp_total3');
+          if (disp1) disp1.innerHTML = fmt(currentCalcResult.ot1) + (currentCalcResult.ot1 < max1 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '') + ' ✏️';
+          if (disp3) disp3.innerHTML = fmt(currentCalcResult.ot3) + (currentCalcResult.ot3 < max3 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '') + ' ✏️';
+      }
+  };
 
-          if (disp1) disp1.innerHTML = fmt(allocate1) + (allocate1 < max1 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
-          if (disp3) disp3.innerHTML = fmt(allocate3) + (allocate3 < max3 ? ` <span style="font-size:0.75rem; color:#ef4444; font-weight:700;">(ปรับลด)</span>` : '');
+  // ⚙️ ฟังก์ชัน Manual Override สำหรับแก้ไขแยกเรต OT ในหน้าคำนวณ
+  window.editLiveOTHours = function(rateKey) {
+      if (!currentCalcResult) return;
+
+      let maxLimit = 0;
+      let currentVal = 0;
+      let label = "";
+
+      if (rateKey === '15') { maxLimit = currentCalcResult.baseOt15; currentVal = currentCalcResult.ot15; label = "OT x1.5"; }
+      if (rateKey === '1')  { maxLimit = currentCalcResult.baseOt1; currentVal = currentCalcResult.ot1; label = "OT x1"; }
+      if (rateKey === '3')  { maxLimit = currentCalcResult.baseOt3; currentVal = currentCalcResult.ot3; label = "OT x3"; }
+
+      const currentHours = (currentVal / 60).toFixed(1).replace('.0', '');
+      const maxHours = (maxLimit / 60).toFixed(2);
+
+      const newValStr = prompt(`🛠️ แก้ไขชั่วโมง ${label} ด้วยตนเอง\n(โปรแกรมประเมินไว้สูงสุดที่เบิกได้คือ: ${maxHours} ชม.)`, currentHours);
+      
+      if (newValStr !== null) {
+          const newVal = parseFloat(newValStr);
+          if (isNaN(newVal) || newVal < 0) { alert('❌ ตัวเลขไม่ถูกต้อง'); return; }
+          
+          const newValMinutes = Math.round(newVal * 60);
+          if (newValMinutes > maxLimit + 1) { alert(`❌ เกินเวลาที่ทำได้จริงในเรตนี้ (${maxHours} ชม.)`); return; }
+
+          // อัปเดตค่าที่จำไว้
+          if (rateKey === '15') currentCalcResult.ot15 = newValMinutes;
+          if (rateKey === '1')  currentCalcResult.ot1 = newValMinutes;
+          if (rateKey === '3')  currentCalcResult.ot3 = newValMinutes;
+
+          // อัปเดต UI ตรงจุดที่กด
+          const dispEl = document.getElementById(`disp_total${rateKey}`);
+          if (dispEl) {
+              dispEl.innerHTML = fmt(newValMinutes) + ` <span style="font-size:0.75rem; color:#ea580c; font-weight:700;">(Manual)</span> ✏️`;
+          }
+
+          // รวมเวลาใหม่ทั้งหมดไปอัปเดตในช่อง "ขอเบิกเวลา OT รวม"
+          let newTotalReqMins = 0;
+          if (currentCalcResult.type === 'weekday') {
+              newTotalReqMins = currentCalcResult.ot15;
+          } else {
+              newTotalReqMins = (currentCalcResult.ot1 || 0) + (currentCalcResult.ot3 || 0);
+          }
+          
+          const reqInput = document.getElementById('requestOTInput');
+          if (reqInput) {
+              reqInput.value = (newTotalReqMins / 60).toFixed(1).replace('.0', '');
+              
+              // เปลี่ยน Badge เพื่อแจ้ง User ว่าตอนนี้หลุดจาก Auto-Pilot เป็น Manual แล้ว
+              const autoPilotBadge = document.getElementById('autoPilotBadge');
+              if (autoPilotBadge) {
+                  autoPilotBadge.innerHTML = '⚙️ Manual Edit';
+                  autoPilotBadge.style.background = '#e2e8f0';
+                  autoPilotBadge.style.color = '#475569';
+              }
+          }
       }
   };
 
@@ -1845,12 +1927,12 @@ function renderDrivers() {
 
       if (type === 'weekday') {
           dispTotal = Math.max(0, totalMinutes - WORKDAY_MINUTES);
-          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1.5</span><span class="v" id="disp_total15">${fmt(wkResult.total15)}</span></div>`;
+          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1.5</span><span class="v ot-editable" id="disp_total15" onclick="editLiveOTHours('15')" title="คลิกเพื่อระบุเวลา x1.5 ด้วยตนเอง">${fmt(wkResult.total15)} ✏️</span></div>`;
       } else {
           const ot1 = wkResult.totals[1] || 0;
           const ot3 = wkResult.totals[3] || 0;
           dispTotal = wkResult.totalMinutes;
-          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1</span><span class="v" id="disp_total1">${fmt(ot1)}</span></div><div class="total-line"><span class="k">รวม ×3</span><span class="v" id="disp_total3">${fmt(ot3)}</span></div>`;
+          totalBoxTop = `<div class="total-line"><span class="k">รวม ×1</span><span class="v ot-editable" id="disp_total1" onclick="editLiveOTHours('1')" title="คลิกเพื่อระบุเวลา x1 ด้วยตนเอง">${fmt(ot1)} ✏️</span></div><div class="total-line"><span class="k">รวม ×3</span><span class="v ot-editable" id="disp_total3" onclick="editLiveOTHours('3')" title="คลิกเพื่อระบุเวลา x3 ด้วยตนเอง">${fmt(ot3)} ✏️</span></div>`;
       }
 
       const maxHours = dispTotal / 60;
@@ -1860,7 +1942,7 @@ function renderDrivers() {
           <div class="total-line" style="margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 12px; align-items: center;">
               <span class="k" style="color:#0284c7; font-weight:800;">
                   📝 ขอเบิกเวลา OT (ชม.) 
-                  <span style="background:#fef08a; color:#854d0e; padding:2px 6px; border-radius:6px; font-size:0.7rem; vertical-align:middle; margin-left:4px; box-shadow:0 1px 2px rgba(0,0,0,0.1);">✨ Auto-Pilot</span>
+                  <span id="autoPilotBadge" style="background:#fef08a; color:#854d0e; padding:2px 6px; border-radius:6px; font-size:0.7rem; vertical-align:middle; margin-left:4px; box-shadow:0 1px 2px rgba(0,0,0,0.1);">✨ Auto-Pilot</span>
               </span>
               <div style="display: flex; flex-direction: column; align-items: flex-end;">
                   <input type="number" id="requestOTInput" class="mini-input" style="width:100px; border-color:#38bdf8; background:#f0f9ff; font-size:1.1rem; text-align:center;" min="0" max="${maxHours}" step="0.5" value="${maxHoursClean}" placeholder="เช่น 4" oninput="handleAutoPilotOT(this.value)">
