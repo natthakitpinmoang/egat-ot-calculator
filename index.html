@@ -349,9 +349,13 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .keys button.eq { background: var(--brand); color: #fff; border-color: var(--brand-dark); box-shadow: 0 4px 0 var(--brand-dark); }
 .keys button[data-k="0"] { grid-column: span 2; aspect-ratio: auto; }
 
+/* Modal Styles */
 .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; backdrop-filter: blur(2px); }
 .modal.show { display: flex; animation: fadeIn 0.2s; }
 .modal-content { background-color: #ffffff; padding: 30px 24px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 1px solid #f1f5f9; width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto; position: relative; }
+
+/* ยก Layer ของ Detail Modal ให้สูงกว่า Quick Summary Modal */
+#detailModal { z-index: 1050; }
 
 .driver-form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
 .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 8px; }
@@ -965,8 +969,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                   <tbody id="quickSummaryList"></tbody>
               </table>
           </div>
-          <button onclick="closeQuickSummaryModal()" class="primary" style="width:100%; margin-top:20px;">ปิดหน้าต่าง</button>
-      </div>
+          </div>
   </div>
 
 </div>
@@ -3729,6 +3732,7 @@ function closeIncompleteModal() {
               <div style="font-size:3rem; margin-bottom:10px;">📭</div>ยังไม่มีข้อมูลบันทึกในเดือนนี้</td></tr>`;
       } else {
           items.forEach(item => {
+              const originalIndex = otHistory.indexOf(item); // ดึง index เดิมเพื่อใช้สำหรับปุ่มแว่นขยาย
               const tr = document.createElement('tr');
               let isPend = item.isPending && !item.isLeave;
               if(isPend) tr.className = 'qs-row-pending';
@@ -3761,10 +3765,13 @@ function closeIncompleteModal() {
                   let reqVal = item.requestOT !== undefined ? parseFloat(item.requestOT).toFixed(1).replace('.0','') : '0';
                   rowHtml += `<td class="col-center">  <b style="color:#2563eb; font-size:1.05rem;">${reqVal}</b></td>`;
                   
+                  // สร้างปุ่มแว่นขยายเพื่อใช้ดูรายละเอียด 
+                  const btnInspect = `<button onclick="viewDetail(${originalIndex})" title="ตรวจสอบเวลา" style="width:28px; height:28px; font-size:0.85rem; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer; vertical-align:middle; transition:0.2s; display:inline-flex; align-items:center; justify-content:center;" onmouseover="this.style.background='#e0f2fe'; this.style.borderColor='#bae6fd'; this.style.color='#0284c7';" onmouseout="this.style.background='#f1f5f9'; this.style.borderColor='#cbd5e1'; this.style.color='#475569';">🔍</button>`;
+
                   if(item.isIncomplete) {
-                      rowHtml += `<td class="col-center"><span title="${item.incompleteReason}" style="background:#fff7ed; color:#ea580c; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:800; border:1px solid #ffedd5;">⚠️ เอกสารขาด</span></td>`;
+                      rowHtml += `<td class="col-center" style="white-space: nowrap;"><span title="${item.incompleteReason}" style="background:#fff7ed; color:#ea580c; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:800; border:1px solid #ffedd5; margin-right: 6px; vertical-align:middle;">⚠️ ขาด</span> ${btnInspect}</td>`;
                   } else {
-                      rowHtml += `<td class="col-center"><span style="color:#10b981; font-weight:bold;">✔️</span></td>`;
+                      rowHtml += `<td class="col-center" style="white-space: nowrap;"><span style="color:#10b981; font-weight:bold; margin-right: 8px; vertical-align:middle;">✔️</span> ${btnInspect}</td>`;
                   }
               }
               tr.innerHTML = rowHtml;
