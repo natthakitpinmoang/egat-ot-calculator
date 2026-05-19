@@ -355,7 +355,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .modal-content { background-color: #ffffff; padding: 30px 24px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 1px solid #f1f5f9; width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto; position: relative; }
 
 /* ยก Layer ของ Detail Modal ให้สูงกว่า Quick Summary Modal */
-#detailModal { z-index: 1050; }
+#detailModal { z-index: 1050 !important; }
 
 .driver-form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
 .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 8px; }
@@ -969,7 +969,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                   <tbody id="quickSummaryList"></tbody>
               </table>
           </div>
-          </div>
+      </div>
   </div>
 
 </div>
@@ -2821,16 +2821,68 @@ function closeIncompleteModal() {
           if(rateKey === '15') item.ot15 = newValMinutes;
           if(rateKey === '1')  item.ot1 = newValMinutes;
           if(rateKey === '3')  item.ot3 = newValMinutes;
+
+          // อัปเดต requestOT ให้สอดคล้องกับผลรวมใหม่เวลาที่แก้ในตารางหลัก
+          let newTotalMins = (item.ot15 || 0) + (item.ot1 || 0) + (item.ot3 || 0);
+          item.requestOT = newTotalMins / 60;
           
           try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
           renderHistory();
       }
   }
 
+  /* --- แก้ไข: ดึงค่าจริงจาก Object แทนที่จะใช้ HTML เดิมที่มี Input Box --- */
   function viewDetail(index) {
       const item = otHistory[index];
       if(!item) return;
-      document.getElementById('modalBody').innerHTML = item.html;
+      
+      let tempDiv = document.createElement('div');
+      tempDiv.innerHTML = item.html;
+      
+      // 1. นำคลาส ot-editable ออก (เพื่อไม่ให้ดูเหมือนกดได้ในโหมด View)
+      tempDiv.querySelectorAll('.ot-editable').forEach(el => {
+          el.classList.remove('ot-editable');
+          el.removeAttribute('onclick');
+          el.removeAttribute('title');
+      });
+
+      // 2. อัปเดตตัวเลขแสดงผลให้ตรงกับข้อมูลที่บันทึกจริง (กรณีมีการแก้ไข Manual ไว้)
+      let d15 = tempDiv.querySelector('#disp_total15');
+      if(d15) d15.innerHTML = fmt(item.ot15 || 0);
+      let d1 = tempDiv.querySelector('#disp_total1');
+      if(d1) d1.innerHTML = fmt(item.ot1 || 0);
+      let d3 = tempDiv.querySelector('#disp_total3');
+      if(d3) d3.innerHTML = fmt(item.ot3 || 0);
+
+      // 3. จัดการกล่อง ขอเบิกเวลา OT ให้เป็นแบบ Text Read-Only
+      let reqInput = tempDiv.querySelector('#requestOTInput');
+      if(reqInput) {
+          let reqContainer = reqInput.parentElement;
+          let reqVal = item.requestOT !== undefined ? parseFloat(item.requestOT).toFixed(1).replace('.0','') : '-';
+          reqContainer.innerHTML = `<span style="font-size: 1.3rem; font-weight: 800; color: #0284c7;">${reqVal}</span>`;
+      }
+
+      // 4. จัดการป้าย Auto-Pilot / Manual Edit
+      let badge = tempDiv.querySelector('#autoPilotBadge');
+      if(badge) {
+          let isManual = false;
+          if(item.baseOt15 !== undefined) {
+              // ถ้ายอดรวมไม่ตรงกับ base ที่คำนวณได้ แสดงว่าถูกแก้
+              if(item.ot15 !== item.baseOt15 || item.ot1 !== item.baseOt1 || item.ot3 !== item.baseOt3) {
+                  isManual = true;
+              }
+          } else {
+              isManual = true; // สำหรับข้อมูลเก่าที่ไม่มี base เก็บไว้
+          }
+
+          if(isManual) {
+              badge.innerHTML = '⚙️ Manual Edit';
+              badge.style.background = '#e2e8f0';
+              badge.style.color = '#475569';
+          }
+      }
+
+      document.getElementById('modalBody').innerHTML = tempDiv.innerHTML;
       document.getElementById('detailModal').classList.add('show');
   }
 
