@@ -363,7 +363,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .day-item:hover { border-color: var(--brand); color: var(--brand); transform: scale(1.05); }
 .day-item.selected { background: var(--danger); color: white; border-color: var(--danger); box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
 
-.quick-notes-wrapper { margin-bottom: 10px; background: #f8fafc; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; }
+.quick-notes-wrapper { margin-bottom: 10px; background: #f8fafc; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
 .quick-notes-title { font-size: 0.8rem; font-weight: 700; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
 .quick-notes { display: flex; flex-wrap: wrap; gap: 8px; }
 .note-chip { background: #fff; color: #334155; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; user-select: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); }
@@ -458,7 +458,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
    อัปเดตดีไซน์ปุ่ม: ทรงแคปซูล (Pill-shaped) ธีมน้ำเงิน/เหลือง
    ========================================================= */
 
-/* 1. ปุ่มปิดหน้าต่าง Modal (เปลี่ยน &times; เดิมให้เป็นข้อความ + ไอคอน X) */
+/* 1. ปุ่มปิดหน้าต่าง Modal */
 .close-modal {
     position: absolute;
     top: 16px;
@@ -519,7 +519,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     transform: translateY(-2px);
 }
 
-/* 3. คลาสใหม่สำหรับปุ่ม Action (แก้ไข/ลบ) ทรงแคปซูล */
+/* 3. คลาสสำหรับปุ่ม Action (แก้ไข/ลบ) ทรงแคปซูล */
 .action-btn-pill {
     border: none;
     padding: 6px 16px;
@@ -2224,7 +2224,7 @@ function renderDrivers() {
               newResult.incompleteReason = originalItem.incompleteReason;
           }
 
-          // 💡 1. บันทึกค่า Base สูงสุดไว้ก่อนโดน Auto-pilot หั่น (เผื่อกดแว่นขยายเข้าไปแก้ Manual ทีหลัง)
+          // 💡 1. บันทึกค่า Base สูงสุดไว้ก่อนโดน Auto-pilot หั่น (แก้ไขบัคเวลาล้มเป็น 0 ในหน้าแสดงผลแว่นขยาย)
           newResult.baseOt15 = newResult.ot15;
           newResult.baseOt1 = newResult.ot1;
           newResult.baseOt3 = newResult.ot3;
@@ -2232,7 +2232,7 @@ function renderDrivers() {
           let oldReq = parseFloat(originalItem.requestOT);
           let newMaxHr = newResult.dispTotalMinutes / 60;
           
-          // 💡 2. ป้องกันบัค: ถ้าเดิมเป็นรายการแบบร่าง (Pending) ให้คำนวณเวลาแบบ Max (เต็มแม็กซ์) เสมอ ห้ามยึดค่า 0 
+          // 💡 2. แก้ไขบัคเวลาหาย: ถ้าช่องขอเบิกเดิมเป็น 0 หรือเป็นรายการที่สร้างออโต้แบบทั้งเดือน (Pending) ให้เซ็ตเวลาเต็มไว้ก่อน ไม่ให้เอาเลข 0 มาคิดลบ
           if (!isNaN(oldReq) && oldReq <= newMaxHr && !originalItem.isPending) {
               newResult.requestOT = oldReq;
           } else {
@@ -2254,7 +2254,7 @@ function renderDrivers() {
           otHistory[index] = newResult;
           
           sortHistory(); 
-          try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e) {}
+          try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
             
           const driverFilterVal = document.getElementById('historyDriverFilter').value;
           let targetMonth = null;
@@ -2852,7 +2852,7 @@ function closeIncompleteModal() {
   function toggleLeaveFromTable(index, isChecked) {
       const item = otHistory[index];
       if(isChecked) {
-          item.isLeave = true; item.leaveType = 'ลา'; item.ot15 = 0; item.ot1 = 0; item.ot3 = 0; item.requestOT = 0; item.start = '-'; item.end = '-';
+          item.isLeave = true; item.leaveType = 'la'; item.ot15 = 0; item.ot1 = 0; item.ot3 = 0; item.requestOT = 0; item.start = '-'; item.end = '-';
       } else {
           item.isLeave = false; item.isPending = true; item.leaveType = undefined; item.start = '07:30'; item.end = '17:00'; item.requestOT = 0;
       }
@@ -3157,8 +3157,11 @@ function closeIncompleteModal() {
                     ${isVer ? '✅ ตรวจสอบแล้ว' : '⚪ รอตรวจสอบ'}
                 </button>`;
 
-                /* เพิ่มปุ่มลบสีแดง เพื่อความสะดวกในการล้างชื่อขีดแดชหรือคนที่ไม่อยู่ในระบบย้ายออกจากฐานข้อมูล Google Sheets */
-                let clearDriverBtnHtml = `<button class="action-btn del-btn" onclick="removeDriverRowAndData('${name}')" title="ลบรายชื่อและล้างประวัติเดือนนี้ออกจาก Google Sheets คลาวด์" style="width: 100%; padding: 4px 0; font-size: 0.8rem; font-weight: bold; border-radius: 10px; margin-top: 4px; display: block; border: 1px dashed #fca5a5;">🗑️ ลบคนนี้</button>`;
+                /* 💡 แก้ไข: สร้างปุ่มลบให้หน้าตาเหมือนปุ่มรอตรวจสอบ (ใช้คลาส btn-verify) และแสดงเฉพาะคนที่เป็น Ghost เท่านั้น */
+                let clearDriverBtnHtml = '';
+                if (data.isGhost) {
+                    clearDriverBtnHtml = `<button class="btn-verify" style="color: #ef4444; margin-top: 4px;" onclick="removeDriverRowAndData('${name}')" title="ลบรายชื่อและล้างประวัติเดือนนี้ออกจาก Google Sheets คลาวด์">🗑️ ลบ</button>`;
+                }
                 
                 let statusCellHtml = `<div style="display:flex; flex-direction:column; gap:4px; align-items:center; width: 100%; min-width:120px;">
                     ${verifyBtnHtml}
@@ -3557,7 +3560,7 @@ function closeIncompleteModal() {
                 if(existingIndex !== -1) { currentCalcResult.id = otHistory[existingIndex].id; otHistory[existingIndex] = currentCalcResult; } 
                 else { otHistory.push(currentCalcResult); }
                 sortHistory(); 
-                try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); const btn = document.getElementById('btnSaveLog'); btn.innerHTML = '... บันทึกเรียบร้อย'; btn.disabled = true; btn.style.background = '#64748b'; updateBadge(); renderHistory(); } catch(e) { alert('บันทึกไม่สำเร็จ (Storage เต็ม)'); }
+                try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); const btn = document.getElementById('btnSaveLog'); btn.innerHTML = '✅ บันทึกเรียบร้อย'; btn.disabled = true; btn.style.background = '#64748b'; updateBadge(); renderHistory(); } catch(e) { alert('บันทึกไม่สำเร็จ (Storage เต็ม)'); }
             });
         }
         
@@ -3768,7 +3771,7 @@ function closeIncompleteModal() {
           isPending: false,
           isIncomplete: false,
           incompleteReason: "",
-          leaveType: 'ลา',
+          leaveType: 'la',
           ot15: 0, ot1: 0, ot3: 0, requestOT: 0,
           start: '-', end: '-'
       };
