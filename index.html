@@ -573,6 +573,30 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     border-color: transparent;
     color: #0284c7 !important;
 }
+
+/* =========================================================
+   อัปเดตดีไซน์ปุ่มทั้งหมดให้เป็นทรงแคปซูล (Pill-shaped) และวงกลม
+   ========================================================= */
+.actions-grid .primary, .btn-leave, .btn-incomplete, .btn-secondary, 
+.btn-save, .btn-next, .tool-btn, .btn-verify, .cmp-month-btn, .collapse-btn,
+.keys button, .pill, .pill-weekday, .pill-weekend, .time-range, 
+.break-chip, .note-chip, .ot-val {
+    border-radius: 50px !important;
+}
+
+/* ปรับ Padding ชดเชยความโค้ง */
+.tool-btn { padding: 8px 16px !important; min-width: 90px; }
+.btn-verify { padding: 6px 16px !important; }
+.pill, .pill-weekday, .pill-weekend { padding: 4px 12px !important; }
+.time-range { padding: 4px 14px !important; }
+.break-chip { padding: 4px 12px !important; }
+.note-chip { padding: 6px 16px !important; }
+.ot-val { padding: 2px 10px !important; }
+
+/* ปุ่ม Action ขนาดเล็ก ปรับให้เป็นวงกลมสมบูรณ์ */
+.action-btn, .cmp-nav-btn { 
+    border-radius: 50% !important; 
+}
 </style>
 </head>
 
