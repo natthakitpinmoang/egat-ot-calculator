@@ -686,7 +686,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                 <div class="driver-filter-wrapper">
                     <label class="filter-label" style="margin-right:4px;">👀</label>
                     <div style="position:relative; flex:1;">
-                        <input type="text" id="historyDriverFilter" list="historyDriverList" style="width:100%; border:none; background:transparent; padding:6px; font-weight:700; color:var(--brand); outline:none; font-size:0.95rem; min-width:140px;" placeholder="ทั้งหมด (พิมพ์ค้นหา)" autocomplete="off" onchange="handleFilterChange()">
+                        <input type="text" id="historyDriverFilter" list="historyDriverList" style="width:100%; border:none; background:transparent; padding:6px; font-weight:700; color:var(--brand); outline:none; font-size:0.95rem; min-width:140px;" placeholder="ทั้งหมด (พิมพ์ค้นหา)" autocomplete="off" oninput="handleFilterChange()">
                         <datalist id="historyDriverList"></datalist>
                     </div>
                 </div>
@@ -1449,7 +1449,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 
   function getPlainName(name) {
       if (!name) return "";
-      return name.replace(/^#\d+\s+/, "").trim();
+      return name.replace(/^#\d+\s+/, "").replace(/\s+/g, " ").trim();
   }
 
   /* ===== 2. Global State & Data Logic ===== */
@@ -2070,8 +2070,8 @@ function renderDrivers() {
           let plainA = getPlainName(a.driver);
           let plainB = getPlainName(b.driver);
 
-          const indexA = drivers.findIndex(d => d.name === plainA);
-          const indexB = drivers.findIndex(d => d.name === plainB);
+          const indexA = drivers.findIndex(d => getPlainName(d.name) === plainA);
+          const indexB = drivers.findIndex(d => getPlainName(d.name) === plainB);
 
           if (indexA !== -1 && indexB !== -1) {
               if (indexA !== indexB) return indexA - indexB;
@@ -2976,7 +2976,7 @@ function closeIncompleteModal() {
     }
 
     const driverFilterVal = document.getElementById('historyDriverFilter').value;
-    const monthsTh = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+    const monthsTh = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรดฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
       
     if (showAll) {
         document.getElementById('historyDateDisplay').textContent = "แสดงทั้งหมด";
@@ -3049,16 +3049,16 @@ function closeIncompleteModal() {
         let driverNames = Object.keys(summaryMap);
         
         driverNames.sort((a, b) => {
-            const indexA = drivers.findIndex(d => d.name === a);
-            const indexB = drivers.findIndex(d => d.name === b);
+            const indexA = drivers.findIndex(d => getPlainName(d.name) === a);
+            const indexB = drivers.findIndex(d => getPlainName(d.name) === b);
             if (indexA === -1) return 1;
             if (indexB === -1) return -1;
             return indexA - indexB;
         });
         
         if (driverFilterVal !== "") {
-             let filterNameOnly = getPlainName(driverFilterVal);
-            driverNames = driverNames.filter(name => name === filterNameOnly);
+            let filterNameOnly = getPlainName(driverFilterVal).toLowerCase();
+            driverNames = driverNames.filter(name => name.toLowerCase().includes(filterNameOnly));
         }
 
         if(driverNames.length === 0) {
@@ -3083,7 +3083,7 @@ function closeIncompleteModal() {
                 const monthKey = targetYear !== null ? `${targetYear}-${String(targetMonth+1).padStart(2,'0')}` : "";
                 const isVer = verifiedStatus[monthKey] && verifiedStatus[monthKey][name];
 
-                const realIndex = drivers.findIndex(d => d.name === name) + 1;
+                const realIndex = drivers.findIndex(d => getPlainName(d.name) === name) + 1;
                 const displayIndex = realIndex > 0 ? realIndex : '-';
 
                 const tr = document.createElement('tr');
@@ -3140,9 +3140,9 @@ function closeIncompleteModal() {
                  }
             }
             if (driverFilterVal !== "") {
-                const dName = getPlainName(item.driver);
-                const filterName = getPlainName(driverFilterVal);
-                if(dName !== filterName) {
+                const dName = getPlainName(item.driver).toLowerCase();
+                const filterName = getPlainName(driverFilterVal).toLowerCase();
+                if(!dName.includes(filterName)) {
                     isMatch = false;
                 }
             }
@@ -3642,11 +3642,20 @@ function closeIncompleteModal() {
             if(e.key === 'Enter') {
                 e.preventDefault();
                 let val = inputEl.value.trim();
-                let match = val.match(/^#?(\d+)$/); 
-                if(match) {
-                    let idx = parseInt(match[1], 10) - 1;
-                    if(idx >= 0 && idx < drivers.length) {
-                        inputEl.value = `#${idx + 1} ${drivers[idx].name}`;
+                if(val !== "") {
+                    let match = val.match(/^#?(\d+)$/); 
+                    if(match) {
+                        let idx = parseInt(match[1], 10) - 1;
+                        if(idx >= 0 && idx < drivers.length) {
+                            inputEl.value = `#${idx + 1} ${drivers[idx].name}`;
+                        }
+                    } else {
+                        // ค้นหาจากชื่อ (Partial Match)
+                        let searchStr = val.replace(/^#\d+\s+/, "").toLowerCase();
+                        let foundIndex = drivers.findIndex(d => d.name.toLowerCase().includes(searchStr));
+                        if(foundIndex !== -1) {
+                            inputEl.value = `#${foundIndex + 1} ${drivers[foundIndex].name}`;
+                        }
                     }
                 }
                 inputEl.blur(); 
@@ -3866,16 +3875,4 @@ function closeIncompleteModal() {
           <div class="qs-stat-card qs-cyan"><div class="qs-lbl">x1 (วันหยุด)</div><div class="qs-val">${(s1/60).toFixed(1)}</div></div>
           <div class="qs-stat-card qs-rose"><div class="qs-lbl">x3 (วันหยุด)</div><div class="qs-val">${(s3/60).toFixed(1)}</div></div>
           <div class="qs-stat-card qs-primary"><div class="qs-lbl">ยอดเบิกรวม</div><div class="qs-val">${sReq.toFixed(1).replace('.0','')} <small style="font-size:0.8rem;">ชม.</small></div></div>
-          <div class="qs-stat-card qs-amber"><div class="qs-lbl">วันลา</div><div class="qs-val">${sLeave} <small style="font-size:0.8rem;">วัน</small></div></div>
-      `;
-
-      document.getElementById('quickSummaryModal').classList.add('show');
-  };
-
-  /* ฟังก์ชันปิดหน้าต่าง Quick Summary Modal */
-  window.closeQuickSummaryModal = function() {
-      document.getElementById('quickSummaryModal').classList.remove('show');
-  };
-</script>
-</body>
-</html>
+          <div class="qs-stat-card qs-amber"><div class="qs-lbl">วันลา</div><div class="qs-val">${sLeave} <small style="font-size:0.8rem;">วัน</small
