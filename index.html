@@ -291,10 +291,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .tool-btn.t-verify { color: #94a3b8; background: #f8fafc; border-color: #cbd5e1; }
 .tool-btn.t-verify.active { color: #fff; background: linear-gradient(to bottom, #10b981, #059669); border-color: #047857; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
 
-/* ปุ่มลบ Ghost (ทรงเดียวกับตรวจสอบแล้ว) */
-.btn-delete-ghost { background: #fff1f2; color: #ef4444; border: 1px dashed #fca5a5; padding: 6px 16px !important; border-radius: 50px !important; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 4px; width: 100%; white-space: nowrap; box-shadow: var(--shadow-sm); margin-top: 4px; font-family: inherit; }
-.btn-delete-ghost:hover { background: #fee2e2; color: #dc2626; border-color: #f87171; }
-
 .pill { display: inline-block; padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; white-space: nowrap; cursor: pointer; transition: all 0.2s; user-select: none; border: 1px solid transparent; margin-top: 2px; }
 .pill:hover { transform: scale(1.05); }
 .pill-weekday { background: #f0f9ff; color: #0369a1; border-color: #bae6fd; }
@@ -2228,9 +2224,16 @@ function renderDrivers() {
               newResult.incompleteReason = originalItem.incompleteReason;
           }
 
+          // 💡 1. บันทึกค่า Base สูงสุดไว้ก่อนโดน Auto-pilot หั่น (เผื่อกดแว่นขยายเข้าไปแก้ Manual ทีหลัง)
+          newResult.baseOt15 = newResult.ot15;
+          newResult.baseOt1 = newResult.ot1;
+          newResult.baseOt3 = newResult.ot3;
+
           let oldReq = parseFloat(originalItem.requestOT);
           let newMaxHr = newResult.dispTotalMinutes / 60;
-          if (!isNaN(oldReq) && oldReq <= newMaxHr) {
+          
+          // 💡 2. ป้องกันบัค: ถ้าเดิมเป็นรายการแบบร่าง (Pending) ให้คำนวณเวลาแบบ Max (เต็มแม็กซ์) เสมอ ห้ามยึดค่า 0 
+          if (!isNaN(oldReq) && oldReq <= newMaxHr && !originalItem.isPending) {
               newResult.requestOT = oldReq;
           } else {
               newResult.requestOT = newMaxHr;
@@ -3154,11 +3157,8 @@ function closeIncompleteModal() {
                     ${isVer ? '✅ ตรวจสอบแล้ว' : '⚪ รอตรวจสอบ'}
                 </button>`;
 
-                /* ปุ่มลบทรงแคปซูล (แสดงเฉพาะคนที่เป็นส่วนเกินหรือไม่มีในรายชื่อหลัก เพื่อความสะอาดตา) */
-                let clearDriverBtnHtml = '';
-                if (data.isGhost) {
-                    clearDriverBtnHtml = `<button class="btn-delete-ghost" onclick="removeDriverRowAndData('${name}')" title="ลบรายชื่อและล้างประวัติเดือนนี้ออกจาก Google Sheets คลาวด์">🗑️ ลบ</button>`;
-                }
+                /* เพิ่มปุ่มลบสีแดง เพื่อความสะดวกในการล้างชื่อขีดแดชหรือคนที่ไม่อยู่ในระบบย้ายออกจากฐานข้อมูล Google Sheets */
+                let clearDriverBtnHtml = `<button class="action-btn del-btn" onclick="removeDriverRowAndData('${name}')" title="ลบรายชื่อและล้างประวัติเดือนนี้ออกจาก Google Sheets คลาวด์" style="width: 100%; padding: 4px 0; font-size: 0.8rem; font-weight: bold; border-radius: 10px; margin-top: 4px; display: block; border: 1px dashed #fca5a5;">🗑️ ลบคนนี้</button>`;
                 
                 let statusCellHtml = `<div style="display:flex; flex-direction:column; gap:4px; align-items:center; width: 100%; min-width:120px;">
                     ${verifyBtnHtml}
@@ -3557,7 +3557,7 @@ function closeIncompleteModal() {
                 if(existingIndex !== -1) { currentCalcResult.id = otHistory[existingIndex].id; otHistory[existingIndex] = currentCalcResult; } 
                 else { otHistory.push(currentCalcResult); }
                 sortHistory(); 
-                try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); const btn = document.getElementById('btnSaveLog'); btn.innerHTML = '✅ บันทึกเรียบร้อย'; btn.disabled = true; btn.style.background = '#64748b'; updateBadge(); renderHistory(); } catch(e) { alert('บันทึกไม่สำเร็จ (Storage เต็ม)'); }
+                try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); const btn = document.getElementById('btnSaveLog'); btn.innerHTML = '... บันทึกเรียบร้อย'; btn.disabled = true; btn.style.background = '#64748b'; updateBadge(); renderHistory(); } catch(e) { alert('บันทึกไม่สำเร็จ (Storage เต็ม)'); }
             });
         }
         
