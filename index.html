@@ -1741,25 +1741,54 @@ function renderDrivers() {
       const affInp = document.getElementById('dAff');
       const deptInp = document.getElementById('dDept');
 
-      const name = nameInp.value.trim();
-      if(!name) { alert('❌ กรุณาระบุชื่อ-นามสกุล'); return; }
+      const newName = nameInp.value.trim();
+      if(!newName) { alert('❌ กรุณาระบุชื่อ-นามสกุล'); return; }
 
-      const isDuplicate = drivers.some(d => d.name === name && d.id.toString() !== id);
+      const isDuplicate = drivers.some(d => d.name === newName && d.id.toString() !== id);
       if(isDuplicate) { alert('❌ มีชื่อนี้อยู่แล้ว'); return; }
 
       if(id) {
           const index = drivers.findIndex(d => d.id.toString() === id);
           if(index !== -1) {
-              drivers[index].name = name;
+              const oldName = drivers[index].name;
+
+              drivers[index].name = newName;
               drivers[index].nickname = nickInp.value.trim();
               drivers[index].phone = phoneInp.value.trim();
               drivers[index].affiliation = affInp.value.trim();
               drivers[index].department = deptInp.value.trim();
+
+              if (oldName !== newName) {
+                  let historyChanged = false;
+                  
+                  otHistory.forEach(item => {
+                      if (getPlainName(item.driver) === oldName) {
+                          item.driver = newName;
+                          historyChanged = true;
+                      }
+                  });
+
+                  let statusChanged = false;
+                  for (const monthKey in verifiedStatus) {
+                      if (verifiedStatus[monthKey][oldName] !== undefined) {
+                          verifiedStatus[monthKey][newName] = verifiedStatus[monthKey][oldName];
+                          delete verifiedStatus[monthKey][oldName];
+                          statusChanged = true;
+                      }
+                  }
+
+                  if (historyChanged) {
+                      CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
+                  }
+                  if (statusChanged) {
+                      CloudStorage.setItem('egat_ot_verified_status', JSON.stringify(verifiedStatus));
+                  }
+              }
           }
       } else {
           const newDriver = {
               id: Date.now(),
-              name: name,
+              name: newName,
               nickname: nickInp.value.trim(),
               phone: phoneInp.value.trim(),
               affiliation: affInp.value.trim(),
@@ -1769,6 +1798,7 @@ function renderDrivers() {
       }
       CloudStorage.setItem('egat_drivers', JSON.stringify(drivers));
       renderDrivers();
+      renderHistory();
       closeAddDriverModal();
       
       nameInp.value = ''; nickInp.value = ''; phoneInp.value = ''; affInp.value = ''; deptInp.value = '';
