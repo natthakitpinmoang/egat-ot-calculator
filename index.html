@@ -650,6 +650,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                     <span class="search-icon">🔍</span>
                     <input type="text" id="driverSelect" list="driverList" style="width:100%;" placeholder="พิมพ์ชื่อเพื่อค้นหา หรือเลือกจากรายการ..." autocomplete="off">
                 </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">*พิมพ์เลขลำดับแล้วกด Enter เพื่อความรวดเร็ว เช่น พิมพ์ 1 จะขึ้นชื่อ พขร. ลำดับแรกให้อัตโนมัติ</div>
                 <datalist id="driverList"></datalist>
               </div>
               <div>
@@ -860,7 +861,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
             <div><label>ชื่อเล่น</label><input type="text" id="dNick" placeholder="เช่น ชาย"></div>
             <div><label>เบอร์โทรศัพท์</label><input type="tel" id="dPhone" placeholder="08x-xxx-xxxx"></div>
             <div><label>สังกัด</label><input type="text" id="dAff" placeholder="เช่น EGAT"></div>
-            <div><label>แผนก</label><input type="text" id="dDept" placeholder="เช่น ยานพาหนะ"></div>
+            <div><label>แผนก</label><input type="text" id="dDept" placeholder="เช่น แผนกธุรการและบริการ"></div>
         </div>
         <div style="margin-top:20px; display:flex; gap:10px;">
              <button onclick="saveDriver()" class="primary">บันทึก</button>
@@ -1728,6 +1729,34 @@ function renderDrivers() {
       });
   }
 
+  /* ฟังก์ชันลบข้อมูลของรายชื่อที่ไม่มีอยู่จริงหรือต้องการลบออกจากระบบ Google Sheets และในแอปพลิเคชัน */
+  window.removeDriverRowAndData = function(name) {
+      if (!name) return;
+      if (!confirm(`ต้องการลบรายชื่อ "${name}" และเคลียร์ประวัติทำ OT ทั้งหมดออกจากระบบ (รวมถึงบนฐานข้อมูล Google คลาวด์) ใช่หรือไม่?`)) return;
+
+      // 1. ลบออกจากรายชื่อ พขร. (ถ้ามี)
+      drivers = drivers.filter(d => d.name !== name);
+      CloudStorage.setItem('egat_drivers', JSON.stringify(drivers));
+
+      // 2. ลบประวัติ OT ทั้งหมดของ พขร. คนนี้ในฐานข้อมูล
+      otHistory = otHistory.filter(item => getPlainName(item.driver) !== name);
+      CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
+
+      // 3. ลบสถานะ Verified ตรวจสอบแล้วของคนนี้ในทุกเดือน
+      for (const monthKey in verifiedStatus) {
+          if (verifiedStatus[monthKey][name] !== undefined) {
+              delete verifiedStatus[monthKey][name];
+          }
+      }
+      CloudStorage.setItem('egat_ot_verified_status', JSON.stringify(verifiedStatus));
+
+      // 4. รีเฟรชส่วนการแสดงผล
+      renderDrivers();
+      renderHistory();
+      updateBadge();
+      alert(`🗑️ ระบบทำการลบข้อมูลทั้งหมดของ "${name}" ออกจาก Google Sheets และตัวแอปเรียบร้อยแล้วครับ`);
+  };
+
   function openAddDriverModal() {
       document.getElementById('editDriverId').value = '';
       document.getElementById('driverModalTitle').innerText = 'เพิ่มรายชื่อ พขร. ใหม่';
@@ -1911,7 +1940,7 @@ function renderDrivers() {
       }
   };
 
-  // ⚙️ ฟังก์ชัน Manual Override สำหรับแก้ไขแยกเรต OT ในหน้าคำนวณ
+  // 🛠️ ฟังก์ชัน Manual Override สำหรับแก้ไขแยกเรต OT ในหน้าคำนวณ
   window.editLiveOTHours = function(rateKey) {
       if (!currentCalcResult) return;
 
@@ -2809,7 +2838,7 @@ function closeIncompleteModal() {
           showAll = false; 
           updateBadge();
           renderHistory();
-          alert(`✅ เพิ่มรายการเรียบร้อย ${addedCount} รายการ`);
+          alert(`... เพิ่มรายการเรียบร้อย ${addedCount} รายการ`);
       } catch(e) { alert('บันทึกไม่สำเร็จ'); }
   }
 
@@ -2858,9 +2887,9 @@ function closeIncompleteModal() {
       const newValStr = prompt(`แก้ไขชั่วโมง ${label} (สูงสุด ${(maxLimit/60).toFixed(2)})`, currentVal.toFixed(1));
       if(newValStr !== null) {
           const newVal = parseFloat(newValStr);
-          if(isNaN(newVal) || newVal < 0) { alert('❌ ตัวเลขไม่ถูกต้อง'); return; }
+          if(isNaN(newVal) || newVal < 0) { alert('... ตัวเลขไม่ถูกต้อง'); return; }
           const newValMinutes = Math.round(newVal * 60);
-          if(newValMinutes > maxLimit + 1) { alert(`❌ เกินเวลาจริง (${(maxLimit/60).toFixed(2)})`); return; }
+          if(newValMinutes > maxLimit + 1) { alert(`... เกินเวลาจริง (${(maxLimit/60).toFixed(2)})`); return; }
 
           let proposedTotal = 0;
           if(rateKey === '15') proposedTotal = newValMinutes; 
@@ -2869,7 +2898,7 @@ function closeIncompleteModal() {
               let ot3 = (rateKey === '3') ? newValMinutes : (item.ot3||0);
               proposedTotal = ot1 + ot3;
               const maxTotal = (limitCalc.ot1 || 0) + (limitCalc.ot3 || 0);
-              if(proposedTotal > maxTotal + 1) { alert(`❌ เวลารวมเกิน (${(maxTotal/60).toFixed(2)})`); return; }
+              if(proposedTotal > maxTotal + 1) { alert(`... เวลารวมเกิน (${(maxTotal/60).toFixed(2)})`); return; }
           }
           
           if(rateKey === '15') item.ot15 = newValMinutes;
@@ -2885,7 +2914,6 @@ function closeIncompleteModal() {
       }
   }
 
-  /* --- แก้ไข: ดึงค่าจริงจาก Object แทนที่จะใช้ HTML เดิมที่มี Input Box --- */
   function viewDetail(index) {
       const item = otHistory[index];
       if(!item) return;
@@ -2893,14 +2921,12 @@ function closeIncompleteModal() {
       let tempDiv = document.createElement('div');
       tempDiv.innerHTML = item.html;
       
-      // 1. นำคลาส ot-editable ออก (เพื่อไม่ให้ดูเหมือนกดได้ในโหมด View)
       tempDiv.querySelectorAll('.ot-editable').forEach(el => {
           el.classList.remove('ot-editable');
           el.removeAttribute('onclick');
           el.removeAttribute('title');
       });
 
-      // 2. อัปเดตตัวเลขแสดงผลให้ตรงกับข้อมูลที่บันทึกจริง (กรณีมีการแก้ไข Manual ไว้)
       let d15 = tempDiv.querySelector('#disp_total15');
       if(d15) d15.innerHTML = fmt(item.ot15 || 0);
       let d1 = tempDiv.querySelector('#disp_total1');
@@ -2908,7 +2934,6 @@ function closeIncompleteModal() {
       let d3 = tempDiv.querySelector('#disp_total3');
       if(d3) d3.innerHTML = fmt(item.ot3 || 0);
 
-      // 3. จัดการกล่อง ขอเบิกเวลา OT ให้เป็นแบบ Text Read-Only
       let reqInput = tempDiv.querySelector('#requestOTInput');
       if(reqInput) {
           let reqContainer = reqInput.parentElement;
@@ -2916,17 +2941,15 @@ function closeIncompleteModal() {
           reqContainer.innerHTML = `<span style="font-size: 1.3rem; font-weight: 800; color: #0284c7;">${reqVal}</span>`;
       }
 
-      // 4. จัดการป้าย Auto-Pilot / Manual Edit
       let badge = tempDiv.querySelector('#autoPilotBadge');
       if(badge) {
           let isManual = false;
           if(item.baseOt15 !== undefined) {
-              // ถ้ายอดรวมไม่ตรงกับ base ที่คำนวณได้ แสดงว่าถูกแก้
               if(item.ot15 !== item.baseOt15 || item.ot1 !== item.baseOt1 || item.ot3 !== item.baseOt3) {
                   isManual = true;
               }
           } else {
-              isManual = true; // สำหรับข้อมูลเก่าที่ไม่มี base เก็บไว้
+              isManual = true; 
           }
 
           if(isManual) {
@@ -3031,16 +3054,18 @@ function closeIncompleteModal() {
                 <th class="col-center th-ot">รวม(ชม.)</th>
                 <th class="col-center th-ot" style="background:#f0f9ff; color:#0284c7;">ขอเบิก(ชม.)</th>
                 <th class="col-center">ลา</th>
-                <th class="col-center sticky-col">สถานะ</th>
+                <th class="col-center sticky-col">สถานะ / การจัดการ</th>
             </tr>
         `;
 
         const summaryMap = {};
 
+        // ดึงรายชื่อหลักทุกคนมาตั้งต้นแผนที่ไว้ก่อน
         drivers.forEach(d => {
-            summaryMap[d.name] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0, requestOT:0, hasData: false }; 
+            summaryMap[d.name] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0, requestOT:0, hasData: true, isGhost: false }; 
         });
         
+        // กวาดประวัติมาคำนวณยอดรวมยอดเบิกสะสม
         otHistory.forEach((item) => {
             let isMatch = true;
             if (!showAll && targetMonth !== null) {
@@ -3051,8 +3076,9 @@ function closeIncompleteModal() {
             if(isMatch) {
                 let plainDriverName = getPlainName(item.driver) || "(ไม่ระบุชื่อ)";
 
+                // หากเจอคนที่มีประวัติค้างอยู่แต่ไม่มีตัวตนอยู่ใน Array รายชื่อ พขร. ให้สร้างขึ้นมาแสดงผลพร้อมให้ปุ่มลบได้
                 if(!summaryMap[plainDriverName]) {
-                      summaryMap[plainDriverName] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0, requestOT:0 };
+                      summaryMap[plainDriverName] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0, requestOT:0, hasData: true, isGhost: true };
                 }
                 
                 if(item.isLeave) {
@@ -3075,6 +3101,7 @@ function closeIncompleteModal() {
         driverNames.sort((a, b) => {
             const indexA = drivers.findIndex(d => d.name === a);
             const indexB = drivers.findIndex(d => d.name === b);
+            if (indexA === -1 && indexB === -1) return a.localeCompare(b, 'th');
             if (indexA === -1) return 1;
             if (indexB === -1) return -1;
             return indexA - indexB;
@@ -3082,7 +3109,7 @@ function closeIncompleteModal() {
         
         if (driverFilterVal !== "") {
              let filterNameOnly = getPlainName(driverFilterVal);
-            driverNames = driverNames.filter(name => name === filterNameOnly);
+             driverNames = driverNames.filter(name => name === filterNameOnly);
         }
 
         if(driverNames.length === 0) {
@@ -3108,7 +3135,8 @@ function closeIncompleteModal() {
                 const isVer = verifiedStatus[monthKey] && verifiedStatus[monthKey][name];
 
                 const realIndex = drivers.findIndex(d => d.name === name) + 1;
-                const displayIndex = realIndex > 0 ? realIndex : '-';
+                // หากไม่มีลำดับจริง (เช่น คนที่มีขีดแดชนำหน้า) ระบบจะไม่มีเลขลำดับ
+                const displayIndex = (realIndex > 0 && !data.isGhost) ? realIndex : '-';
 
                 const tr = document.createElement('tr');
                 if(isVer) tr.classList.add('verified-row');
@@ -3116,15 +3144,19 @@ function closeIncompleteModal() {
                 let verifyBtnHtml = `<button class="btn-verify ${isVer ? 'active' : ''}" onclick="toggleVerification('${name}')">
                     ${isVer ? '✅ ตรวจสอบแล้ว' : '⚪ รอตรวจสอบ'}
                 </button>`;
+
+                /* เพิ่มปุ่มลบสีแดง เพื่อความสะดวกในการล้างชื่อขีดแดชหรือคนที่ไม่อยู่ในระบบย้ายออกจากฐานข้อมูล Google Sheets */
+                let clearDriverBtnHtml = `<button class="action-btn del-btn" onclick="removeDriverRowAndData('${name}')" title="ลบรายชื่อและล้างประวัติเดือนนี้ออกจาก Google Sheets คลาวด์" style="width: 100%; padding: 4px 0; font-size: 0.8rem; font-weight: bold; border-radius: 10px; margin-top: 4px; display: block; border: 1px dashed #fca5a5;">🗑️ ลบคนนี้</button>`;
                 
-                let statusCellHtml = `<div style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+                let statusCellHtml = `<div style="display:flex; flex-direction:column; gap:4px; align-items:center; width: 100%; min-width:120px;">
                     ${verifyBtnHtml}
                     ${missingHtml !== '-' ? missingHtml : ''}
+                    ${clearDriverBtnHtml}
                 </div>`;
 
                 tr.innerHTML = `
-                    <td class="col-center">${displayIndex}</td>
-                    <td style="font-weight:700; color:var(--brand); font-size:0.95rem;">${name}</td>
+                    <td class="col-center" style="font-weight:bold; color:#cbd5e1;">${displayIndex}</td>
+                    <td style="font-weight:700; color:${data.isGhost ? 'var(--danger)' : 'var(--brand)'}; font-size:0.95rem; white-space:nowrap;">${name} ${data.isGhost ? ' <small style="font-weight:400;color:#94a3b8;">(เกินระบบ)</small>' : ''}</td>
                     <td class="col-center">${fmtShort(data.ot15)}</td>
                     <td class="col-center">${fmtShort(data.ot1)}</td>
                     <td class="col-center">${fmtShort(data.ot3)}</td>
@@ -3513,7 +3545,7 @@ function closeIncompleteModal() {
                 if(existingIndex !== -1) { currentCalcResult.id = otHistory[existingIndex].id; otHistory[existingIndex] = currentCalcResult; } 
                 else { otHistory.push(currentCalcResult); }
                 sortHistory(); 
-                try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); const btn = document.getElementById('btnSaveLog'); btn.innerHTML = '✅ บันทึกเรียบร้อย'; btn.disabled = true; btn.style.background = '#64748b'; updateBadge(); renderHistory(); } catch(e) { alert('บันทึกไม่สำเร็จ (Storage เต็ม)'); }
+                try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); const btn = document.getElementById('btnSaveLog'); btn.innerHTML = '... บันทึกเรียบร้อย'; btn.disabled = true; btn.style.background = '#64748b'; updateBadge(); renderHistory(); } catch(e) { alert('บันทึกไม่สำเร็จ (Storage เต็ม)'); }
             });
         }
         
@@ -3738,7 +3770,7 @@ function closeIncompleteModal() {
       sortHistory();
       try { 
           CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); 
-          alert('✅ บันทึกวันลาเรียบร้อยแล้วครับ');
+          alert('🏖️ บันทึกวันลาเรียบร้อยแล้วครับ');
           renderHistory();
       } catch(e) { alert('❌ บันทึกไม่สำเร็จ'); }
   };
@@ -3790,7 +3822,7 @@ function closeIncompleteModal() {
       sortHistory();
       try { 
           CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); 
-          alert('✅ บันทึกแจ้งขาดเอกสารเรียบร้อยแล้วครับ');
+          alert('⚠️ บันทึกแจ้งขาดเอกสารเรียบร้อยแล้วครับ');
           renderHistory();
       } catch(e) { alert('❌ บันทึกไม่สำเร็จ'); }
   };
@@ -3838,7 +3870,7 @@ function closeIncompleteModal() {
               <div style="font-size:3rem; margin-bottom:10px;">📭</div>ยังไม่มีข้อมูลบันทึกในเดือนนี้</td></tr>`;
       } else {
           items.forEach(item => {
-              const originalIndex = otHistory.indexOf(item); // ดึง index เดิมเพื่อใช้สำหรับปุ่มแว่นขยาย
+              const originalIndex = otHistory.indexOf(item); 
               const tr = document.createElement('tr');
               let isPend = item.isPending && !item.isLeave;
               if(isPend) tr.className = 'qs-row-pending';
@@ -3871,7 +3903,6 @@ function closeIncompleteModal() {
                   let reqVal = item.requestOT !== undefined ? parseFloat(item.requestOT).toFixed(1).replace('.0','') : '0';
                   rowHtml += `<td class="col-center">  <b style="color:#2563eb; font-size:1.05rem;">${reqVal}</b></td>`;
                   
-                  // สร้างปุ่มแว่นขยายเพื่อใช้ดูรายละเอียด 
                   const btnInspect = `<button onclick="viewDetail(${originalIndex})" title="ตรวจสอบเวลา" style="width:28px; height:28px; font-size:0.85rem; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer; vertical-align:middle; transition:0.2s; display:inline-flex; align-items:center; justify-content:center;" onmouseover="this.style.background='#e0f2fe'; this.style.borderColor='#bae6fd'; this.style.color='#0284c7';" onmouseout="this.style.background='#f1f5f9'; this.style.borderColor='#cbd5e1'; this.style.color='#475569';">🔍</button>`;
 
                   if(item.isIncomplete) {
@@ -3896,7 +3927,6 @@ function closeIncompleteModal() {
       document.getElementById('quickSummaryModal').classList.add('show');
   };
 
-  /* ฟังก์ชันปิดหน้าต่าง Quick Summary Modal */
   window.closeQuickSummaryModal = function() {
       document.getElementById('quickSummaryModal').classList.remove('show');
   };
