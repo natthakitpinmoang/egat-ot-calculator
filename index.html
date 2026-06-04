@@ -1492,30 +1492,29 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       return name.replace(/^#\d+\s+/, "").trim();
   }
 
-  /* ===== 2. Global State & Data Logic ===== */
-  let currentCalcResult = null; 
-  let otHistory = [];
+/* ===== 2. Global State & Data Logic ===== */
+  let currentCalcResult = null; 
+  let otHistory = [];
 
-  const DEFAULT_DRIVERS = [
-      "นายศรายุทธ ดีแล้ว",
-      "นายสมชาย ใจดี",
-      "นายสมปอง รักงาน"
-  ];
+  // ลบ DEFAULT_DRIVERS ทิ้งทั้งหมด ไม่ต้องมีรายชื่อสำรอง
+  let rawDrivers = JSON.parse(CloudStorage.getItem('egat_drivers'));
+  let drivers = [];
+  let verifiedStatus = JSON.parse(CloudStorage.getItem('egat_ot_verified_status')) || {};
 
-  let rawDrivers = JSON.parse(CloudStorage.getItem('egat_drivers'));
-  if (!rawDrivers || rawDrivers.length === 0) {
-      rawDrivers = DEFAULT_DRIVERS;
-  }
-
-  let drivers = [];
-  let verifiedStatus = JSON.parse(CloudStorage.getItem('egat_ot_verified_status')) || {};
-    
-  if(rawDrivers.length > 0 && typeof rawDrivers[0] === 'string') {
-      drivers = rawDrivers.map(d => ({ id: Date.now() + Math.random(), name: d, nickname: '', phone: '', affiliation: '', department: '' }));
-      CloudStorage.setItem('egat_drivers', JSON.stringify(drivers));
-  } else {
-      drivers = rawDrivers;
-  }
+  if (rawDrivers && rawDrivers.length > 0) {
+      if (typeof rawDrivers[0] === 'string') {
+          // อัปเกรดข้อมูลเก่าที่เป็น String ให้เป็น Object
+          drivers = rawDrivers.map(d => ({ id: Date.now() + Math.random(), name: d, nickname: '', phone: '', affiliation: '', department: '' }));
+          CloudStorage.setItem('egat_drivers', JSON.stringify(drivers));
+      } else {
+          // ข้อมูลปกติใช้งานได้เลย
+          drivers = rawDrivers;
+      }
+  } else {
+      // กรณีแคชหาย หรือไม่มีข้อมูลในเครื่อง ให้เป็นค่าว่างไว้ (ห้ามเซฟขึ้นคลาวด์เด็ดขาด)
+      // เพื่อรอให้ฟังก์ชัน initCloudData() ดึงข้อมูลจริงจากฐานข้อมูลกลางลงมาเติมให้เอง
+      drivers = [];
+  }
 
   let dragStartIndex = null;
 
