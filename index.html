@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<title>EGAT OT (v7.4.1 Bug Fixes)</title>
+<title>EGAT OT (v7.4.2 UI Updates)</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -683,7 +683,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 
         <div class="actions-grid">
           <button class="primary" id="btnCalc">⏱️ คำนวณ OT</button>
-          <button class="btn-leave" onclick="markAsLeave()">🏖️ บันทึกวันลา</button>
+          <button class="btn-leave" onclick="openLeaveModal()">🏖️ บันทึกวันลา</button>
           <button class="btn-incomplete" onclick="markAsIncomplete()">⚠️ แจ้งเอกสารไม่ครบ</button>
           <button class="btn-secondary" style="grid-column: 1 / -1; gap: 8px; font-size: 1.05rem; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;" onclick="openQuickSummaryModal()">
               📊 ตรวจสอบสรุปรายเดือน (หน้าต่างย่อย)
@@ -708,6 +708,11 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                     <span style="font-size:0.8em; margin-left:4px; opacity:0.5;">▼</span>
                 </div>
                 <input type="text" id="historyMonthPicker" class="history-date-input-hidden" onchange="renderHistory()">
+                
+                <!-- [NEW] ปุ่ม ส่งออก Excel ย้ายมาที่มุมบนขวาของกรอบหัวข้อ -->
+                <button id="btnExportCSV" onclick="exportSummaryToCSV()" class="action-btn-pill" style="margin-left: auto; align-self: center; background:linear-gradient(to bottom, #fff, #ecfeff); border: 1px solid #a5f3fc; color:#0891b2; display:none; box-shadow:0 2px 4px rgba(8, 145, 178, 0.1); padding: 8px 16px; font-size: 0.95rem; font-weight: 700; align-items: center; gap: 6px;" title="ส่งออกข้อมูลสรุปเป็นไฟล์ CSV">
+                    📥 ส่งออก Excel (CSV)
+                </button>
             </div>
             <div class="right-group">
                 <div class="driver-filter-wrapper">
@@ -721,12 +726,12 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
         </div>
 
         <div class="history-toolbar-container" id="historyToolbar">
-             <button onclick="openCreateOptionModal()" class="tool-btn t-create" title="สร้างรายการทั้งเดือน">📅 สร้าง</button>
              <button onclick="openIncompleteModal()" class="tool-btn" style="background:#f3e8ff; border-color:#d8b4fe; color:#7e22ce;" title="ระบุว่าส่งเอกสารมาไม่ครบ">⚠️ แจ้งขาด</button>
              <button onclick="openFollowUpSummary()" class="tool-btn" style="background:#fff7ed; border-color:#fed7aa; color:#ea580c;" title="สรุปรายการที่ต้องตาม">📋 สรุปตาม</button>
              <button id="btnToolbarVerify" onclick="toggleVerifyCurrentDriver()" class="tool-btn t-verify" title="ยืนยันตรวจสอบเอกสาร">⚪ รอตรวจสอบ</button>
-             <button onclick="openResetModal()" class="tool-btn t-warn" title="เคลียร์ค่าเวลาเดือนนี้ให้กลับเป็นแบบร่าง">🧹 รีเซ็ตค่า</button>
-             <button onclick="openDeleteModal()" class="tool-btn t-danger" title="ตัวเลือกการลบ">🗑️ ลบข้อมูล</button>
+             
+             <!-- [NEW] ปุ่ม จัดการขั้นสูง ซ่อนรีเซ็ตและลบไว้ในนี้เพื่อป้องกันการกดพลาด -->
+             <button onclick="openAdvancedModal()" class="tool-btn" style="background:#f8fafc; border-color:#cbd5e1; color:#475569;" title="การจัดการขั้นสูง (รีเซ็ต/ลบ)">⚙️ จัดการ</button>
         </div>
              
         <div class="summary-grid">
@@ -777,8 +782,18 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                 </thead>
                 <tbody id="historyList"></tbody>
             </table>
-            <div id="emptyMsg" style="text-align:center; padding:40px; color:#94a3b8; display:none;">
-                <div style="font-size:3rem; margin-bottom:10px;">📭</div>ยังไม่มีรายการบันทึก
+            <div id="emptyMsg" style="text-align:center; padding:50px 20px; display:none; border-top: 1px solid var(--border);">
+                <div id="emptyMsgLoading" style="display:none; animation: pulse 1.5s infinite;">
+                    <div style="font-size:3rem; margin-bottom:15px;">⏳</div>
+                    <div style="font-size:1.1rem; font-weight:700; color:var(--brand);">กำลังประสานข้อมูลกับฐานข้อมูลส่วนกลาง...</div>
+                </div>
+                <div id="emptyMsgNoData">
+                    <div style="font-size:3.5rem; margin-bottom:10px;">📭</div>
+                    <div style="margin-bottom:20px; font-size:1.2rem; font-weight:700; color:var(--text-main);">ยังไม่มีข้อมูลการทำ OT ในตารางนี้ครับ</div>
+                    <button onclick="openCreateOptionModal()" class="primary" style="margin:0 auto; padding: 14px 28px; font-size: 1.1rem; background: linear-gradient(135deg, #0284c7, #0369a1); box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);">
+                        📅 สร้างตารางเวลาให้ พขร. ทันที
+                    </button>
+                </div>
             </div>
         </div>
       </div>
@@ -904,6 +919,37 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     </div>
   </div>
 
+  <div id="leaveModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeLeaveModal()">&times;</span>
+        <h2 style="font-size:1.5rem; margin-bottom:10px; color:var(--accent); text-align:center;">🏖️ บันทึกวันลา</h2>
+        <div id="leaveContextDisplay" style="text-align:center; margin-bottom:20px; padding:12px; background:#fffbeb; border-radius:12px; color:#b45309; font-weight:700; border:1px solid #fde68a;"></div>
+        <input type="hidden" id="leaveDriverSelect">
+        <input type="hidden" id="leaveMonth">
+        <div class="driver-form-grid" style="grid-template-columns: 1fr;">
+            <div>
+                <label style="text-align:center; display:block; margin-bottom:10px;">วันที่ลา (จิ้มเลือกได้หลายวัน)</label>
+                <div id="leaveDaysGrid" class="day-grid"></div>
+            </div>
+            <div>
+                <label>ประเภทการลา / หมายเหตุ</label>
+                <div class="quick-notes-wrapper">
+                    <div class="quick-notes">
+                        <div class="note-chip" onclick="document.getElementById('leaveNote').value='ลาพักผ่อน'">🏖️ ลาพักผ่อน</div>
+                        <div class="note-chip" onclick="document.getElementById('leaveNote').value='ลาป่วย'">🤒 ลาป่วย</div>
+                        <div class="note-chip" onclick="document.getElementById('leaveNote').value='ลากิจ'">📋 ลากิจ</div>
+                    </div>
+                </div>
+                <input type="text" id="leaveNote" class="mini-input" style="width:100%; text-align:left; font-weight:500;" placeholder="เช่น ลาพักผ่อน, ลาป่วย...">
+            </div>
+        </div>
+        <div style="margin-top:20px; display:flex; gap:10px;">
+             <button onclick="saveLeaveReport()" class="primary" style="flex:1; background:var(--accent); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">บันทึกวันลา</button>
+             <button onclick="closeLeaveModal()" class="btn-next" style="flex:1;">ยกเลิก</button>
+        </div>
+    </div>
+  </div>
+
   <div id="summaryModal" class="modal">
       <div class="modal-content">
         <span class="close-modal" onclick="closeSummaryModal()">&times;</span>
@@ -912,6 +958,20 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       </div>
   </div>
    
+  <!-- [NEW] เมนูจัดการขั้นสูงที่รวม "รีเซ็ต" และ "ลบ" เอาไว้ด้วยกัน -->
+  <div id="advancedModal" class="modal">
+      <div class="modal-content" style="text-align:center;">
+          <span class="close-modal" onclick="closeAdvancedModal()">&times;</span>
+          <h2 style="color:var(--text-main); margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:8px;">⚙️ จัดการขั้นสูง</h2>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">รวมเครื่องมือจัดการข้อมูล (โปรดใช้งานด้วยความระมัดระวัง)</p>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+              <button onclick="closeAdvancedModal(); openResetModal();" class="primary" style="width:100%; background:linear-gradient(to bottom, #fff, #fffbeb); color:#d97706; border:1px solid #fcd34d;">🧹 รีเซ็ตค่าเวลา</button>
+              <button onclick="closeAdvancedModal(); openDeleteModal();" class="primary" style="width:100%; background:linear-gradient(to bottom, #fff, #fff1f2); color:#e11d48; border:1px solid #fecdd3;">🗑️ ลบข้อมูล</button>
+          </div>
+          <button onclick="closeAdvancedModal()" class="btn-next" style="margin-top:20px; width:100%;">ยกเลิก</button>
+      </div>
+  </div>
+
   <div id="resetOptionModal" class="modal">
       <div class="modal-content" style="text-align:center;">
           <span class="close-modal" onclick="closeResetModal()">&times;</span>
@@ -1026,8 +1086,12 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 
   async function initCloudData() {
       const emptyMsg = document.getElementById('emptyMsg');
-      if(emptyMsg) {
-          emptyMsg.innerHTML = '<div style="font-size:2rem; margin-bottom:10px;">⏳</div>กำลังโหลดข้อมูลจากฐานข้อมูลกลาง...';
+      const emptyMsgLoading = document.getElementById('emptyMsgLoading');
+      const emptyMsgNoData = document.getElementById('emptyMsgNoData');
+      
+      if(emptyMsg && emptyMsgLoading && emptyMsgNoData) {
+          emptyMsgLoading.style.display = 'block';
+          emptyMsgNoData.style.display = 'none';
           emptyMsg.style.display = 'block';
       }
 
@@ -1037,10 +1101,9 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 
           if (cloudData['egat_drivers']) {
               let fetchedDrivers = JSON.parse(cloudData['egat_drivers']);
-              // ตรวจสอบและแปลงข้อมูลหากบนคลาวด์ยังเป็นแบบเก่า (Array of Strings)
               if (fetchedDrivers && fetchedDrivers.length > 0 && typeof fetchedDrivers[0] === 'string') {
                   drivers = fetchedDrivers.map(d => ({ id: Date.now() + Math.random(), name: d, nickname: '', phone: '', affiliation: '', department: '' }));
-                  CloudStorage.setItem('egat_drivers', JSON.stringify(drivers)); // อัปเดตคลาวด์ให้เป็นแบบใหม่ทันที
+                  CloudStorage.setItem('egat_drivers', JSON.stringify(drivers));
               } else {
                   drivers = fetchedDrivers || [];
                   CloudStorage.setItem('egat_drivers', cloudData['egat_drivers']);
@@ -1055,12 +1118,22 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
               CloudStorage.setItem('egat_ot_verified_status', cloudData['egat_ot_verified_status']);
           }
 
+          if(emptyMsgLoading && emptyMsgNoData) {
+              emptyMsgLoading.style.display = 'none';
+              emptyMsgNoData.style.display = 'block';
+          }
+
           renderDrivers();
           sortHistory();
           renderHistory();
           updateBadge();
       } catch (error) {
           console.error('โหลดข้อมูลคลาวด์ไม่สำเร็จ (ใช้ข้อมูลในเครื่องแทน):', error);
+          
+          if(emptyMsgLoading && emptyMsgNoData) {
+              emptyMsgLoading.style.display = 'none';
+              emptyMsgNoData.style.display = 'block';
+          }
       }
   }
     
@@ -1208,6 +1281,59 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       reader.readAsText(file);
   }
 
+  window.exportSummaryToCSV = function() {
+      if (currentHistoryMode !== 'driver') {
+          alert('⚠️ ฟังก์ชันนี้ใช้ได้เฉพาะในโหมด "2. สรุป พขร. (ยอดรวม)" เท่านั้นครับ\nกรุณาเปลี่ยนโหมดก่อนทำการส่งออกครับ');
+          return;
+      }
+      
+      let csvContent = "\uFEFF"; 
+      const headers = ["ลำดับ", "ชื่อ พขร.", "OT x1.5 (ชม.)", "OT x1 (ชม.)", "OT x3 (ชม.)", "รวมเวลาทำจริง (ชม.)", "ขอเบิก OT (ชม.)", "จำนวนวันลา", "สถานะ"];
+      csvContent += headers.join(",") + "\n";
+      
+      const rows = document.querySelectorAll('#historyList tr');
+      rows.forEach(row => {
+          const cols = row.querySelectorAll('td');
+          if(cols.length < 9) return;
+          
+          let rowData = [];
+          cols.forEach((col, idx) => {
+              let text = col.innerText.replace(/(\r\n|\n|\r)/gm, " ").trim();
+              
+              text = text.replace(/✏️|✅|⚪|⚠️|🗑️/g, "").trim();
+              
+              if (idx === 8) {
+                  if (text.includes("ตรวจสอบแล้ว")) text = "ตรวจสอบแล้ว";
+                  else if (text.includes("รอตรวจสอบ")) text = "รอตรวจสอบ";
+              }
+              
+              if (text.includes(",")) text = `"${text}"`;
+              rowData.push(text);
+          });
+          csvContent += rowData.join(",") + "\n";
+      });
+      
+      const displayDate = document.getElementById('historyDateDisplay').innerText.replace(/\s+/g, '_');
+      const fileName = `Summary_OT_Report_${displayDate}.csv`;
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+  };
+
+  // [NEW] ฟังก์ชันสำหรับการจัดการ Modal การตั้งค่าขั้นสูง
+  window.openAdvancedModal = function() {
+      document.getElementById('advancedModal').classList.add('show');
+  };
+  window.closeAdvancedModal = function() {
+      document.getElementById('advancedModal').classList.remove('show');
+  };
+
   window.onclick = function(event) {
       const modal = document.getElementById('detailModal');
       const deleteModal = document.getElementById('deleteOptionModal');
@@ -1219,17 +1345,21 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       const customMonthModal = document.getElementById('customMonthPickerModal');
       const backupModal = document.getElementById('backupModal');
       const quickSummaryModal = document.getElementById('quickSummaryModal');
+      const advancedModal = document.getElementById('advancedModal'); // [NEW]
+      const leaveModal = document.getElementById('leaveModal');
       
       if (event.target == modal) closeModal();
       if (event.target == deleteModal) closeDeleteModal();
       if (event.target == resetModal) closeResetModal();
       if (event.target == summaryModal) closeSummaryModal();
       if (event.target == incompleteModal) closeIncompleteModal();
+      if (event.target == leaveModal) closeLeaveModal();
       if (event.target == driverModal) closeAddDriverModal();
       if (event.target == createOptModal) closeCreateOptionModal();
       if (event.target == customMonthModal) closeCustomMonthPicker();
       if (event.target == backupModal) closeBackupModal();
       if (event.target == quickSummaryModal) closeQuickSummaryModal();
+      if (event.target == advancedModal) closeAdvancedModal(); // [NEW]
       
       if (!event.target.closest('#historyTitleBtn')) {
           const menu = document.getElementById('summaryMenu');
@@ -1336,13 +1466,14 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       
       document.querySelectorAll('.submenu-item').forEach(el => el.classList.remove('active'));
       
+      const btnExport = document.getElementById('btnExportCSV');
+      if (btnExport) {
+          btnExport.style.display = mode === 'driver' ? 'inline-flex' : 'none';
+      }
+      
       const toolbar = document.getElementById('historyToolbar');
       if(toolbar) {
-          if(mode === 'daily') {
-              toolbar.style.display = 'flex';
-          } else {
-              toolbar.style.display = 'none';
-          }
+          toolbar.style.display = mode === 'daily' ? 'flex' : 'none';
       }
 
       if(dropdown) {
@@ -1373,7 +1504,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 
   function formatThaiDateDisplay(dateStr) {
     if(!dateStr) return 'เลือกวันที่...';
-    // Fix Safari parsing by ensuring it is standard ISO YYYY-MM-DD
     const d = new Date(dateStr);
     if(isNaN(d.getTime())) return 'เลือกวันที่...';
       
@@ -1493,28 +1623,22 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
   }
 
 /* ===== 2. Global State & Data Logic ===== */
-  let currentCalcResult = null; 
-  let otHistory = [];
+  let currentCalcResult = null; 
+  let otHistory = [];
+  let rawDrivers = JSON.parse(CloudStorage.getItem('egat_drivers'));
+  let drivers = [];
+  let verifiedStatus = JSON.parse(CloudStorage.getItem('egat_ot_verified_status')) || {};
 
-  // ลบ DEFAULT_DRIVERS ทิ้งทั้งหมด ไม่ต้องมีรายชื่อสำรอง
-  let rawDrivers = JSON.parse(CloudStorage.getItem('egat_drivers'));
-  let drivers = [];
-  let verifiedStatus = JSON.parse(CloudStorage.getItem('egat_ot_verified_status')) || {};
-
-  if (rawDrivers && rawDrivers.length > 0) {
-      if (typeof rawDrivers[0] === 'string') {
-          // อัปเกรดข้อมูลเก่าที่เป็น String ให้เป็น Object
-          drivers = rawDrivers.map(d => ({ id: Date.now() + Math.random(), name: d, nickname: '', phone: '', affiliation: '', department: '' }));
-          CloudStorage.setItem('egat_drivers', JSON.stringify(drivers));
-      } else {
-          // ข้อมูลปกติใช้งานได้เลย
-          drivers = rawDrivers;
-      }
-  } else {
-      // กรณีแคชหาย หรือไม่มีข้อมูลในเครื่อง ให้เป็นค่าว่างไว้ (ห้ามเซฟขึ้นคลาวด์เด็ดขาด)
-      // เพื่อรอให้ฟังก์ชัน initCloudData() ดึงข้อมูลจริงจากฐานข้อมูลกลางลงมาเติมให้เอง
-      drivers = [];
-  }
+  if (rawDrivers && rawDrivers.length > 0) {
+      if (typeof rawDrivers[0] === 'string') {
+          drivers = rawDrivers.map(d => ({ id: Date.now() + Math.random(), name: d, nickname: '', phone: '', affiliation: '', department: '' }));
+          CloudStorage.setItem('egat_drivers', JSON.stringify(drivers));
+      } else {
+          drivers = rawDrivers;
+      }
+  } else {
+      drivers = [];
+  }
 
   let dragStartIndex = null;
 
@@ -1577,9 +1701,9 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       dragStartIndex = null;
   }
 
-  let editingRowId = null; // Changed to ID tracking instead of Index
+  let editingRowId = null;
   let showAll = false;
-  let filteredIds = [];    // Store filtered IDs for navigation
+  let filteredIds = []; 
   try { otHistory = JSON.parse(CloudStorage.getItem('egat_ot_history')) || []; } catch(e) {}
    
   sortHistory();
@@ -1645,8 +1769,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
         
         const toolbar = document.getElementById('historyToolbar');
         if(toolbar) {
-            if(currentHistoryMode === 'daily') toolbar.style.display = 'flex';
-            else toolbar.style.display = 'none';
+            toolbar.style.display = 'flex'; 
         }
     }
     if(viewId === 'drivers') {
@@ -1744,20 +1867,16 @@ function renderDrivers() {
       });
   }
 
-  /* ฟังก์ชันลบข้อมูลของรายชื่อที่ไม่มีอยู่จริงหรือต้องการลบออกจากระบบ Google Sheets และในแอปพลิเคชัน */
   window.removeDriverRowAndData = function(name) {
       if (!name) return;
       if (!confirm(`ต้องการลบรายชื่อ "${name}" และเคลียร์ประวัติทำ OT ทั้งหมดออกจากระบบ (รวมถึงบนฐานข้อมูล Google คลาวด์) ใช่หรือไม่?`)) return;
 
-      // 1. ลบออกจากรายชื่อ พขร. (ถ้ามี)
       drivers = drivers.filter(d => d.name !== name);
       CloudStorage.setItem('egat_drivers', JSON.stringify(drivers));
 
-      // 2. ลบประวัติ OT ทั้งหมดของ พขร. คนนี้ในฐานข้อมูล
       otHistory = otHistory.filter(item => getPlainName(item.driver) !== name);
       CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
 
-      // 3. ลบสถานะ Verified ตรวจสอบแล้วของคนนี้ในทุกเดือน
       for (const monthKey in verifiedStatus) {
           if (verifiedStatus[monthKey][name] !== undefined) {
               delete verifiedStatus[monthKey][name];
@@ -1765,7 +1884,6 @@ function renderDrivers() {
       }
       CloudStorage.setItem('egat_ot_verified_status', JSON.stringify(verifiedStatus));
 
-      // 4. รีเฟรชส่วนการแสดงผล
       renderDrivers();
       renderHistory();
       updateBadge();
@@ -1903,20 +2021,17 @@ function renderDrivers() {
     
   const fmtShort = mins => {
       if(!mins || mins===0) return '-';
-      return (Math.round((mins/60) * 10) / 10).toString().replace('.0',''); // Floating point precision fix
+      return (Math.round((mins/60) * 10) / 10).toString().replace('.0',''); 
   };
 
   const fmtTime = mins => { const h = Math.floor(mins/60)%24; const m = mins%60; return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; };
 
-  // ✈️ ฟังก์ชัน Auto-Pilot หั่นเวลา OT อัตโนมัติ
   window.handleAutoPilotOT = function(reqHoursStr) {
       if (!currentCalcResult) return;
       let reqHours = parseFloat(reqHoursStr);
       if (isNaN(reqHours) || reqHours < 0) reqHours = 0;
 
       let reqMins = Math.round(reqHours * 60);
-
-      // ดึงค่า Max สูงสุดที่ระบบคำนวณได้ตอนแรก
       let max15 = currentCalcResult.baseOt15 || 0;
       let max1  = currentCalcResult.baseOt1 || 0;
       let max3  = currentCalcResult.baseOt3 || 0;
@@ -1925,7 +2040,6 @@ function renderDrivers() {
           let allocate15 = Math.min(reqMins, max15);
           currentCalcResult.ot15 = allocate15; 
       } else {
-          // วันหยุด: Priority เติมกล่อง x1 ให้เต็มก่อน แล้วค่อยเทส่วนที่เหลือไป x3
           let allocate1 = Math.min(reqMins, max1);
           let remMins = Math.max(0, reqMins - allocate1);
           let allocate3 = Math.min(remMins, max3);
@@ -1934,7 +2048,6 @@ function renderDrivers() {
           currentCalcResult.ot3 = allocate3;
       }
 
-      // ให้ Badge กลับมาเป็น Auto-Pilot เวลาพิมพ์ในช่องรวม
       const autoPilotBadge = document.getElementById('autoPilotBadge');
       if (autoPilotBadge) {
           autoPilotBadge.innerHTML = '✨ Auto-Pilot';
@@ -1955,7 +2068,6 @@ function renderDrivers() {
       }
   };
 
-  // 🛠️ ฟังก์ชัน Manual Override สำหรับแก้ไขแยกเรต OT ในหน้าคำนวณ
   window.editLiveOTHours = function(rateKey) {
       if (!currentCalcResult) return;
 
@@ -1979,18 +2091,15 @@ function renderDrivers() {
           const newValMinutes = Math.round(newVal * 60);
           if (newValMinutes > maxLimit + 1) { alert(`❌ เกินเวลาที่ทำได้จริงในเรตนี้ (${maxHours} ชม.)`); return; }
 
-          // อัปเดตค่าที่จำไว้
           if (rateKey === '15') currentCalcResult.ot15 = newValMinutes;
           if (rateKey === '1')  currentCalcResult.ot1 = newValMinutes;
           if (rateKey === '3')  currentCalcResult.ot3 = newValMinutes;
 
-          // อัปเดต UI ตรงจุดที่กด
           const dispEl = document.getElementById(`disp_total${rateKey}`);
           if (dispEl) {
               dispEl.innerHTML = fmt(newValMinutes) + ` <span style="font-size:0.75rem; color:#ea580c; font-weight:700;">(Manual)</span> ✏️`;
           }
 
-          // รวมเวลาใหม่ทั้งหมดไปอัปเดตในช่อง "ขอเบิกเวลา OT รวม"
           let newTotalReqMins = 0;
           if (currentCalcResult.type === 'weekday') {
               newTotalReqMins = currentCalcResult.ot15;
@@ -2002,7 +2111,6 @@ function renderDrivers() {
           if (reqInput) {
               reqInput.value = (Math.round((newTotalReqMins / 60) * 10) / 10).toString().replace('.0', '');
               
-              // เปลี่ยน Badge เพื่อแจ้ง User ว่าตอนนี้หลุดจาก Auto-Pilot เป็น Manual แล้ว
               const autoPilotBadge = document.getElementById('autoPilotBadge');
               if (autoPilotBadge) {
                   autoPilotBadge.innerHTML = '⚙️ Manual Edit';
@@ -2241,7 +2349,6 @@ function renderDrivers() {
               newResult.incompleteReason = originalItem.incompleteReason;
           }
 
-          // 💡 1. บันทึกค่า Base สูงสุดไว้ก่อนโดน Auto-pilot หั่น (แก้ไขบัคเวลาล้มเป็น 0 ในหน้าแสดงผลแว่นขยาย)
           newResult.baseOt15 = newResult.ot15;
           newResult.baseOt1 = newResult.ot1;
           newResult.baseOt3 = newResult.ot3;
@@ -2249,14 +2356,12 @@ function renderDrivers() {
           let oldReq = parseFloat(originalItem.requestOT);
           let newMaxHr = newResult.dispTotalMinutes / 60;
           
-          // 💡 2. แก้ไขบัคเวลาหาย: ถ้าช่องขอเบิกเดิมเป็น 0 หรือเป็นรายการที่สร้างออโต้แบบทั้งเดือน (Pending) ให้เซ็ตเวลาเต็มไว้ก่อน ไม่ให้เอาเลข 0 มาคิดลบ
           if (!isNaN(oldReq) && oldReq <= newMaxHr && !originalItem.isPending) {
               newResult.requestOT = oldReq;
           } else {
               newResult.requestOT = newMaxHr;
           }
 
-          // ✈️ Auto-pilot ตัดเวลาให้อัตโนมัติในโหมด Inline Edit 
           let finalReqMins = Math.round(newResult.requestOT * 60);
           if (newResult.type === 'weekday') {
               newResult.ot15 = Math.min(finalReqMins, newResult.ot15);
@@ -2272,7 +2377,7 @@ function renderDrivers() {
           
           sortHistory(); 
           try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
-             
+              
           const driverFilterVal = document.getElementById('historyDriverFilter').value;
           let targetMonth = null;
           let targetYear = null;
@@ -2920,7 +3025,6 @@ function closeIncompleteModal() {
           if(rateKey === '1')  item.ot1 = newValMinutes;
           if(rateKey === '3')  item.ot3 = newValMinutes;
 
-          // อัปเดต requestOT ให้สอดคล้องกับผลรวมใหม่เวลาที่แก้ในตารางหลัก
           let newTotalMins = (item.ot15 || 0) + (item.ot1 || 0) + (item.ot3 || 0);
           item.requestOT = newTotalMins / 60;
           
@@ -2936,14 +3040,12 @@ function closeIncompleteModal() {
       let tempDiv = document.createElement('div');
       tempDiv.innerHTML = item.html;
       
-      // 1. นำคลาส ot-editable ออก (เพื่อไม่ให้ดูเหมือนกดได้ในโหมด View)
       tempDiv.querySelectorAll('.ot-editable').forEach(el => {
           el.classList.remove('ot-editable');
           el.removeAttribute('onclick');
           el.removeAttribute('title');
       });
 
-      // 2. อัปเดตตัวเลขแสดงผลให้ตรงกับข้อมูลที่บันทึกจริง (กรณีมีการแก้ไข Manual ไว้)
       let d15 = tempDiv.querySelector('#disp_total15');
       if(d15) d15.innerHTML = fmt(item.ot15 || 0);
       let d1 = tempDiv.querySelector('#disp_total1');
@@ -2951,7 +3053,6 @@ function closeIncompleteModal() {
       let d3 = tempDiv.querySelector('#disp_total3');
       if(d3) d3.innerHTML = fmt(item.ot3 || 0);
 
-      // 3. จัดการกล่อง ขอเบิกเวลา OT ให้เป็นแบบ Text Read-Only
       let reqInput = tempDiv.querySelector('#requestOTInput');
       if(reqInput) {
           let reqContainer = reqInput.parentElement;
@@ -2959,17 +3060,15 @@ function closeIncompleteModal() {
           reqContainer.innerHTML = `<span style="font-size: 1.3rem; font-weight: 800; color: #0284c7;">${reqVal}</span>`;
       }
 
-      // 4. จัดการป้าย Auto-Pilot / Manual Edit
       let badge = tempDiv.querySelector('#autoPilotBadge');
       if(badge) {
           let isManual = false;
           if(item.baseOt15 !== undefined) {
-              // ถ้ายอดรวมไม่ตรงกับ base ที่คำนวณได้ แสดงว่าถูกแก้
               if(item.ot15 !== item.baseOt15 || item.ot1 !== item.baseOt1 || item.ot3 !== item.baseOt3) {
                   isManual = true;
               }
           } else {
-              isManual = true; // สำหรับข้อมูลเก่าที่ไม่มี base เก็บไว้
+              isManual = true; 
           }
 
           if(isManual) {
@@ -3061,7 +3160,7 @@ function closeIncompleteModal() {
     let s15=0, s1=0, s3=0;
     let leaveCount = 0; 
     let totalRequestOT = 0; 
-    filteredIds = []; // Store IDs instead of indices
+    filteredIds = [];
 
     if(currentHistoryMode === 'driver') {
         document.querySelector('#historyTable thead').innerHTML = `
@@ -3080,12 +3179,10 @@ function closeIncompleteModal() {
 
         const summaryMap = {};
 
-        // ดึงรายชื่อหลักทุกคนมาตั้งต้นแผนที่ไว้ก่อน
         drivers.forEach(d => {
             summaryMap[d.name] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0, requestOT:0, hasData: true, isGhost: false }; 
         });
         
-        // กวาดประวัติมาคำนวณยอดรวมยอดเบิกสะสม
         otHistory.forEach((item) => {
             let isMatch = true;
             if (!showAll && targetMonth !== null) {
@@ -3096,7 +3193,6 @@ function closeIncompleteModal() {
             if(isMatch) {
                 let plainDriverName = getPlainName(item.driver) || "(ไม่ระบุชื่อ)";
 
-                // หากเจอคนที่มีประวัติค้างอยู่แต่ไม่มีตัวตนอยู่ใน Array รายชื่อ พขร. ให้สร้างขึ้นมาแสดงผลพร้อมให้ปุ่มลบได้
                 if(!summaryMap[plainDriverName]) {
                       summaryMap[plainDriverName] = { ot15:0, ot1:0, ot3:0, leave:0, missingCount:0, requestOT:0, hasData: true, isGhost: true };
                 }
@@ -3155,7 +3251,6 @@ function closeIncompleteModal() {
                 const isVer = verifiedStatus[monthKey] && verifiedStatus[monthKey][name];
 
                 const realIndex = drivers.findIndex(d => d.name === name) + 1;
-                // หากไม่มีลำดับจริง (เช่น คนที่มีขีดแดชนำหน้า) ระบบจะไม่มีเลขลำดับ
                 const displayIndex = (realIndex > 0 && !data.isGhost) ? realIndex : '-';
 
                 const tr = document.createElement('tr');
@@ -3176,9 +3271,10 @@ function closeIncompleteModal() {
                     ${clearDriverBtnHtml}
                 </div>`;
 
+                // [NEW] ทำให้ชื่อคลิกได้สำหรับฟังก์ชัน Drill-down
                 tr.innerHTML = `
                     <td class="col-center" style="font-weight:bold; color:#cbd5e1;">${displayIndex}</td>
-                    <td style="font-weight:700; color:${data.isGhost ? 'var(--danger)' : 'var(--brand)'}; font-size:0.95rem; white-space:nowrap;">${name} ${data.isGhost ? ' <small style="font-weight:400;color:#94a3b8;">(เกินระบบ)</small>' : ''}</td>
+                    <td style="font-weight:700; color:${data.isGhost ? 'var(--danger)' : 'var(--brand)'}; font-size:0.95rem; white-space:nowrap; cursor:pointer; text-decoration:underline; transition:all 0.2s;" onclick="openQuickSummaryModal('${name}', ${targetYear}, ${targetMonth !== null ? targetMonth + 1 : 'null'})" onmouseover="this.style.color='#0284c7'" onmouseout="this.style.color='${data.isGhost ? 'var(--danger)' : 'var(--brand)'}'" title="คลิกเพื่อดูประวัติรายวันของ ${name}">${name} ${data.isGhost ? ' <small style="font-weight:400;color:#94a3b8;">(เกินระบบ)</small>' : ''}</td>
                     <td class="col-center">${fmtShort(data.ot15)}</td>
                     <td class="col-center">${fmtShort(data.ot1)}</td>
                     <td class="col-center">${fmtShort(data.ot3)}</td>
@@ -3627,12 +3723,14 @@ function closeIncompleteModal() {
                 closeDeleteModal();
                 closeResetModal(); 
                 closeIncompleteModal();
+                closeLeaveModal();
                 closeAddDriverModal();
                 closeSummaryModal();
                 closeCreateOptionModal();
                 closeCustomMonthPicker();
                 closeBackupModal();
                 closeQuickSummaryModal();
+                closeAdvancedModal(); // [NEW]
                 
                 if(editingRowId !== null) {
                     cancelInline();
@@ -3756,39 +3854,107 @@ function closeIncompleteModal() {
   if ('serviceWorker' in navigator) { try { navigator.serviceWorker.getRegistrations().then(function(registrations) { for(let registration of registrations) { registration.unregister(); } }).catch(function(err) {}); } catch(e) {} }
 
   /* Actions Trigger in main calculation UI */
-  window.markAsLeave = function() {
+  window.openLeaveModal = function() {
       const driverInput = document.getElementById('driverSelect').value;
       const driverName = getPlainName(driverInput);
-      const dateVal = document.getElementById('workDate').value;
+      let dateVal = document.getElementById('workDate').value;
 
       if (!driverName) { alert('⚠️ กรุณาระบุชื่อ พขร. ด้านบนก่อนครับ'); return; }
-      if (!dateVal) { alert('⚠️ กรุณาเลือกวันที่ครับ'); return; }
-
-      if (!confirm(`ยืนยันบันทึก "ลาพัก" ให้กับ\n👤 ${driverName}\n📅 วันที่ ${formatThaiDate(dateVal)} ใช่หรือไม่?`)) return;
-
-      const d = new Date(dateVal);
-      const dayOfWeek = d.getDay();
-      const type = (dayOfWeek === 0 || dayOfWeek === 6) ? 'weekend' : 'weekday';
-
-      let existingIndex = otHistory.findIndex(item => item.date === dateVal && getPlainName(item.driver) === driverName);
-      
-      const leaveItem = {
-          id: Date.now() + Math.random(),
-          date: dateVal,
-          type: type,
-          driver: driverName,
-          isPending: false,
-          isLeave: true,
-          leaveType: 'la',
-          ot15: 0, ot1: 0, ot3: 0, requestOT: 0, start: '-', end: '-'
-      };
-
-      if (existingIndex !== -1) {
-          otHistory[existingIndex] = { ...otHistory[existingIndex], ...leaveItem, id: otHistory[existingIndex].id };
-      } else {
-          otHistory.push(leaveItem);
+      if (!dateVal) { 
+          dateVal = new Date().toISOString().substring(0, 10);
       }
-      
+
+      const monthVal = dateVal.substring(0, 7);
+
+      document.getElementById('leaveDriverSelect').value = driverName;
+      document.getElementById('leaveMonth').value = monthVal;
+
+      const displayEl = document.getElementById('leaveContextDisplay');
+      if(displayEl) {
+          displayEl.innerHTML = `<div style="font-size:1.1rem; margin-bottom:4px;">👤 ${driverName}</div><div style="font-size:0.95rem; opacity:0.8;">📅 เดือน ${getThaiMonthYearFull(monthVal)}</div>`;
+      }
+
+      document.getElementById('leaveNote').value = 'ลาพักผ่อน'; 
+      renderLeaveDays(); 
+      document.getElementById('leaveModal').classList.add('show');
+  };
+
+  window.closeLeaveModal = function() {
+      document.getElementById('leaveModal').classList.remove('show');
+  };
+
+  function renderLeaveDays() {
+      const monthVal = document.getElementById('leaveMonth').value;
+      const grid = document.getElementById('leaveDaysGrid');
+      grid.innerHTML = '';
+      if(!monthVal) return;
+      const [year, month] = monthVal.split('-').map(Number); 
+      const daysInMonth = new Date(year, month, 0).getDate();
+      for(let i=1; i<=daysInMonth; i++) {
+          const div = document.createElement('div');
+          div.className = 'day-item';
+          div.textContent = i;
+          div.onclick = function() { this.classList.toggle('selected'); };
+          grid.appendChild(div);
+      }
+  }
+
+  window.saveLeaveReport = function() {
+      const driver = document.getElementById('leaveDriverSelect').value;
+      const monthVal = document.getElementById('leaveMonth').value;
+      const note = document.getElementById('leaveNote').value.trim() || 'ลา';
+      const selectedEls = document.querySelectorAll('#leaveDaysGrid .day-item.selected');
+      let targetDays = [];
+      selectedEls.forEach(el => targetDays.push(parseInt(el.textContent)));
+
+      if(!driver) { alert('กรุณาเลือกพนักงาน'); return; }
+      if(!monthVal) { alert('กรุณาเลือกเดือน'); return; }
+      if(targetDays.length === 0) { alert('กรุณาจิ้มเลือกวันที่ลา'); return; }
+
+      if (!confirm(`ยืนยันบันทึกวันลาของ ${driver}\nจำนวน ${targetDays.length} วัน ใช่หรือไม่?`)) return;
+
+      const [year, month] = monthVal.split('-').map(Number);
+      targetDays.sort((a,b)=>a-b);
+      let updatedCount = 0; let newCount = 0;
+
+      targetDays.forEach(dayNum => {
+          const dateString = getDateString(year, month, dayNum);
+          
+          const dObj = new Date(dateString);
+          const dayOfWeek = dObj.getDay();
+          const type = (dayOfWeek === 0 || dayOfWeek === 6) ? 'weekend' : 'weekday';
+
+          let existingItem = otHistory.find(item => 
+              item.date === dateString && 
+              getPlainName(item.driver) === driver
+          );
+          
+          if (!existingItem) {
+              existingItem = otHistory.find(item => item.date === dateString && !item.driver);
+          }
+
+          const leaveItemData = {
+              date: dateString,
+              type: type,
+              driver: driver,
+              isPending: false,
+              isLeave: true,
+              leaveType: 'la',
+              isIncomplete: true,
+              incompleteReason: note, 
+              ot15: 0, ot1: 0, ot3: 0, requestOT: 0, start: '-', end: '-'
+          };
+
+          if(existingItem) {
+              Object.assign(existingItem, leaveItemData);
+              updatedCount++;
+          } else {
+              const newItem = { id: Date.now() + Math.random(), ...leaveItemData };
+              otHistory.push(newItem);
+              newCount++;
+          }
+      });
+
       sortHistory();
       try { 
           CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); 
@@ -3796,26 +3962,37 @@ function closeIncompleteModal() {
           renderHistory(); 
       } catch(e) {}
       
-      alert('✅ บันทึกวันลาเรียบร้อย');
-      resetFormForNext();
+      alert(`✅ บันทึกวันลาเรียบร้อย ${targetDays.length} วัน`);
+      closeLeaveModal();
   };
 
   window.markAsIncomplete = function() {
       openIncompleteModal();
   };
 
-  window.openQuickSummaryModal = function() {
-      const driverInput = document.getElementById('driverSelect').value;
-      const driverName = getPlainName(driverInput);
+  window.openQuickSummaryModal = function(overrideName, overrideYear, overrideMonth) {
+      let driverName = typeof overrideName === 'string' ? overrideName : null;
+      if (!driverName) {
+          const driverInput = document.getElementById('driverSelect').value;
+          driverName = getPlainName(driverInput);
+      }
       
       if (!driverName) {
-          alert('⚠️ กรุณาระบุชื่อ พขร. ที่ต้องการดูก่อนครับ (เลือกที่กล่องค้นหาด้านบน)');
+          alert('⚠️ กรุณาระบุชื่อ พขร. ที่ต้องการดูก่อนครับ (พิมพ์ที่กล่องค้นหาด้านบน หรือคลิกจากรายชื่อในตาราง)');
           return;
       }
 
-      const dateVal = document.getElementById('workDate').value;
-      const monthVal = dateVal ? dateVal.substring(0, 7) : new Date().toISOString().substring(0, 7);
-      const [targetYear, targetMonth] = monthVal.split('-').map(Number);
+      let targetYear, targetMonth;
+      if (overrideYear && overrideMonth) {
+          targetYear = parseInt(overrideYear);
+          targetMonth = parseInt(overrideMonth);
+      } else {
+          const dateVal = document.getElementById('workDate').value;
+          const monthVal = dateVal ? dateVal.substring(0, 7) : new Date().toISOString().substring(0, 7);
+          const parts = monthVal.split('-');
+          targetYear = parseInt(parts[0]);
+          targetMonth = parseInt(parts[1]);
+      }
       
       document.getElementById('quickSummaryTitle').innerHTML = `📊 สรุปรายการของ ${driverName}`;
       
