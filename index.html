@@ -686,7 +686,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
           <button class="btn-leave" onclick="openLeaveModal()">🏖️ บันทึกวันลา</button>
           <button class="btn-incomplete" onclick="markAsIncomplete()">⚠️ แจ้งเอกสารไม่ครบ</button>
           <button class="btn-secondary" style="grid-column: 1 / -1; gap: 8px; font-size: 1.05rem; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;" onclick="openQuickSummaryModal()">
-              📊 ตรวจสอบสรุปรายเดือน (หน้าต่างย่อย)
+             📊 ตรวจสอบสรุปรายเดือน (หน้าต่างย่อย)
           </button>
         </div>
 
@@ -930,17 +930,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
             <div>
                 <label style="text-align:center; display:block; margin-bottom:10px;">วันที่ลา (จิ้มเลือกได้หลายวัน)</label>
                 <div id="leaveDaysGrid" class="day-grid"></div>
-            </div>
-            <div>
-                <label>ประเภทการลา / หมายเหตุ</label>
-                <div class="quick-notes-wrapper">
-                    <div class="quick-notes">
-                        <div class="note-chip" onclick="document.getElementById('leaveNote').value='ลาพักผ่อน'">🏖️ ลาพักผ่อน</div>
-                        <div class="note-chip" onclick="document.getElementById('leaveNote').value='ลาป่วย'">🤒 ลาป่วย</div>
-                        <div class="note-chip" onclick="document.getElementById('leaveNote').value='ลากิจ'">📋 ลากิจ</div>
-                    </div>
-                </div>
-                <input type="text" id="leaveNote" class="mini-input" style="width:100%; text-align:left; font-weight:500;" placeholder="เช่น ลาพักผ่อน, ลาป่วย...">
             </div>
         </div>
         <div style="margin-top:20px; display:flex; gap:10px;">
@@ -3874,7 +3863,6 @@ function closeIncompleteModal() {
           displayEl.innerHTML = `<div style="font-size:1.1rem; margin-bottom:4px;">👤 ${driverName}</div><div style="font-size:0.95rem; opacity:0.8;">📅 เดือน ${getThaiMonthYearFull(monthVal)}</div>`;
       }
 
-      document.getElementById('leaveNote').value = 'ลาพักผ่อน'; 
       renderLeaveDays(); 
       document.getElementById('leaveModal').classList.add('show');
   };
@@ -3902,7 +3890,6 @@ function closeIncompleteModal() {
   window.saveLeaveReport = function() {
       const driver = document.getElementById('leaveDriverSelect').value;
       const monthVal = document.getElementById('leaveMonth').value;
-      const note = document.getElementById('leaveNote').value.trim() || 'ลา';
       const selectedEls = document.querySelectorAll('#leaveDaysGrid .day-item.selected');
       let targetDays = [];
       selectedEls.forEach(el => targetDays.push(parseInt(el.textContent)));
@@ -3940,13 +3927,13 @@ function closeIncompleteModal() {
               isPending: false,
               isLeave: true,
               leaveType: 'la',
-              isIncomplete: true,
-              incompleteReason: note, 
               ot15: 0, ot1: 0, ot3: 0, requestOT: 0, start: '-', end: '-'
           };
 
           if(existingItem) {
               Object.assign(existingItem, leaveItemData);
+              delete existingItem.isIncomplete;
+              delete existingItem.incompleteReason;
               updatedCount++;
           } else {
               const newItem = { id: Date.now() + Math.random(), ...leaveItemData };
@@ -3996,7 +3983,7 @@ function closeIncompleteModal() {
       
       document.getElementById('quickSummaryTitle').innerHTML = `📊 สรุปรายการของ ${driverName}`;
       
-      let total15 = 0, total1 = 0, total3 = 0, totalReq = 0;
+      let total15 = 0, total1 = 0, total3 = 0, totalReq = 0, totalLeave = 0;
       const filteredHistory = otHistory.filter(item => {
           if (getPlainName(item.driver) !== driverName) return false;
           const d = new Date(item.date);
@@ -4011,7 +3998,9 @@ function closeIncompleteModal() {
       } else {
           filteredHistory.sort((a,b) => new Date(a.date) - new Date(b.date));
           filteredHistory.forEach(item => {
-              if (!item.isPending && !item.isLeave) {
+              if (item.isLeave) {
+                  totalLeave++;
+              } else if (!item.isPending) {
                   total15 += item.ot15 || 0;
                   total1 += item.ot1 || 0;
                   total3 += item.ot3 || 0;
@@ -4044,6 +4033,7 @@ function closeIncompleteModal() {
           <div class="qs-stat-card qs-cyan"><div class="qs-lbl">OT x1</div><div class="qs-val">${fmtShort(total1)} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
           <div class="qs-stat-card qs-rose"><div class="qs-lbl">OT x3</div><div class="qs-val">${fmtShort(total3)} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
           <div class="qs-stat-card qs-primary"><div class="qs-lbl">ขอเบิกสะสม</div><div class="qs-val" style="font-size:1.6rem;">${(Math.round(totalReq*10)/10).toString().replace('.0','')} <span style="font-size:0.9rem; font-weight:normal;">ชม.</span></div></div>
+          <div class="qs-stat-card qs-amber"><div class="qs-lbl">รวมวันลา</div><div class="qs-val" style="font-size:1.6rem;">${totalLeave} <span style="font-size:0.9rem; font-weight:normal;">วัน</span></div></div>
       `;
 
       document.getElementById('quickSummaryModal').classList.add('show');
