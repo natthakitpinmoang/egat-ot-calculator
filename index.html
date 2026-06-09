@@ -355,7 +355,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 /* Modal Styles */
 .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; backdrop-filter: blur(2px); }
 .modal.show { display: flex; animation: fadeIn 0.2s; }
-.modal-content { background-color: #ffffff; padding: 30px 24px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 1px solid #f1f5f9; width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto; position: relative; }
+.modal-content { background-color: #ffffff; padding: 40px 24px 30px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 1px solid #f1f5f9; width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto; position: relative; }
 
 /* ยก Layer ของ Detail Modal ให้สูงกว่า Quick Summary Modal */
 #detailModal { z-index: 1050 !important; }
@@ -379,7 +379,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .summary-driver { font-size: 0.85rem; color: var(--text-muted); }
 .summary-reason { background: #f3e8ff; color: #7e22ce; padding: 4px 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; }
 
-.cmp-content { margin-top: 10px; text-align: center; }
+/* อัปเดต: เพิ่ม margin-top ให้ส่วนหัวกล่องของ Custom Month Picker เพื่อหนีปุ่มปิด */
+.cmp-content { margin-top: 24px; text-align: center; }
 .cmp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 0 10px; }
 .cmp-nav-btn { background: #fff; border: 1px solid #e2e8f0; width: 36px; height: 36px; border-radius: 12px; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; font-weight: 700; transition: all 0.2s; display: grid; place-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 .cmp-nav-btn:hover { background: var(--brand-light); color: var(--brand); border-color: var(--brand-light); }
@@ -391,8 +392,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 
 /* Quick Summary Modal New Design */
 #quickSummaryModal .modal-content { 
-    max-width: 800px; 
-    padding: 30px; 
+    max-width: 900px; /* ลดความกว้างกลับมารองรับ 5 คอลัมน์แบบเดิม */
+    padding: 40px 30px 30px; 
     border-radius: 28px; 
     background: #ffffff; 
 }
@@ -409,9 +410,24 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 
 #quickSummaryBadges { 
     display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
-    gap: 12px; 
+    /* จัดกล่อง 5 คอลัมน์ 1 แถวพอดิบพอดี */
+    grid-template-columns: repeat(5, 1fr); 
+    gap: 10px; 
     margin: 20px 0 25px 0; 
+}
+
+/* รองรับแท็บเล็ตให้เหลือ 3 คอลัมน์ (3x2) */
+@media (max-width: 950px) {
+    #quickSummaryBadges {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* รองรับมือถือให้เหลือ 2 คอลัมน์ (2x3) */
+@media (max-width: 640px) {
+    #quickSummaryBadges {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 .qs-stat-card {
@@ -430,6 +446,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .qs-rose { background: linear-gradient(135deg, #fff1f2, #ffe4e6); color: #e11d48; }
 .qs-amber { background: linear-gradient(135deg, #fffbeb, #fef3c7); color: #d97706; }
 .qs-primary { background: linear-gradient(135deg, #eef2ff, #e0e7ff); color: var(--brand); border: 1.5px dashed #3b82f6; }
+/* สีม่วงสำหรับกล่องเอกสารขาด */
+.qs-purple { background: linear-gradient(135deg, #f3e8ff, #e9d5ff); color: #7e22ce; border: 1px solid #d8b4fe; }
 
 .qs-table-wrap {
     border-radius: 20px;
@@ -464,8 +482,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 /* 1. ปุ่มปิดหน้าต่าง Modal */
 .close-modal {
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 12px;
+    right: 12px;
     width: auto !important;
     height: 38px !important;
     padding: 0 16px !important;
@@ -686,7 +704,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
           <button class="btn-leave" onclick="openLeaveModal()">🏖️ บันทึกวันลา</button>
           <button class="btn-incomplete" onclick="markAsIncomplete()">⚠️ แจ้งเอกสารไม่ครบ</button>
           <button class="btn-secondary" style="grid-column: 1 / -1; gap: 8px; font-size: 1.05rem; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;" onclick="openQuickSummaryModal()">
-             📊 ตรวจสอบสรุปรายเดือน (หน้าต่างย่อย)
+              📊 ตรวจสอบสรุปรายเดือน (หน้าต่างย่อย)
           </button>
         </div>
 
@@ -1034,12 +1052,12 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                   <thead>
                       <tr>
                           <th style="text-align:left; padding-left:20px;">วันที่</th>
-                          <th>ประเภท</th>
-                          <th>x1.5</th>
-                          <th>x1</th>
-                          <th>x3</th>
-                          <th>ขอเบิก</th>
-                          <th>สถานะ</th>
+                          <th class="col-center">ประเภท</th>
+                          <th class="col-center">x1.5</th>
+                          <th class="col-center">x1</th>
+                          <th class="col-center">x3</th>
+                          <th class="col-center">ขอเบิก</th>
+                          <th class="col-center">สถานะ</th>
                       </tr>
                   </thead>
                   <tbody id="quickSummaryList"></tbody>
@@ -2586,18 +2604,18 @@ function renderDrivers() {
   }
 
 function openIncompleteModal() {
-  let driverName = getPlainName(document.getElementById('historyDriverFilter').value);
-  if (!driverName) {
-      driverName = getPlainName(document.getElementById('driverSelect').value);
-  }
+  let driverName = getPlainName(getEffectiveDriver());
   
   if (!driverName) {
       alert('⚠️ กรุณาเลือก "พขร." ที่ต้องการแจ้งขาดก่อนครับ\n(เลือกที่ตัวกรองขวาบน หรือที่หน้าคำนวณก็ได้)');
       return;
   }
 
-  let monthVal = document.getElementById('historyMonthPicker').value; 
-  if (!monthVal) {
+  let monthVal = "";
+  const historyView = document.getElementById('view-history');
+  if (historyView && historyView.classList.contains('active')) {
+      monthVal = document.getElementById('historyMonthPicker').value; 
+  } else {
       const workDateVal = document.getElementById('workDate').value;
       if (workDateVal) {
           monthVal = workDateVal.substring(0, 7);
@@ -2605,7 +2623,7 @@ function openIncompleteModal() {
   }
   
   if (!monthVal) {
-      alert('⚠️ กรุณาเลือก "เดือน" ที่ต้องการบันทึกก่อนครับ');
+      alert('⚠️ กรุณาเลือก "เดือน" หรือ "วันที่" ที่ต้องการบันทึกก่อนครับ');
       return;
   }
 
@@ -2646,8 +2664,9 @@ function closeIncompleteModal() {
       if(confirm('ได้รับเอกสารครบถ้วนแล้วใช่หรือไม่?')) {
           const item = otHistory.find(x => x.id === id);
           if(!item) return;
-          item.driver = document.getElementById('incDriverSelect').value || item.driver;
-          delete item.isIncomplete; delete item.incompleteReason;
+          // แก้ไขบั๊ก: ไม่ให้ดึงชื่อจาก incDriverSelect มาทับ ป้องกันการเปลี่ยนชื่อผิดคน
+          delete item.isIncomplete; 
+          delete item.incompleteReason;
           try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
           renderHistory();
       }
@@ -2696,8 +2715,12 @@ function closeIncompleteModal() {
               existingItem.incompleteReason = note;
               updatedCount++;
           } else {
+               const dObj = new Date(dateString);
+               const dayOfWeek = dObj.getDay();
+               const typeStr = (dayOfWeek === 0 || dayOfWeek === 6) ? 'weekend' : 'weekday';
+
                const newItem = {
-                  id: Date.now() + Math.random(), date: dateString, type: 'weekday', driver: driverName,
+                  id: Date.now() + Math.random(), date: dateString, type: typeStr, driver: driverName,
                   isPending: true, isIncomplete: true, incompleteReason: note,
                   ot15: 0, ot1: 0, ot3: 0, start: '07:30', end: '17:00', requestOT: 0
               };
@@ -3233,7 +3256,7 @@ function closeIncompleteModal() {
 
                 let missingHtml = '-';
                 if(data.missingCount > 0) {
-                    missingHtml = `<span style="background:#fef2f2; color:#ef4444; padding:4px 10px; border-radius:99px; font-weight:700; font-size:0.8rem; border:1px solid #fca5a5; cursor:pointer; transition:transform 0.2s;" onclick="viewDriverMissing('${name}')" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="คลิกเพื่อดูรายละเอียด">⚠️ ขาด ${data.missingCount}</span>`;
+                    missingHtml = `<button style="width: 100%; background: linear-gradient(135deg, #f3e8ff, #e9d5ff); color: #7e22ce; border: 1px solid #d8b4fe; padding: 6px 12px; border-radius: 50px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 4px rgba(126, 34, 206, 0.1); font-family: inherit;" onclick="viewDriverMissing('${name}')" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 6px rgba(126, 34, 206, 0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(126, 34, 206, 0.1)'" title="คลิกเพื่อดูรายละเอียด">⚠️ ขาด ${data.missingCount}</button>`;
                 }
 
                 const monthKey = targetYear !== null ? `${targetYear}-${String(targetMonth+1).padStart(2,'0')}` : "";
@@ -3650,8 +3673,25 @@ function closeIncompleteModal() {
                 const existingIndex = otHistory.findIndex(item => 
                     item.date === currentCalcResult.date && (getPlainName(item.driver) === currentCalcResult.driver)
                 );
-                if(existingIndex !== -1) { currentCalcResult.id = otHistory[existingIndex].id; otHistory[existingIndex] = currentCalcResult; } 
-                else { otHistory.push(currentCalcResult); }
+                
+                if(existingIndex !== -1) { 
+                    const oldItem = otHistory[existingIndex];
+                    currentCalcResult.id = oldItem.id; 
+                    
+                    if (oldItem.isIncomplete) {
+                        currentCalcResult.isIncomplete = true;
+                        currentCalcResult.incompleteReason = oldItem.incompleteReason;
+                    }
+                    if (oldItem.isLeave) {
+                        currentCalcResult.isLeave = true;
+                        currentCalcResult.leaveType = oldItem.leaveType;
+                    }
+                    
+                    otHistory[existingIndex] = currentCalcResult; 
+                } else { 
+                    otHistory.push(currentCalcResult); 
+                }
+                
                 sortHistory(); 
                 try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); const btn = document.getElementById('btnSaveLog'); btn.innerHTML = '✅ บันทึกเรียบร้อย'; btn.disabled = true; btn.style.background = '#64748b'; updateBadge(); renderHistory(); } catch(e) { alert('บันทึกไม่สำเร็จ (Storage เต็ม)'); }
             });
@@ -3844,11 +3884,12 @@ function closeIncompleteModal() {
 
   /* Actions Trigger in main calculation UI */
   window.openLeaveModal = function() {
-      const driverInput = document.getElementById('driverSelect').value;
-      const driverName = getPlainName(driverInput);
+      const driverName = getPlainName(getEffectiveDriver());
+
+      if (!driverName) { alert('⚠️ กรุณาระบุชื่อ พขร. ก่อนครับ'); return; }
+      
       let dateVal = document.getElementById('workDate').value;
 
-      if (!driverName) { alert('⚠️ กรุณาระบุชื่อ พขร. ด้านบนก่อนครับ'); return; }
       if (!dateVal) { 
           dateVal = new Date().toISOString().substring(0, 10);
       }
@@ -3932,8 +3973,6 @@ function closeIncompleteModal() {
 
           if(existingItem) {
               Object.assign(existingItem, leaveItemData);
-              delete existingItem.isIncomplete;
-              delete existingItem.incompleteReason;
               updatedCount++;
           } else {
               const newItem = { id: Date.now() + Math.random(), ...leaveItemData };
@@ -4011,7 +4050,7 @@ function closeIncompleteModal() {
               let statusHtml = item.isPending ? '<span style="color:#94a3b8; font-size:0.8rem; background:#f1f5f9; padding:2px 8px; border-radius:8px;">แบบร่าง</span>' : (item.isLeave ? '<span style="color:#ef4444; font-size:0.8rem; background:#fef2f2; padding:2px 8px; border-radius:8px;">ลา</span>' : '<span style="color:#10b981; font-size:0.8rem; background:#ecfdf5; padding:2px 8px; border-radius:8px;">บันทึกแล้ว</span>');
               
               if(item.isIncomplete) {
-                  statusHtml += '<div style="color:#d97706; font-size:0.75rem; margin-top:2px;">⚠️ ขาดเอกสาร</div>';
+                  statusHtml += `<div style="color:#7e22ce; background:#f3e8ff; border:1px dashed #d8b4fe; padding:2px 6px; border-radius:6px; font-size:0.75rem; margin-top:4px; display:inline-block; line-height:1.2;">⚠️ ${item.incompleteReason || 'ขาดเอกสาร'}</div>`;
               }
 
               listBody.innerHTML += `
@@ -4029,11 +4068,11 @@ function closeIncompleteModal() {
       }
 
       document.getElementById('quickSummaryBadges').innerHTML = `
-          <div class="qs-stat-card qs-blue"><div class="qs-lbl">OT x1.5</div><div class="qs-val">${fmtShort(total15)} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
-          <div class="qs-stat-card qs-cyan"><div class="qs-lbl">OT x1</div><div class="qs-val">${fmtShort(total1)} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
-          <div class="qs-stat-card qs-rose"><div class="qs-lbl">OT x3</div><div class="qs-val">${fmtShort(total3)} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
-          <div class="qs-stat-card qs-primary"><div class="qs-lbl">ขอเบิกสะสม</div><div class="qs-val" style="font-size:1.6rem;">${(Math.round(totalReq*10)/10).toString().replace('.0','')} <span style="font-size:0.9rem; font-weight:normal;">ชม.</span></div></div>
-          <div class="qs-stat-card qs-amber"><div class="qs-lbl">รวมวันลา</div><div class="qs-val" style="font-size:1.6rem;">${totalLeave} <span style="font-size:0.9rem; font-weight:normal;">วัน</span></div></div>
+          <div class="qs-stat-card qs-blue"><div class="qs-lbl">OT x1.5</div><div class="qs-val" style="font-size:1.4rem;">${fmtShort(total15)} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
+          <div class="qs-stat-card qs-cyan"><div class="qs-lbl">OT x1</div><div class="qs-val" style="font-size:1.4rem;">${fmtShort(total1)} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
+          <div class="qs-stat-card qs-rose"><div class="qs-lbl">OT x3</div><div class="qs-val" style="font-size:1.4rem;">${fmtShort(total3)} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
+          <div class="qs-stat-card qs-primary"><div class="qs-lbl">ขอเบิกสะสม</div><div class="qs-val" style="font-size:1.4rem;">${(Math.round(totalReq*10)/10).toString().replace('.0','')} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
+          <div class="qs-stat-card qs-amber"><div class="qs-lbl">รวมวันลา</div><div class="qs-val" style="font-size:1.4rem;">${totalLeave} <span style="font-size:0.8rem; font-weight:normal;">วัน</span></div></div>
       `;
 
       document.getElementById('quickSummaryModal').classList.add('show');
