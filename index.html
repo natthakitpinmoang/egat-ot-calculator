@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<title>EGAT OT (v7.4.2 UI Updates)</title>
+<title>EGAT OT (v7.4.3 Data Sync & Bug Fixes)</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -36,7 +36,14 @@
 }
 
 * { box-sizing: border-box }
-body { margin: 0; background: var(--bg-body); font-family: 'Sarabun', system-ui, -apple-system, Segoe UI; color: var(--text-main); -webkit-font-smoothing: antialiased; }
+body { 
+    margin: 0; 
+    background: var(--bg-body); 
+    font-family: 'Sarabun', system-ui, -apple-system, Segoe UI; 
+    color: var(--text-main); 
+    -webkit-font-smoothing: antialiased; 
+    zoom: 90%; /* เพิ่มคำสั่งนี้เพื่อบังคับซูม 90% */
+}
 .app { min-height: 100vh; display: flex; }
 
 /* Sidebar */
@@ -96,7 +103,7 @@ h2 { margin: 0 0 20px 0; color: var(--brand); font-size: 1.6rem; font-weight: 80
 @media (max-width: 640px) { .grid { grid-template-columns: 1fr; gap: 12px; } }
 
 label { font-weight: 700; color: var(--text-main); font-size: 0.95rem; margin-bottom: 6px; display: block; opacity: 0.9; }
-input, select, button, textarea { font-family: inherit; font-size: 16px !important; /* Fix iOS Zoom Bug */ }
+input, select, button, textarea { font-family: inherit; font-size: 16px !important; }
 
 /* Inputs */
 input[type="date"], input[type="text"], input[type="tel"], input[type="number"], select, input[type="month"] { width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 12px; background: #fff; color: var(--text-main); transition: all 0.2s; font-weight: 500; font-size: 16px; }
@@ -355,7 +362,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 /* Modal Styles */
 .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; backdrop-filter: blur(2px); }
 .modal.show { display: flex; animation: fadeIn 0.2s; }
-.modal-content { background-color: #ffffff; padding: 40px 24px 30px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 1px solid #f1f5f9; width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto; position: relative; }
+.modal-content { background-color: #ffffff; padding: 30px 24px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 1px solid #f1f5f9; width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto; position: relative; }
 
 /* ยก Layer ของ Detail Modal ให้สูงกว่า Quick Summary Modal */
 #detailModal { z-index: 1050 !important; }
@@ -379,8 +386,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .summary-driver { font-size: 0.85rem; color: var(--text-muted); }
 .summary-reason { background: #f3e8ff; color: #7e22ce; padding: 4px 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; }
 
-/* อัปเดต: เพิ่ม margin-top ให้ส่วนหัวกล่องของ Custom Month Picker เพื่อหนีปุ่มปิด */
-.cmp-content { margin-top: 24px; text-align: center; }
+.cmp-content { margin-top: 10px; text-align: center; }
 .cmp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 0 10px; }
 .cmp-nav-btn { background: #fff; border: 1px solid #e2e8f0; width: 36px; height: 36px; border-radius: 12px; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; font-weight: 700; transition: all 0.2s; display: grid; place-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 .cmp-nav-btn:hover { background: var(--brand-light); color: var(--brand); border-color: var(--brand-light); }
@@ -392,8 +398,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 
 /* Quick Summary Modal New Design */
 #quickSummaryModal .modal-content { 
-    max-width: 900px; /* ลดความกว้างกลับมารองรับ 5 คอลัมน์แบบเดิม */
-    padding: 40px 30px 30px; 
+    max-width: 800px; 
+    padding: 30px; 
     border-radius: 28px; 
     background: #ffffff; 
 }
@@ -410,24 +416,9 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 
 #quickSummaryBadges { 
     display: grid; 
-    /* จัดกล่อง 5 คอลัมน์ 1 แถวพอดิบพอดี */
-    grid-template-columns: repeat(5, 1fr); 
-    gap: 10px; 
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
+    gap: 12px; 
     margin: 20px 0 25px 0; 
-}
-
-/* รองรับแท็บเล็ตให้เหลือ 3 คอลัมน์ (3x2) */
-@media (max-width: 950px) {
-    #quickSummaryBadges {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-/* รองรับมือถือให้เหลือ 2 คอลัมน์ (2x3) */
-@media (max-width: 640px) {
-    #quickSummaryBadges {
-        grid-template-columns: repeat(2, 1fr);
-    }
 }
 
 .qs-stat-card {
@@ -446,8 +437,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .qs-rose { background: linear-gradient(135deg, #fff1f2, #ffe4e6); color: #e11d48; }
 .qs-amber { background: linear-gradient(135deg, #fffbeb, #fef3c7); color: #d97706; }
 .qs-primary { background: linear-gradient(135deg, #eef2ff, #e0e7ff); color: var(--brand); border: 1.5px dashed #3b82f6; }
-/* สีม่วงสำหรับกล่องเอกสารขาด */
-.qs-purple { background: linear-gradient(135deg, #f3e8ff, #e9d5ff); color: #7e22ce; border: 1px solid #d8b4fe; }
 
 .qs-table-wrap {
     border-radius: 20px;
@@ -475,15 +464,11 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .qs-row-pending { opacity: 0.5; color: #94a3b8; }
 .qs-row-leave { background-color: #fffafb !important; color: #e11d48; }
 
-/* =========================================================
-   อัปเดตดีไซน์ปุ่ม: ทรงแคปซูล (Pill-shaped) ธีมน้ำเงิน/เหลือง
-   ========================================================= */
-
 /* 1. ปุ่มปิดหน้าต่าง Modal */
 .close-modal {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 16px;
+    right: 16px;
     width: auto !important;
     height: 38px !important;
     padding: 0 16px !important;
@@ -525,11 +510,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .close-modal:hover::before { color: #d97706; }
 .close-modal:hover::after { color: var(--brand-dark); }
 .close-modal:active { transform: translateY(0) scale(0.95) !important; }
-
-/* 2. ปุ่ม "+ เพิ่มคนใหม่" ในหน้ารายชื่อ พขร. */
-#view-drivers .driver-header-flex .primary {
-    /* ใช้สไตล์สีน้ำเงินมาตรฐานจาก .primary โดยไม่ต้องมีขอบสีเหลือง */
-}
 
 /* 3. คลาสสำหรับปุ่ม Action (แก้ไข/ลบ) ทรงแคปซูล */
 .action-btn-pill {
@@ -586,34 +566,26 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     color: #0284c7 !important;
 }
 
-/* =========================================================
-   จัดกลุ่มรูปทรงปุ่ม (Button Shapes Standardization)
-   ========================================================= */
-/* กลุ่มที่ 1: ปุ่มกดหลัก (Main Action Buttons) -> ทรงแคปซูล (Pill) */
+/* จัดกลุ่มรูปทรงปุ่ม */
 .primary, .btn-leave, .btn-incomplete, .btn-secondary, 
 .btn-save, .btn-next, .tool-btn, .btn-verify, .cmp-month-btn, .collapse-btn {
     border-radius: 50px !important;
 }
 
-/* ปรับ Padding ชดเชยความโค้งให้ปุ่มกลุ่มแคปซูล */
 .tool-btn { padding: 8px 16px !important; min-width: 90px; }
 .btn-verify { padding: 6px 16px !important; }
 
-/* กลุ่มที่ 2: ปุ่มไอคอน (Icon Buttons) -> ทรงกลมสมบูรณ์ (Circle) */
 .action-btn, .cmp-nav-btn, .mini-btn { 
     border-radius: 50% !important; 
     aspect-ratio: 1;
 }
 
-/* กลุ่มที่ 3: ป้ายข้อมูล/ตัวแสดงผล (Badges & Chips) -> ขอบมน (Rounded Rectangle 8px)
-   (เปลี่ยนจากแคปซูลเป็นขอบมนปกติ เพื่อไม่ให้ข้อความดูอึดอัดเวลาแสดงผลในตาราง) */
 .pill, .pill-weekday, .pill-weekend, .time-range, 
 .break-chip, .note-chip, .ot-val {
     border-radius: 8px !important;
     padding: 4px 10px !important;
 }
 
-/* กลุ่มที่ 4: แป้นเครื่องคิดเลข -> สี่เหลี่ยมขอบมน (Squircle 16px) ให้กดง่ายเต็มมือ */
 .keys button {
     border-radius: 16px !important;
 }
@@ -689,8 +661,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                  </div>
               </div>
               <div>
-                <label>เวลาเข้า (เช่น 0730)</label>
-                <input type="tel" id="startTime" class="time-manual" placeholder="07:30" maxlength="5">
+                <label>เวลาเข้า (เช่น 0800)</label>
+                <input type="tel" id="startTime" class="time-manual" placeholder="08:00" maxlength="5">
               </div>
               <div>
                 <label>เวลาออก (เช่น 1700)</label>
@@ -727,7 +699,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                 </div>
                 <input type="text" id="historyMonthPicker" class="history-date-input-hidden" onchange="renderHistory()">
                 
-                <!-- [NEW] ปุ่ม ส่งออก Excel ย้ายมาที่มุมบนขวาของกรอบหัวข้อ -->
                 <button id="btnExportCSV" onclick="exportSummaryToCSV()" class="action-btn-pill" style="margin-left: auto; align-self: center; background:linear-gradient(to bottom, #fff, #ecfeff); border: 1px solid #a5f3fc; color:#0891b2; display:none; box-shadow:0 2px 4px rgba(8, 145, 178, 0.1); padding: 8px 16px; font-size: 0.95rem; font-weight: 700; align-items: center; gap: 6px;" title="ส่งออกข้อมูลสรุปเป็นไฟล์ CSV">
                     📥 ส่งออก Excel (CSV)
                 </button>
@@ -747,8 +718,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
              <button onclick="openIncompleteModal()" class="tool-btn" style="background:#f3e8ff; border-color:#d8b4fe; color:#7e22ce;" title="ระบุว่าส่งเอกสารมาไม่ครบ">⚠️ แจ้งขาด</button>
              <button onclick="openFollowUpSummary()" class="tool-btn" style="background:#fff7ed; border-color:#fed7aa; color:#ea580c;" title="สรุปรายการที่ต้องตาม">📋 สรุปตาม</button>
              <button id="btnToolbarVerify" onclick="toggleVerifyCurrentDriver()" class="tool-btn t-verify" title="ยืนยันตรวจสอบเอกสาร">⚪ รอตรวจสอบ</button>
-             
-             <!-- [NEW] ปุ่ม จัดการขั้นสูง ซ่อนรีเซ็ตและลบไว้ในนี้เพื่อป้องกันการกดพลาด -->
              <button onclick="openAdvancedModal()" class="tool-btn" style="background:#f8fafc; border-color:#cbd5e1; color:#475569;" title="การจัดการขั้นสูง (รีเซ็ต/ลบ)">⚙️ จัดการ</button>
         </div>
              
@@ -949,6 +918,17 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                 <label style="text-align:center; display:block; margin-bottom:10px;">วันที่ลา (จิ้มเลือกได้หลายวัน)</label>
                 <div id="leaveDaysGrid" class="day-grid"></div>
             </div>
+            <div>
+                <label>ประเภทการลา / หมายเหตุ</label>
+                <div class="quick-notes-wrapper">
+                    <div class="quick-notes">
+                        <div class="note-chip" onclick="document.getElementById('leaveNote').value='ลาพักผ่อน'">🏖️ ลาพักผ่อน</div>
+                        <div class="note-chip" onclick="document.getElementById('leaveNote').value='ลาป่วย'">🤒 ลาป่วย</div>
+                        <div class="note-chip" onclick="document.getElementById('leaveNote').value='ลากิจ'">📋 ลากิจ</div>
+                    </div>
+                </div>
+                <input type="text" id="leaveNote" class="mini-input" style="width:100%; text-align:left; font-weight:500;" placeholder="เช่น ลาพักผ่อน, ลาป่วย...">
+            </div>
         </div>
         <div style="margin-top:20px; display:flex; gap:10px;">
              <button onclick="saveLeaveReport()" class="primary" style="flex:1; background:var(--accent); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">บันทึกวันลา</button>
@@ -965,7 +945,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       </div>
   </div>
    
-  <!-- [NEW] เมนูจัดการขั้นสูงที่รวม "รีเซ็ต" และ "ลบ" เอาไว้ด้วยกัน -->
   <div id="advancedModal" class="modal">
       <div class="modal-content" style="text-align:center;">
           <span class="close-modal" onclick="closeAdvancedModal()">&times;</span>
@@ -983,7 +962,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       <div class="modal-content" style="text-align:center;">
           <span class="close-modal" onclick="closeResetModal()">&times;</span>
           <h2 style="color:var(--accent); margin-bottom:20px;">🧹 ต้องการรีเซ็ตค่าอะไรครับ?</h2>
-          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">การรีเซ็ตค่าจะเปลี่ยนเวลาเข้า-ออกกลับเป็น 07:30-17:00 และลบเวลา OT ทั้งหมดในเดือนนี้ (แต่ไม่ลบวันที่ทิ้ง)</p>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">การรีเซ็ตค่าจะเปลี่ยนเวลาเข้า-ออกกลับเป็น 08:00-17:00 และลบเวลา OT ทั้งหมดในเดือนนี้ (แต่ไม่ลบวันที่ทิ้ง)</p>
           <div style="display:flex; flex-direction:column; gap:12px;">
               <button id="btnResetMonth" onclick="resetCurrentMonth()" class="primary" style="width:100%; background:#fffbeb; color:#d97706; border:1px solid #fcd34d;">📅 รีเซ็ตเฉพาะเดือนนี้</button>
           </div>
@@ -1052,12 +1031,12 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
                   <thead>
                       <tr>
                           <th style="text-align:left; padding-left:20px;">วันที่</th>
-                          <th class="col-center">ประเภท</th>
-                          <th class="col-center">x1.5</th>
-                          <th class="col-center">x1</th>
-                          <th class="col-center">x3</th>
-                          <th class="col-center">ขอเบิก</th>
-                          <th class="col-center">สถานะ</th>
+                          <th>ประเภท</th>
+                          <th>x1.5</th>
+                          <th>x1</th>
+                          <th>x3</th>
+                          <th>ขอเบิก</th>
+                          <th>สถานะ</th>
                       </tr>
                   </thead>
                   <tbody id="quickSummaryList"></tbody>
@@ -1069,25 +1048,61 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 </div>
 
 <script>
-  /* ===== 1. Global Utilities & Helpers ===== */
   let currentHistoryMode = 'daily'; 
   let historyFilters = { daily: { month: null, driver: "" }, driver: { month: null, driver: "" } }; 
 
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwUpWVLQQ15Cpikdi-MgWiMb1RWRFv79lIXobeufSX4PosQpJpcEJcdI5ZPOziEEM1bFg/exec"; 
 
-  const CloudStorage = {
-      setItem: function(key, value) {
+const CloudStorage = {
+      syncQueue: [],
+      isSyncing: false,
+      isReady: false,
+      setItem: function(key, value, forceQueue = false) {
+          // [HOTFIX] บีบอัดข้อมูลก่อนเซฟ: ลบ HTML ขยะที่กินพื้นที่มหาศาลทิ้ง
+          // ป้องกันปัญหา Payload ใหญ่เกินจนชนโควต้า Cloud แล้วข้อมูลหาย
+          if (key === 'egat_ot_history') {
+              try {
+                  if (typeof otHistory !== 'undefined' && Array.isArray(otHistory)) {
+                      otHistory.forEach(item => {
+                          delete item.html;
+                          delete item.maxOTMinutes;
+                          delete item.dispTotalMinutes;
+                      });
+                      value = JSON.stringify(otHistory);
+                  }
+              } catch(e) {}
+          }
+
           try { localStorage.setItem(key, value); } catch(e) { console.warn("Local storage quota exceeded or disabled."); }
           if (key === 'egat_ot_draft' || key === 'egat_sidebar_collapsed') return; 
 
-          fetch(WEB_APP_URL, {
-              method: 'POST',
-              body: JSON.stringify({ key: key, value: value }),
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
-          }).catch(e => console.log('Cloud Sync Error:', e));
+          if (this.isReady || forceQueue) {
+              this.syncQueue.push({ key: key, value: value });
+              this.processQueue();
+          }
       },
       getItem: function(key) {
           try { return localStorage.getItem(key); } catch(e) { return null; }
+      },
+      processQueue: async function() {
+          if (this.isSyncing || this.syncQueue.length === 0) return;
+          this.isSyncing = true;
+          
+          while (this.syncQueue.length > 0) {
+              const task = this.syncQueue[0];
+              try {
+                  await fetch(WEB_APP_URL, {
+                      method: 'POST',
+                      body: JSON.stringify({ key: task.key, value: task.value }),
+                      headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
+                  });
+                  this.syncQueue.shift();
+              } catch (e) {
+                  console.log('Cloud Sync Error (จะทำการ Retry ในภายหลัง):', e);
+                  break; 
+              }
+          }
+          this.isSyncing = false;
       }
   };
 
@@ -1106,24 +1121,29 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
           const res = await fetch(WEB_APP_URL);
           const cloudData = await res.json();
 
+          CloudStorage.syncQueue = [];
+
           if (cloudData['egat_drivers']) {
               let fetchedDrivers = JSON.parse(cloudData['egat_drivers']);
               if (fetchedDrivers && fetchedDrivers.length > 0 && typeof fetchedDrivers[0] === 'string') {
                   drivers = fetchedDrivers.map(d => ({ id: Date.now() + Math.random(), name: d, nickname: '', phone: '', affiliation: '', department: '' }));
-                  CloudStorage.setItem('egat_drivers', JSON.stringify(drivers));
+                  CloudStorage.setItem('egat_drivers', JSON.stringify(drivers), true);
               } else {
                   drivers = fetchedDrivers || [];
-                  CloudStorage.setItem('egat_drivers', cloudData['egat_drivers']);
+                  try { localStorage.setItem('egat_drivers', cloudData['egat_drivers']); } catch(e){}
               }
           }
           if (cloudData['egat_ot_history']) {
               otHistory = JSON.parse(cloudData['egat_ot_history']);
-              CloudStorage.setItem('egat_ot_history', cloudData['egat_ot_history']);
+              try { localStorage.setItem('egat_ot_history', cloudData['egat_ot_history']); } catch(e){}
           }
           if (cloudData['egat_ot_verified_status']) {
               verifiedStatus = JSON.parse(cloudData['egat_ot_verified_status']);
-              CloudStorage.setItem('egat_ot_verified_status', cloudData['egat_ot_verified_status']);
+              try { localStorage.setItem('egat_ot_verified_status', cloudData['egat_ot_verified_status']); } catch(e){}
           }
+
+          CloudStorage.isReady = true;
+          CloudStorage.processQueue();
 
           if(emptyMsgLoading && emptyMsgNoData) {
               emptyMsgLoading.style.display = 'none';
@@ -1137,6 +1157,9 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       } catch (error) {
           console.error('โหลดข้อมูลคลาวด์ไม่สำเร็จ (ใช้ข้อมูลในเครื่องแทน):', error);
           
+          CloudStorage.isReady = true;
+          CloudStorage.processQueue();
+
           if(emptyMsgLoading && emptyMsgNoData) {
               emptyMsgLoading.style.display = 'none';
               emptyMsgNoData.style.display = 'block';
@@ -1155,7 +1178,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
           driver: document.getElementById('driverSelect')?.value || "",
           date: document.getElementById('workDate')?.value || "",
           type: typeEl ? typeEl.value : 'weekday',
-          start: document.getElementById('startTime')?.value || "07:30",
+          start: document.getElementById('startTime')?.value || "08:00",
           end: document.getElementById('endTime')?.value || "17:00"
       };
       CloudStorage.setItem('egat_ot_draft', JSON.stringify(draft));
@@ -1306,14 +1329,11 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
           let rowData = [];
           cols.forEach((col, idx) => {
               let text = col.innerText.replace(/(\r\n|\n|\r)/gm, " ").trim();
-              
               text = text.replace(/✏️|✅|⚪|⚠️|🗑️/g, "").trim();
-              
               if (idx === 8) {
                   if (text.includes("ตรวจสอบแล้ว")) text = "ตรวจสอบแล้ว";
                   else if (text.includes("รอตรวจสอบ")) text = "รอตรวจสอบ";
               }
-              
               if (text.includes(",")) text = `"${text}"`;
               rowData.push(text);
           });
@@ -1333,7 +1353,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       document.body.removeChild(link);
   };
 
-  // [NEW] ฟังก์ชันสำหรับการจัดการ Modal การตั้งค่าขั้นสูง
   window.openAdvancedModal = function() {
       document.getElementById('advancedModal').classList.add('show');
   };
@@ -1352,7 +1371,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       const customMonthModal = document.getElementById('customMonthPickerModal');
       const backupModal = document.getElementById('backupModal');
       const quickSummaryModal = document.getElementById('quickSummaryModal');
-      const advancedModal = document.getElementById('advancedModal'); // [NEW]
+      const advancedModal = document.getElementById('advancedModal'); 
       const leaveModal = document.getElementById('leaveModal');
       
       if (event.target == modal) closeModal();
@@ -1366,7 +1385,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       if (event.target == customMonthModal) closeCustomMonthPicker();
       if (event.target == backupModal) closeBackupModal();
       if (event.target == quickSummaryModal) closeQuickSummaryModal();
-      if (event.target == advancedModal) closeAdvancedModal(); // [NEW]
+      if (event.target == advancedModal) closeAdvancedModal(); 
       
       if (!event.target.closest('#historyTitleBtn')) {
           const menu = document.getElementById('summaryMenu');
@@ -1629,7 +1648,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
       return name.replace(/^#\d+\s+/, "").trim();
   }
 
-/* ===== 2. Global State & Data Logic ===== */
   let currentCalcResult = null; 
   let otHistory = [];
   let rawDrivers = JSON.parse(CloudStorage.getItem('egat_drivers'));
@@ -2139,19 +2157,22 @@ function renderDrivers() {
       let body = '';
 
       let dispTotal = 0;
+      let maxOT = 0;
       let totalBoxTop = '';
 
       if (type === 'weekday') {
-          dispTotal = Math.max(0, totalMinutes - WORKDAY_MINUTES);
+          dispTotal = totalMinutes; 
+          maxOT = wkResult.total15 || 0; 
           totalBoxTop = `<div class="total-line"><span class="k">รวม ×1.5</span><span class="v ot-editable" id="disp_total15" onclick="editLiveOTHours('15')" title="คลิกเพื่อระบุเวลา x1.5 ด้วยตนเอง">${fmt(wkResult.total15)} ✏️</span></div>`;
       } else {
           const ot1 = wkResult.totals[1] || 0;
           const ot3 = wkResult.totals[3] || 0;
-          dispTotal = wkResult.totalMinutes;
+          dispTotal = wkResult.totalMinutes; 
+          maxOT = ot1 + ot3;
           totalBoxTop = `<div class="total-line"><span class="k">รวม ×1</span><span class="v ot-editable" id="disp_total1" onclick="editLiveOTHours('1')" title="คลิกเพื่อระบุเวลา x1 ด้วยตนเอง">${fmt(ot1)} ✏️</span></div><div class="total-line"><span class="k">รวม ×3</span><span class="v ot-editable" id="disp_total3" onclick="editLiveOTHours('3')" title="คลิกเพื่อระบุเวลา x3 ด้วยตนเอง">${fmt(ot3)} ✏️</span></div>`;
       }
 
-      const maxHours = dispTotal / 60;
+      const maxHours = maxOT / 60;
       const maxHoursClean = maxHours % 1 === 0 ? maxHours : maxHours.toFixed(2);
       
       const reqHtml = `
@@ -2193,15 +2214,14 @@ function renderDrivers() {
       if(endMin>=MIN(19,30)) totalMinutes-=DINNER_BREAK_MIN;
 
       const timeRange = `${fmtTime(startMin)} - ${fmtTime(endMin)}`;
-      let ot15=0, ot1=0, ot3=0, html = '', maxOTMinutes = 0;
-      let dispTotalMinutes = 0;
+      let ot15=0, ot1=0, ot3=0, html = '', maxOTMinutes = 0, dispTotalMinutes = 0;
 
       if(type === 'weekday'){
           const wk15 = computeWeekday15(startMin, endMin); 
           ot15 = wk15.total15; 
           html = generateResultHTML(type, dateVal, startMin, endMin, totalMinutes, wk15);
           maxOTMinutes = wk15.total15;
-          dispTotalMinutes = Math.max(0, totalMinutes - WORKDAY_MINUTES);
+          dispTotalMinutes = totalMinutes; 
       } else {
           const wk = computeWeekend(startMin, endMin);
           ot1 = wk.totals[1] || 0;
@@ -2302,7 +2322,7 @@ function renderDrivers() {
   function resetFormForNext() {
     CloudStorage.setItem('egat_ot_draft', ""); 
     document.getElementById('driverSelect').value = ''; 
-    document.getElementById('startTime').value = '07:30';
+    document.getElementById('startTime').value = '08:00';
     document.getElementById('endTime').value    = '17:00';
     document.getElementById('result').innerHTML = '';
     document.getElementById('saveSection').style.display = 'none';
@@ -2361,7 +2381,7 @@ function renderDrivers() {
           newResult.baseOt3 = newResult.ot3;
 
           let oldReq = parseFloat(originalItem.requestOT);
-          let newMaxHr = newResult.dispTotalMinutes / 60;
+          let newMaxHr = newResult.maxOTMinutes / 60;
           
           if (!isNaN(oldReq) && oldReq <= newMaxHr && !originalItem.isPending) {
               newResult.requestOT = oldReq;
@@ -2491,7 +2511,7 @@ function renderDrivers() {
           if(isMatch) {
               item.isPending = true; item.isLeave = false;
               delete item.leaveType; delete item.isIncomplete; delete item.incompleteReason;
-              item.start = '07:30'; item.end = '17:00'; item.ot15 = 0; item.ot1 = 0; item.ot3 = 0; item.requestOT = 0;
+              item.start = '08:00'; item.end = '17:00'; item.ot15 = 0; item.ot1 = 0; item.ot3 = 0; item.requestOT = 0;
               count++;
           }
       });
@@ -2593,7 +2613,7 @@ function renderDrivers() {
       const item = otHistory.find(x => x.id === id);
       if(!item) return;
       item.isPending = true;
-      item.start = '07:30';
+      item.start = '08:00';
       item.end = '17:00';
       item.ot15 = 0;
       item.ot1 = 0;
@@ -2604,18 +2624,18 @@ function renderDrivers() {
   }
 
 function openIncompleteModal() {
-  let driverName = getPlainName(getEffectiveDriver());
+  let driverName = getPlainName(document.getElementById('historyDriverFilter').value);
+  if (!driverName) {
+      driverName = getPlainName(document.getElementById('driverSelect').value);
+  }
   
   if (!driverName) {
       alert('⚠️ กรุณาเลือก "พขร." ที่ต้องการแจ้งขาดก่อนครับ\n(เลือกที่ตัวกรองขวาบน หรือที่หน้าคำนวณก็ได้)');
       return;
   }
 
-  let monthVal = "";
-  const historyView = document.getElementById('view-history');
-  if (historyView && historyView.classList.contains('active')) {
-      monthVal = document.getElementById('historyMonthPicker').value; 
-  } else {
+  let monthVal = document.getElementById('historyMonthPicker').value; 
+  if (!monthVal) {
       const workDateVal = document.getElementById('workDate').value;
       if (workDateVal) {
           monthVal = workDateVal.substring(0, 7);
@@ -2623,7 +2643,7 @@ function openIncompleteModal() {
   }
   
   if (!monthVal) {
-      alert('⚠️ กรุณาเลือก "เดือน" หรือ "วันที่" ที่ต้องการบันทึกก่อนครับ');
+      alert('⚠️ กรุณาเลือก "เดือน" ที่ต้องการบันทึกก่อนครับ');
       return;
   }
 
@@ -2664,9 +2684,8 @@ function closeIncompleteModal() {
       if(confirm('ได้รับเอกสารครบถ้วนแล้วใช่หรือไม่?')) {
           const item = otHistory.find(x => x.id === id);
           if(!item) return;
-          // แก้ไขบั๊ก: ไม่ให้ดึงชื่อจาก incDriverSelect มาทับ ป้องกันการเปลี่ยนชื่อผิดคน
-          delete item.isIncomplete; 
-          delete item.incompleteReason;
+          item.driver = document.getElementById('incDriverSelect').value || item.driver;
+          delete item.isIncomplete; delete item.incompleteReason;
           try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
           renderHistory();
       }
@@ -2715,14 +2734,10 @@ function closeIncompleteModal() {
               existingItem.incompleteReason = note;
               updatedCount++;
           } else {
-               const dObj = new Date(dateString);
-               const dayOfWeek = dObj.getDay();
-               const typeStr = (dayOfWeek === 0 || dayOfWeek === 6) ? 'weekend' : 'weekday';
-
                const newItem = {
-                  id: Date.now() + Math.random(), date: dateString, type: typeStr, driver: driverName,
+                  id: Date.now() + Math.random(), date: dateString, type: 'weekday', driver: driverName,
                   isPending: true, isIncomplete: true, incompleteReason: note,
-                  ot15: 0, ot1: 0, ot3: 0, start: '07:30', end: '17:00', requestOT: 0
+                  ot15: 0, ot1: 0, ot3: 0, start: '08:00', end: '17:00', requestOT: 0
               };
               otHistory.push(newItem);
               newCount++;
@@ -2940,7 +2955,7 @@ function closeIncompleteModal() {
                       driver: drvName, 
                       isPending: true, 
                       ot15: 0, ot1: 0, ot3: 0, 
-                      start: '07:30', end: '17:00', requestOT: 0 
+                      start: '08:00', end: '17:00', requestOT: 0 
                   };
                   otHistory.push(pendingItem);
                   addedCount++;
@@ -2977,7 +2992,7 @@ function closeIncompleteModal() {
       if(isChecked) {
           item.isLeave = true; item.leaveType = 'la'; item.ot15 = 0; item.ot1 = 0; item.ot3 = 0; item.requestOT = 0; item.start = '-'; item.end = '-';
       } else {
-          item.isLeave = false; item.isPending = true; item.leaveType = undefined; item.start = '07:30'; item.end = '17:00'; item.requestOT = 0;
+          item.isLeave = false; item.isPending = true; item.leaveType = undefined; item.start = '08:00'; item.end = '17:00'; item.requestOT = 0;
       }
       try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
       renderHistory();
@@ -3105,7 +3120,7 @@ function closeIncompleteModal() {
   function resetOT() {
     const s = document.getElementById('startTime');
     const e = document.getElementById('endTime');
-    if(s) s.value = '07:30';
+    if(s) s.value = '08:00';
     if(e) e.value = '17:00';
     
     const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Bangkok"}));
@@ -3256,7 +3271,7 @@ function closeIncompleteModal() {
 
                 let missingHtml = '-';
                 if(data.missingCount > 0) {
-                    missingHtml = `<button style="width: 100%; background: linear-gradient(135deg, #f3e8ff, #e9d5ff); color: #7e22ce; border: 1px solid #d8b4fe; padding: 6px 12px; border-radius: 50px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 4px rgba(126, 34, 206, 0.1); font-family: inherit;" onclick="viewDriverMissing('${name}')" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 6px rgba(126, 34, 206, 0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(126, 34, 206, 0.1)'" title="คลิกเพื่อดูรายละเอียด">⚠️ ขาด ${data.missingCount}</button>`;
+                    missingHtml = `<span style="background:#fef2f2; color:#ef4444; padding:4px 10px; border-radius:99px; font-weight:700; font-size:0.8rem; border:1px solid #fca5a5; cursor:pointer; transition:transform 0.2s;" onclick="viewDriverMissing('${name}')" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="คลิกเพื่อดูรายละเอียด">⚠️ ขาด ${data.missingCount}</span>`;
                 }
 
                 const monthKey = targetYear !== null ? `${targetYear}-${String(targetMonth+1).padStart(2,'0')}` : "";
@@ -3283,7 +3298,6 @@ function closeIncompleteModal() {
                     ${clearDriverBtnHtml}
                 </div>`;
 
-                // [NEW] ทำให้ชื่อคลิกได้สำหรับฟังก์ชัน Drill-down
                 tr.innerHTML = `
                     <td class="col-center" style="font-weight:bold; color:#cbd5e1;">${displayIndex}</td>
                     <td style="font-weight:700; color:${data.isGhost ? 'var(--danger)' : 'var(--brand)'}; font-size:0.95rem; white-space:nowrap; cursor:pointer; text-decoration:underline; transition:all 0.2s;" onclick="openQuickSummaryModal('${name}', ${targetYear}, ${targetMonth !== null ? targetMonth + 1 : 'null'})" onmouseover="this.style.color='#0284c7'" onmouseout="this.style.color='${data.isGhost ? 'var(--danger)' : 'var(--brand)'}'" title="คลิกเพื่อดูประวัติรายวันของ ${name}">${name} ${data.isGhost ? ' <small style="font-weight:400;color:#94a3b8;">(เกินระบบ)</small>' : ''}</td>
@@ -3454,7 +3468,7 @@ function closeIncompleteModal() {
                             <td class="col-center" style="vertical-align:middle;">${pillHtml}</td>
                             <td class="col-center" colspan="4">
                                 <div class="edit-row-wrap" style="gap:4px;">
-                                    <input type="tel" id="editStart" value="${item.start || '07:30'}" class="mini-input" style="width:70px;"><span>-</span><input type="tel" id="editEnd" value="${item.end || '17:00'}" class="mini-input" style="width:70px;">
+                                    <input type="tel" id="editStart" value="${item.start || '08:00'}" class="mini-input" style="width:70px;"><span>-</span><input type="tel" id="editEnd" value="${item.end || '17:00'}" class="mini-input" style="width:70px;">
                                     <button onclick="saveInline(${id})" class="mini-btn ok">✔</button>
                                     <button onclick="cancelInline()" class="mini-btn cancel">✖</button>
                                 </div>
@@ -3547,7 +3561,7 @@ function closeIncompleteModal() {
                     document.getElementById('workDate').value = draft.date || '';
                     syncDateDisplay('workDate', 'workDateShow');
                 }
-                if(document.getElementById('startTime')) document.getElementById('startTime').value = draft.start || '07:30';
+                if(document.getElementById('startTime')) document.getElementById('startTime').value = draft.start || '08:00';
                 if(document.getElementById('endTime')) document.getElementById('endTime').value = draft.end || '17:00';
                 
                 updateThaiDateDisplay();
@@ -3673,25 +3687,8 @@ function closeIncompleteModal() {
                 const existingIndex = otHistory.findIndex(item => 
                     item.date === currentCalcResult.date && (getPlainName(item.driver) === currentCalcResult.driver)
                 );
-                
-                if(existingIndex !== -1) { 
-                    const oldItem = otHistory[existingIndex];
-                    currentCalcResult.id = oldItem.id; 
-                    
-                    if (oldItem.isIncomplete) {
-                        currentCalcResult.isIncomplete = true;
-                        currentCalcResult.incompleteReason = oldItem.incompleteReason;
-                    }
-                    if (oldItem.isLeave) {
-                        currentCalcResult.isLeave = true;
-                        currentCalcResult.leaveType = oldItem.leaveType;
-                    }
-                    
-                    otHistory[existingIndex] = currentCalcResult; 
-                } else { 
-                    otHistory.push(currentCalcResult); 
-                }
-                
+                if(existingIndex !== -1) { currentCalcResult.id = otHistory[existingIndex].id; otHistory[existingIndex] = currentCalcResult; } 
+                else { otHistory.push(currentCalcResult); }
                 sortHistory(); 
                 try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); const btn = document.getElementById('btnSaveLog'); btn.innerHTML = '✅ บันทึกเรียบร้อย'; btn.disabled = true; btn.style.background = '#64748b'; updateBadge(); renderHistory(); } catch(e) { alert('บันทึกไม่สำเร็จ (Storage เต็ม)'); }
             });
@@ -3759,7 +3756,7 @@ function closeIncompleteModal() {
                 closeCustomMonthPicker();
                 closeBackupModal();
                 closeQuickSummaryModal();
-                closeAdvancedModal(); // [NEW]
+                closeAdvancedModal(); 
                 
                 if(editingRowId !== null) {
                     cancelInline();
@@ -3884,12 +3881,11 @@ function closeIncompleteModal() {
 
   /* Actions Trigger in main calculation UI */
   window.openLeaveModal = function() {
-      const driverName = getPlainName(getEffectiveDriver());
-
-      if (!driverName) { alert('⚠️ กรุณาระบุชื่อ พขร. ก่อนครับ'); return; }
-      
+      const driverInput = document.getElementById('driverSelect').value;
+      const driverName = getPlainName(driverInput);
       let dateVal = document.getElementById('workDate').value;
 
+      if (!driverName) { alert('⚠️ กรุณาระบุชื่อ พขร. ด้านบนก่อนครับ'); return; }
       if (!dateVal) { 
           dateVal = new Date().toISOString().substring(0, 10);
       }
@@ -3904,6 +3900,7 @@ function closeIncompleteModal() {
           displayEl.innerHTML = `<div style="font-size:1.1rem; margin-bottom:4px;">👤 ${driverName}</div><div style="font-size:0.95rem; opacity:0.8;">📅 เดือน ${getThaiMonthYearFull(monthVal)}</div>`;
       }
 
+      document.getElementById('leaveNote').value = 'ลาพักผ่อน'; 
       renderLeaveDays(); 
       document.getElementById('leaveModal').classList.add('show');
   };
@@ -3931,6 +3928,7 @@ function closeIncompleteModal() {
   window.saveLeaveReport = function() {
       const driver = document.getElementById('leaveDriverSelect').value;
       const monthVal = document.getElementById('leaveMonth').value;
+      const note = document.getElementById('leaveNote').value.trim() || 'ลา';
       const selectedEls = document.querySelectorAll('#leaveDaysGrid .day-item.selected');
       let targetDays = [];
       selectedEls.forEach(el => targetDays.push(parseInt(el.textContent)));
@@ -3968,6 +3966,8 @@ function closeIncompleteModal() {
               isPending: false,
               isLeave: true,
               leaveType: 'la',
+              isIncomplete: true,
+              incompleteReason: note, 
               ot15: 0, ot1: 0, ot3: 0, requestOT: 0, start: '-', end: '-'
           };
 
@@ -4022,7 +4022,7 @@ function closeIncompleteModal() {
       
       document.getElementById('quickSummaryTitle').innerHTML = `📊 สรุปรายการของ ${driverName}`;
       
-      let total15 = 0, total1 = 0, total3 = 0, totalReq = 0, totalLeave = 0;
+      let total15 = 0, total1 = 0, total3 = 0, totalReq = 0;
       const filteredHistory = otHistory.filter(item => {
           if (getPlainName(item.driver) !== driverName) return false;
           const d = new Date(item.date);
@@ -4037,9 +4037,7 @@ function closeIncompleteModal() {
       } else {
           filteredHistory.sort((a,b) => new Date(a.date) - new Date(b.date));
           filteredHistory.forEach(item => {
-              if (item.isLeave) {
-                  totalLeave++;
-              } else if (!item.isPending) {
+              if (!item.isPending && !item.isLeave) {
                   total15 += item.ot15 || 0;
                   total1 += item.ot1 || 0;
                   total3 += item.ot3 || 0;
@@ -4050,7 +4048,7 @@ function closeIncompleteModal() {
               let statusHtml = item.isPending ? '<span style="color:#94a3b8; font-size:0.8rem; background:#f1f5f9; padding:2px 8px; border-radius:8px;">แบบร่าง</span>' : (item.isLeave ? '<span style="color:#ef4444; font-size:0.8rem; background:#fef2f2; padding:2px 8px; border-radius:8px;">ลา</span>' : '<span style="color:#10b981; font-size:0.8rem; background:#ecfdf5; padding:2px 8px; border-radius:8px;">บันทึกแล้ว</span>');
               
               if(item.isIncomplete) {
-                  statusHtml += `<div style="color:#7e22ce; background:#f3e8ff; border:1px dashed #d8b4fe; padding:2px 6px; border-radius:6px; font-size:0.75rem; margin-top:4px; display:inline-block; line-height:1.2;">⚠️ ${item.incompleteReason || 'ขาดเอกสาร'}</div>`;
+                  statusHtml += '<div style="color:#d97706; font-size:0.75rem; margin-top:2px;">⚠️ ขาดเอกสาร</div>';
               }
 
               listBody.innerHTML += `
@@ -4068,11 +4066,10 @@ function closeIncompleteModal() {
       }
 
       document.getElementById('quickSummaryBadges').innerHTML = `
-          <div class="qs-stat-card qs-blue"><div class="qs-lbl">OT x1.5</div><div class="qs-val" style="font-size:1.4rem;">${fmtShort(total15)} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
-          <div class="qs-stat-card qs-cyan"><div class="qs-lbl">OT x1</div><div class="qs-val" style="font-size:1.4rem;">${fmtShort(total1)} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
-          <div class="qs-stat-card qs-rose"><div class="qs-lbl">OT x3</div><div class="qs-val" style="font-size:1.4rem;">${fmtShort(total3)} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
-          <div class="qs-stat-card qs-primary"><div class="qs-lbl">ขอเบิกสะสม</div><div class="qs-val" style="font-size:1.4rem;">${(Math.round(totalReq*10)/10).toString().replace('.0','')} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
-          <div class="qs-stat-card qs-amber"><div class="qs-lbl">รวมวันลา</div><div class="qs-val" style="font-size:1.4rem;">${totalLeave} <span style="font-size:0.8rem; font-weight:normal;">วัน</span></div></div>
+          <div class="qs-stat-card qs-blue"><div class="qs-lbl">OT x1.5</div><div class="qs-val">${fmtShort(total15)} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
+          <div class="qs-stat-card qs-cyan"><div class="qs-lbl">OT x1</div><div class="qs-val">${fmtShort(total1)} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
+          <div class="qs-stat-card qs-rose"><div class="qs-lbl">OT x3</div><div class="qs-val">${fmtShort(total3)} <span style="font-size:0.8rem; font-weight:normal;">ชม.</span></div></div>
+          <div class="qs-stat-card qs-primary"><div class="qs-lbl">ขอเบิกสะสม</div><div class="qs-val" style="font-size:1.6rem;">${(Math.round(totalReq*10)/10).toString().replace('.0','')} <span style="font-size:0.9rem; font-weight:normal;">ชม.</span></div></div>
       `;
 
       document.getElementById('quickSummaryModal').classList.add('show');
