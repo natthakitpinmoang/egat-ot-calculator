@@ -1311,212 +1311,34 @@ const CloudStorage = {
       reader.readAsText(file);
   }
 
-  window.exportSummaryToCSV = function() {
+ window.exportSummaryToCSV = function() {
+      if (currentHistoryMode !== 'driver') {
+          alert('⚠️ ฟังก์ชันนี้ใช้ได้เฉพาะในโหมด "2. สรุป พขร. (ยอดรวม)" เท่านั้นครับ\nกรุณาเปลี่ยนโหมดก่อนทำการส่งออกครับ');
+          return;
+      }
+      
+      let csvContent = "\uFEFF"; 
+      const headers = ["ลำดับ", "ชื่อ พขร.", "OT x1.5 (ชม.)", "OT x1 (ชม.)", "OT x3 (ชม.)", "รวมเวลาทำจริง (ชม.)", "ขอเบิก OT (ชม.)", "จำนวนวันลา", "สถานะ"];
+      csvContent += headers.join(",") + "\n";
+      
+      const rows = document.querySelectorAll('#historyList tr');
+      rows.forEach(row => {
+          const cols = row.querySelectorAll('td');
+          if(cols.length < 9) return;
+          
+          let rowData = [];
+cols.forEach((col, idx) => {
+    let text = col.innerText.replace(/(\r\n|\n|\r)/gm, " ").trim();
+    text = text.replace(/✏️|✅|⚪|⚠️|🗑️/g, "").trim();
 
-    // =====================================================
-    // ตรวจสอบโหมด
-    // =====================================================
-    if (currentHistoryMode !== 'driver') {
-        alert(
-            '⚠️ ฟังก์ชันนี้ใช้ได้เฉพาะในโหมด "2. สรุป พขร. (ยอดรวม)" เท่านั้นครับ\n' +
-            'กรุณาเปลี่ยนโหมดก่อนทำการส่งออกครับ'
-        );
-        return;
+    if (idx === 8) {
+        if (text.includes("ตรวจสอบแล้ว")) text = "ตรวจสอบแล้ว";
+        else if (text.includes("รอตรวจสอบ")) text = "รอตรวจสอบ";
     }
 
-    // =====================================================
-    // CSV Header
-    // =====================================================
-    let csvContent = "\uFEFF";
-
-    const headers = [
-        "ลำดับ",
-        "ชื่อ พขร.",
-        "OT x1.5 (ชม.)",
-        "OT x1 (ชม.)",
-        "OT x3 (ชม.)",
-        "รวมเวลาทำจริง (ชม.)",
-        "ขอเบิก OT (ชม.)",
-        "จำนวนวันลา",
-        "สถานะ"
-    ];
-
-    csvContent += headers.join(",") + "\n";
-
-
-    // =====================================================
-    // อ่านข้อมูลจากตาราง
-    // =====================================================
-    const rows = document.querySelectorAll("#historyList tr");
-
-    rows.forEach(row => {
-
-        const cols = row.querySelectorAll("td");
-
-        if (cols.length < 9) {
-            return;
-        }
-
-        let rowData = [];
-
-
-        cols.forEach((col, idx) => {
-
-            let text = col.innerText
-                .replace(/(\r\n|\n|\r)/gm, " ")
-                .replace(/\s+/g, " ")
-                .trim();
-
-
-            // =================================================
-            // ลบ Emoji
-            // =================================================
-            text = text
-                .replace(/✏️|✅|⚪|⚠️|🗑️/g, "")
-                .trim();
-
-
-            // =================================================
-            // คอลัมน์ตัวเลข
-            //
-            // idx:
-            // 0 = ลำดับ
-            // 1 = ชื่อ
-            // 2 = OT x1.5
-            // 3 = OT x1
-            // 4 = OT x3
-            // 5 = รวม
-            // 6 = ขอเบิก
-            // 7 = วันลา
-            // 8 = สถานะ
-            // =================================================
-            if (idx >= 2 && idx <= 7) {
-
-                // ลบ comma และช่องว่างที่ไม่ใช่ตัวเลข
-                let cleanNumber = text
-                    .replace(/,/g, "")
-                    .trim();
-
-
-                // ---------------------------------------------
-                // ถ้าเป็น "-", "–", "—", "−", ว่าง
-                // หรือไม่ใช่ตัวเลข
-                // ให้เป็น 0
-                // ---------------------------------------------
-                if (
-                    cleanNumber === "" ||
-                    cleanNumber === "-" ||
-                    cleanNumber === "–" ||
-                    cleanNumber === "—" ||
-                    cleanNumber === "−" ||
-                    !isFinite(Number(cleanNumber))
-                ) {
-                    text = "0";
-                }
-                else {
-
-                    // แปลงเป็นตัวเลขจริง
-                    const numberValue = Number(cleanNumber);
-
-                    // ป้องกัน -0
-                    if (Object.is(numberValue, -0)) {
-                        text = "0";
-                    }
-                    else {
-                        text = String(numberValue);
-                    }
-                }
-            }
-
-
-            // =================================================
-            // สถานะ
-            // =================================================
-            if (idx === 8) {
-
-                if (text.includes("ตรวจสอบแล้ว")) {
-                    text = "ตรวจสอบแล้ว";
-                }
-                else if (text.includes("รอตรวจสอบ")) {
-                    text = "รอตรวจสอบ";
-                }
-            }
-
-
-            // =================================================
-            // ป้องกัน comma ในชื่อ/สถานะ
-            // =================================================
-            if (text.includes(",")) {
-                text = `"${text.replace(/"/g, '""')}"`;
-            }
-
-
-            rowData.push(text);
-
-        });
-
-
-        // =====================================================
-        // เพิ่มแถวลง CSV
-        // =====================================================
-        csvContent += rowData.join(",") + "\n";
-
-    });
-
-
-    // =====================================================
-    // ชื่อไฟล์
-    // =====================================================
-    const displayDateElement =
-        document.getElementById("historyDateDisplay");
-
-    const displayDate =
-        displayDateElement
-            ? displayDateElement.innerText
-                .replace(/\s+/g, "_")
-                .trim()
-            : "Export";
-
-
-    const fileName =
-        `Summary_OT_Report_${displayDate}.csv`;
-
-
-    // =====================================================
-    // ดาวน์โหลดไฟล์
-    // =====================================================
-    const blob = new Blob(
-        [csvContent],
-        {
-            type: "text/csv;charset=utf-8;"
-        }
-    );
-
-
-    const url =
-        URL.createObjectURL(blob);
-
-
-    const link =
-        document.createElement("a");
-
-
-    link.href = url;
-    link.download = fileName;
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    document.body.removeChild(link);
-
-
-    // คืน Memory
-    setTimeout(() => {
-        URL.revokeObjectURL(url);
-    }, 1000);
-
-};
+    if (text.includes(",")) text = `"${text}"`;
+    rowData.push(text);
+});
       
       const displayDate = document.getElementById('historyDateDisplay').innerText.replace(/\s+/g, '_');
       const fileName = `Summary_OT_Report_${displayDate}.csv`;
