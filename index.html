@@ -1311,7 +1311,7 @@ const CloudStorage = {
       reader.readAsText(file);
   }
 
- window.exportSummaryToCSV = function() {
+  window.exportSummaryToCSV = function() {
       if (currentHistoryMode !== 'driver') {
           alert('⚠️ ฟังก์ชันนี้ใช้ได้เฉพาะในโหมด "2. สรุป พขร. (ยอดรวม)" เท่านั้นครับ\nกรุณาเปลี่ยนโหมดก่อนทำการส่งออกครับ');
           return;
@@ -1327,18 +1327,18 @@ const CloudStorage = {
           if(cols.length < 9) return;
           
           let rowData = [];
-cols.forEach((col, idx) => {
-    let text = col.innerText.replace(/(\r\n|\n|\r)/gm, " ").trim();
-    text = text.replace(/✏️|✅|⚪|⚠️|🗑️/g, "").trim();
-
-    if (idx === 8) {
-        if (text.includes("ตรวจสอบแล้ว")) text = "ตรวจสอบแล้ว";
-        else if (text.includes("รอตรวจสอบ")) text = "รอตรวจสอบ";
-    }
-
-    if (text.includes(",")) text = `"${text}"`;
-    rowData.push(text);
-});
+          cols.forEach((col, idx) => {
+              let text = col.innerText.replace(/(\r\n|\n|\r)/gm, " ").trim();
+              text = text.replace(/✏️|✅|⚪|⚠️|🗑️/g, "").trim();
+              if (idx === 8) {
+                  if (text.includes("ตรวจสอบแล้ว")) text = "ตรวจสอบแล้ว";
+                  else if (text.includes("รอตรวจสอบ")) text = "รอตรวจสอบ";
+              }
+              if (text.includes(",")) text = `"${text}"`;
+              rowData.push(text);
+          });
+          csvContent += rowData.join(",") + "\n";
+      });
       
       const displayDate = document.getElementById('historyDateDisplay').innerText.replace(/\s+/g, '_');
       const fileName = `Summary_OT_Report_${displayDate}.csv`;
