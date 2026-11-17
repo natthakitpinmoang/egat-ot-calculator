@@ -2806,12 +2806,8 @@ function toggleVerification(driverName) {
 
   function updateBadge() {
     const badge = document.getElementById('historyCount');
-    if(otHistory.length > 0) {
-        badge.innerText = otHistory.length;
-        badge.style.display = 'inline-block';
-    } else {
-        badge.style.display = 'none';
-    }
+    if (!badge) return;
+    badge.style.display = 'none';
   }
 
 function renderDrivers() {
