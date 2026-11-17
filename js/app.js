@@ -2216,6 +2216,12 @@ window.saveProfile = function() {
       const sel = document.getElementById('adminStatusFilter');
       if (sel) sel.value = adminTableFilter;
   };
+  window.filterAdminStatus = function(val) {
+      adminTableFilter = (adminTableFilter === val) ? 'all' : (val || 'all');
+      const sel = document.getElementById('adminStatusFilter');
+      if (sel) sel.value = adminTableFilter;
+      renderAdminDashboard();
+  };
 
   function getActiveMonthParts() {
       const mk = getAdminMonthKey();
@@ -2402,30 +2408,51 @@ window.saveProfile = function() {
       const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
       set('kpiDrivers', String(names.length));
       set('kpiDriversSub', 'ทั้งหมด ' + (drivers || []).length + ' คนในระบบ');
-      // การ์ดเตือน: นับ "คน" (เฉพาะเดือนที่เลือก) พร้อมสีเตือนเมื่อมีค้าง
-      set('kpiPending', String(flaggedCnt));
-      if (flaggedCnt > 0) {
-          const parts = [];
-          if (incompletePeople > 0) parts.push('เอกสารไม่ครบ ' + incompletePeople + ' คน');
-          if (notSubmitted > 0) parts.push('ยังไม่ยื่น ' + notSubmitted + ' คน');
-          set('kpiPendingSub', parts.join(' + '));
-      } else {
-          set('kpiPendingSub', 'ทุกคนยื่นครบในเดือนนี้');
-      }
+
+      // การ์ด 1: แจ้งเตือนเมื่อมี พขร. ขาดเอกสาร หรือ ยังไม่ยื่น
       const flagCard = document.getElementById('kpiFlagCard');
-      const flagVal = document.getElementById('kpiPending');
-      if (flagCard) flagCard.classList.toggle('kpi-warn', flaggedCnt > 0);
-      if (flagVal) flagVal.style.color = flaggedCnt > 0 ? '#dc2626' : '';
+      const flagText = document.getElementById('kpiPendingText');
+      if (flagCard) {
+          if (flaggedCnt > 0) {
+              flagCard.style.display = 'block';
+              const parts = [];
+              if (incompletePeople > 0) parts.push('ขาดเอกสาร ' + incompletePeople + ' คน');
+              if (notSubmitted > 0) parts.push('ยังไม่ยื่น ' + notSubmitted + ' คน');
+              if (flagText) flagText.textContent = '⚠️ ' + parts.join(' / ');
+          } else {
+              flagCard.style.display = 'none';
+          }
+      }
+      set('kpiPending', String(flaggedCnt));
+
+      // การ์ด 2: OT Hours
       set('kpiTotalHours', ((s15 + s1 + s3) / 60).toFixed(1));
       set('kpiOt15', (s15 / 60).toFixed(1));
       set('kpiOt1', (s1 / 60).toFixed(1));
       set('kpiOt3', (s3 / 60).toFixed(1));
-      set('kpiLeaveDays', leaveSum + ' วัน');                     // 🏖️ ยอดวันลาเดือนนี้
-      // การ์ดที่ 4: แสดงครบทั้ง 3 สถานะ + สัดส่วนด้านล่าง
+
+      // การ์ด 3: วันลา
+      set('kpiLeaveDays', String(leaveSum));
+
+      // การ์ด 4: ความคืบหน้าการอนุมัติ & Progress Bar
+      const pct = names.length > 0 ? Math.round((verifiedCnt / names.length) * 100) : 0;
+      set('kpiPercent', pct + '%');
+      const progBar = document.getElementById('kpiProgressBar');
+      if (progBar) progBar.style.width = pct + '%';
+
       set('kpiStPending', String(stPendingCnt));
       set('kpiStReceived', String(receivedCnt));
       set('kpiVerified', String(verifiedCnt));
-      set('kpiVerifiedSub', 'อนุมัติแล้ว ' + verifiedCnt + ' / ' + names.length + ' คน');
+      set('kpiVerifiedSub', 'อนุมัติแล้ว ' + verifiedCnt + ' / ' + names.length + ' คน (' + pct + '%)');
+
+      // ไฮไลต์ปุ่มสถานะ chip ที่เลือกอยู่
+      const curF = adminTableFilter || 'all';
+      document.querySelectorAll('.kpi-chip-btn').forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.classList.contains('chip-pending') && curF === 'pending') btn.classList.add('active');
+          if (btn.classList.contains('chip-received') && curF === 'received') btn.classList.add('active');
+          if (btn.classList.contains('chip-verified') && curF === 'verified') btn.classList.add('active');
+      });
 
       const box = document.getElementById('adminStatusTable');
       if (!box) return;
@@ -2443,7 +2470,7 @@ window.saveProfile = function() {
           box.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#94a3b8;">ยังไม่มีข้อมูลในเดือนนี้</div>';
           return;
       }
-      // [NEW] กรองตามช่องค้นหา + dropdown สถานะ (Search & Filter Bar)
+      // [NEW] กรองตามช่องค้นหา + dropdown/chip สถานะ (Search & Filter Bar)
       const q = (adminTableQuery || '').trim().toLowerCase();
       const f = adminTableFilter || 'all';
       const shown = names.filter(n => {
@@ -2451,6 +2478,9 @@ window.saveProfile = function() {
           const nick = rec && rec.nickname ? String(rec.nickname).toLowerCase() : '';
           if (q && n.toLowerCase().indexOf(q) === -1 && nick.indexOf(q) === -1) return false;
           if (f === 'all') return true;
+          const a = agg[n];
+          if (f === 'incomplete') return a && a.missing > 0;
+          if (f === 'leave') return a && a.leave > 0;
           const st = getVerifyState(n, monthKey);
           if (f === 'pending') return st === ST_PENDING;
           if (f === 'received') return st === ST_RECEIVED;

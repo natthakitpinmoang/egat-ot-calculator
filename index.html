@@ -277,53 +277,76 @@
         </div>
 
         <!-- การ์ด KPI -->
+        <!-- การ์ด KPI สไตล์ Modern Bento Grid (4 การ์ดสมดุล) -->
         <div class="admin-kpi-grid">
+          <!-- การ์ด 1: พขร. ทั้งหมด & สถานะการยื่น -->
           <div class="kpi-card kpi-blue">
-            <div class="kpi-label">👥 พขร. ที่ยื่นข้อมูล</div>
-            <div class="kpi-value" id="kpiDrivers">0</div>
-            <div class="kpi-sub" id="kpiDriversSub">-</div>
+            <div class="kpi-header">
+              <span class="kpi-title">👥 พขร. ในระบบ</span>
+            </div>
+            <div class="kpi-value-wrap">
+              <div class="kpi-value" id="kpiDrivers" style="color:var(--brand);">0</div>
+              <span class="kpi-unit">คน</span>
+            </div>
+            <div id="kpiDriversSub" class="kpi-sub">ยื่นครบในเดือนนี้</div>
+            <div id="kpiFlagCard" style="display:none;" onclick="filterAdminStatus('incomplete')">
+              <span class="kpi-alert-badge" id="kpiPendingText">⚠️ ขาดเอกสาร 0 คน</span>
+            </div>
+            <input type="hidden" id="kpiPending" value="0">
           </div>
-          <div class="kpi-card kpi-orange" id="kpiFlagCard">
-            <div class="kpi-label">⚠️ แจ้งข้อมูลไม่ครบ / ยังไม่ยื่น</div>
-            <div class="kpi-value" id="kpiPending">0</div>
-            <div class="kpi-sub" id="kpiPendingSub">-</div>
-          </div>
+
+          <!-- การ์ด 2: รวมชั่วโมง OT & แยกเรต -->
           <div class="kpi-card kpi-cyan">
-            <div class="kpi-label">⏱️ รวมชั่วโมง OT</div>
-            <div class="kpi-value" id="kpiTotalHours">0.0</div>
-            <!-- กล่อง Compact แยกเรต X1.5 / X1 / X3 -->
-            <div class="kpi-ot-breakdown">
-              <div class="kpi-ot-item x15">
-                <span class="lb">X1.5</span><span class="vl" id="kpiOt15">0.0</span>
-              </div>
-              <div class="kpi-ot-item x1">
-                <span class="lb">X1</span><span class="vl" id="kpiOt1">0.0</span>
-              </div>
-              <div class="kpi-ot-item x3">
-                <span class="lb">X3</span><span class="vl" id="kpiOt3">0.0</span>
-              </div>
+            <div class="kpi-header">
+              <span class="kpi-title">⏱️ รวมชั่วโมง OT</span>
             </div>
-            <!-- [NEW] ยอดวันลาคู่กับชั่วโมง OT ในกล่องเดียว (ตัดแถว "รวม" ซ้ำซ้อนออกแล้ว) -->
-            <div class="kpi-leave-row">
-              <span class="lb">🏖️ ยอดรวมวันลา</span>
-              <span class="num" id="kpiLeaveDays">0 วัน</span>
+            <div class="kpi-value-wrap">
+              <div class="kpi-value" id="kpiTotalHours" style="color:#0284c7;">0.0</div>
+              <span class="kpi-unit">ชม.</span>
+            </div>
+            <div class="kpi-ot-pills">
+              <span class="pill-ot-item x15"><b>X1.5:</b> <span id="kpiOt15">0.0</span></span>
+              <span class="pill-ot-item x1"><b>X1:</b> <span id="kpiOt1">0.0</span></span>
+              <span class="pill-ot-item x3"><b>X3:</b> <span id="kpiOt3">0.0</span></span>
             </div>
           </div>
+
+          <!-- การ์ด 3: ยอดรวมวันลา (การ์ดแยกเฉพาะ) -->
+          <div class="kpi-card kpi-amber" onclick="filterAdminStatus('leave')" style="cursor:pointer;" title="คลิกเพื่อกรองดูเฉพาะ พขร. ที่มีวันลา">
+            <div class="kpi-header">
+              <span class="kpi-title">🏖️ รวมวันลา</span>
+            </div>
+            <div class="kpi-value-wrap">
+              <div class="kpi-value" id="kpiLeaveDays" style="color:#d97706;">0</div>
+              <span class="kpi-unit">วัน</span>
+            </div>
+            <div class="kpi-sub" id="kpiLeaveSub">วันลาสะสมของผู้ปฏิบัติงานเดือนนี้</div>
+          </div>
+
+          <!-- การ์ด 4: ความคืบหน้าการอนุมัติ & Progress Bar -->
           <div class="kpi-card kpi-green">
-            <div class="kpi-label">✅ ตรวจสอบแล้ว</div>
-            <!-- [NEW] แสดงครบทั้ง 3 สถานะในใบนี้ -->
-            <div class="kpi-status-split">
-              <div class="kpi-status-item st-pending">
-                <span class="n" id="kpiStPending">0</span><span class="t">⏳ รอตรวจสอบ</span>
-              </div>
-              <div class="kpi-status-item st-received">
-                <span class="n" id="kpiStReceived">0</span><span class="t">📄 ได้รับเอกสาร</span>
-              </div>
-              <div class="kpi-status-item st-verified">
-                <span class="n" id="kpiVerified">0</span><span class="t">✅ ตรวจสอบแล้ว</span>
-              </div>
+            <div class="kpi-header">
+              <span class="kpi-title">✅ สถานะอนุมัติ</span>
+              <span id="kpiPercent" style="font-weight:800; color:#047857; font-size:1.1rem;">0%</span>
+            </div>
+            <div class="kpi-progress-bar">
+              <div class="kpi-progress-fill" id="kpiProgressBar" style="width:0%;"></div>
             </div>
             <div class="kpi-sub" id="kpiVerifiedSub">อนุมัติแล้ว 0 / 0 คน</div>
+            <div class="kpi-status-chips-wrap">
+              <button type="button" class="kpi-chip-btn chip-pending" onclick="filterAdminStatus('pending')" title="คลิกเพื่อกรองดูเฉพาะที่รอตรวจสอบ">
+                <span>⏳ <span id="kpiStPending">0</span></span>
+                <span style="font-size:0.65rem;">รอตรวจ</span>
+              </button>
+              <button type="button" class="kpi-chip-btn chip-received" onclick="filterAdminStatus('received')" title="คลิกเพื่อกรองดูเฉพาะที่ได้รับเอกสาร">
+                <span>📄 <span id="kpiStReceived">0</span></span>
+                <span style="font-size:0.65rem;">ได้เอกสาร</span>
+              </button>
+              <button type="button" class="kpi-chip-btn chip-verified" onclick="filterAdminStatus('verified')" title="คลิกเพื่อกรองดูเฉพาะที่ตรวจสอบแล้ว">
+                <span>✅ <span id="kpiVerified">0</span></span>
+                <span style="font-size:0.65rem;">ตรวจแล้ว</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -351,10 +374,12 @@
             <input type="text" id="adminSearch" placeholder="ค้นหาชื่อหรือชื่อเล่น พขร...." oninput="onAdminSearchInput(this.value)">
           </div>
           <select id="adminStatusFilter" class="status-filter-select" onchange="onAdminStatusFilterChange(this.value)">
-            <option value="all">ทั้งหมด</option>
+            <option value="all">ทั้งหมด (ทุกสถานะ)</option>
             <option value="pending">⏳ รอตรวจสอบ</option>
             <option value="received">📄 ได้รับเอกสาร</option>
             <option value="verified">✅ ตรวจสอบแล้ว</option>
+            <option value="incomplete">⚠️ ขาดเอกสาร</option>
+            <option value="leave">🏖️ มีวันลา</option>
           </select>
         </div>
 
