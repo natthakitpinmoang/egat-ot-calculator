@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>EGAT OT Calculator (v7.8.6) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
+<title>EGAT OT Calculator (v7.8.7) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#f9c419" />
 
   <!-- Open Graph / Social Sharing -->
-  <meta property="og:title" content="EGAT OT Calculator (v7.8.6) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
+  <meta property="og:title" content="EGAT OT Calculator (v7.8.7) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
   <meta property="og:description" content="ระบบคำนวณชั่วโมง OT และเบิกค่าล่วงเวลา สำหรับพนักงาน กฟผ. รองรับมือถือและติดตั้งเป็น PWA" />
   <meta property="og:image" content="./assets/icons/icon-512.png" />
   <meta property="og:type" content="website" />
@@ -143,11 +143,11 @@
   <main class="content">
     <section id="view-ot" class="view active">
       <div class="card">
-        <h2>คำนวณเวลา OT</h2>
+        <h2>⏱️ คำนวณเวลา OT</h2>
         <div class="input-zone">
             <div class="grid">
               <div style="grid-column: 1 / -1;">
-                <label>พนักงานขับรถ (พขร.)</label>
+                <label>👤 พนักงานขับรถ (พขร.)</label>
                 <div class="search-wrapper">
                     <span class="search-icon">🔍</span>
                     <input type="search" id="driverSelect" list="driverList" placeholder="พิมพ์ชื่อเพื่อค้นหา หรือเลือกจากรายการ..." autocomplete="off">
@@ -156,7 +156,7 @@
                 <datalist id="driverList"></datalist>
               </div>
               <div>
-                <label id="dateLabel">เลือกวันที่</label>
+                <label id="dateLabel">📅 เลือกวันที่</label>
                 <div class="custom-date-input">
                     <input type="date" id="workDate" class="real-date-input" lang="th-TH" onclick="try{this.showPicker()}catch(e){}">
                     <div id="workDateShow" class="fake-date-display">เลือกวันที่...</div>
@@ -164,18 +164,18 @@
                 </div>
               </div>
               <div>
-                 <label>ประเภทวัน</label>
+                 <label>🏢 ประเภทวัน</label>
                  <div class="radio-line">
                   <label><input type="radio" name="type" value="weekday" checked> จันทร์–ศุกร์</label>
                   <label><input type="radio" name="type" value="weekend"> เสาร์–อาทิตย์</label>
                  </div>
               </div>
               <div>
-                <label>เวลาเข้า (เช่น 0800)</label>
+                <label>🟢 เวลาเข้า (เช่น 0800)</label>
                 <input type="tel" id="startTime" class="time-manual" placeholder="08:00" maxlength="5">
               </div>
               <div>
-                <label>เวลาออก (เช่น 1700)</label>
+                <label>🔴 เวลาออก (เช่น 1700)</label>
                 <input type="tel" id="endTime" class="time-manual" placeholder="17:00" maxlength="5">
               </div>
             </div>
@@ -203,7 +203,7 @@
         <div class="history-header-container">
             <div class="left-group">
                 <div class="history-title-group">
-                    <h2 id="historyTitleBtn" class="history-title">สรุปรายเดือน</h2>
+                    <h2 id="historyTitleBtn" class="history-title">📊 สรุปรายเดือน</h2>
 
                     <!-- แถบสลับโหมด 1. สรุปรายเดือน (ปกติ) / 2. สรุป พขร. (ยอดรวม) -->
                     <div class="history-mode-pill-bar">
@@ -255,30 +255,30 @@
              
         <div class="summary-grid">
             <div class="sum-card c-15">
-                <div><div class="lbl">OT x1.5</div><div class="unit">(วันธรรมดา)</div></div>
+                <div><div class="lbl">⏱️ OT x1.5</div><div class="unit">(วันธรรมดา)</div></div>
                 <div class="val" id="sum15">0.0</div>
             </div>
             <div class="sum-card c-1">
-                <div><div class="lbl">OT x1</div><div class="unit">(วันหยุด)</div></div>
+                <div><div class="lbl">⏱️ OT x1</div><div class="unit">(วันหยุด)</div></div>
                 <div class="val" id="sum1">0.0</div>
             </div>
             <div class="sum-card c-3">
-                <div><div class="lbl">OT x3</div><div class="unit">(วันหยุด)</div></div>
+                <div><div class="lbl">⏱️ OT x3</div><div class="unit">(วันหยุด)</div></div>
                 <div class="val" id="sum3">0.0</div>
             </div>
         </div>
 
         <div class="total-summary-section">
             <div class="summary-half leave">
-                <div class="lbl">รวมวันลา</div>
+                <div class="lbl">🏖️ รวมวันลา</div>
                 <div class="val-group"><span class="val" id="sumLeaveDays">0</span><span class="unit">วัน</span></div>
             </div>
             <div class="summary-half ot">
-                <div class="lbl">รวมชั่วโมง OT</div>
+                <div class="lbl">⏱️ รวมชั่วโมง OT</div>
                 <div class="val-group"><span class="val" id="sumTotal_b">0.0</span><span class="unit">ชั่วโมง</span></div>
             </div>
             <div class="summary-half request">
-                <div class="lbl">รวมขอเบิก OT</div>
+                <div class="lbl">📝 รวมขอเบิก OT</div>
                 <div class="val-group"><span class="val" id="sumRequestOT">0.0</span><span class="unit">ชั่วโมง</span></div>
             </div>
         </div>
@@ -287,16 +287,16 @@
             <table class="history-table" id="historyTable">
                 <thead>
                     <tr>
-                        <th width="4%" class="col-center">ลา</th>
-                        <th width="20%" style="text-align:left; padding-left:10px;">วันที่</th>
-                        <th width="12%" class="col-center">ประเภท</th>
-                        <th width="15%" class="col-center">ช่วงเวลา</th>
+                        <th width="4%" class="col-center">🏖️ ลา</th>
+                        <th width="20%" style="text-align:left; padding-left:10px;">📅 วันที่</th>
+                        <th width="12%" class="col-center">🏢 ประเภท</th>
+                        <th width="15%" class="col-center">⏰ ช่วงเวลา</th>
                         <th class="col-center th-ot" style="min-width:45px; background:#eff6ff; color:#1e3a8a; border-bottom-color:#bfdbfe;">x1.5</th>
                         <th class="col-center th-ot" style="min-width:45px; background:#ecfeff; color:#0e7490; border-bottom-color:#a5f3fc;">x1</th>
                         <th class="col-center th-ot" style="min-width:45px; background:#fff1f2; color:#be123c; border-bottom-color:#fecdd3;">x3</th>
-                        <th width="8%" class="col-center th-ot">รวม(ชม.)</th>
-                        <th width="8%" class="col-center th-ot" style="background:#f0f9ff; color:#0284c7;">ขอเบิก(ชม.)</th>
-                        <th width="14%" class="col-center sticky-col">เครื่องมือ</th>
+                        <th width="8%" class="col-center th-ot">⏱️ รวม</th>
+                        <th width="8%" class="col-center th-ot" style="background:#f0f9ff; color:#0284c7;">📝 ขอเบิก</th>
+                        <th width="14%" class="col-center sticky-col">⚙️ เครื่องมือ</th>
                     </tr>
                 </thead>
                 <tbody id="historyList"></tbody>
@@ -319,7 +319,7 @@
     <section id="view-drivers" class="view">
       <div class="card">
         <div class="driver-header-flex" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2 style="margin:0;">รายชื่อ พขร. ทั้งหมด</h2>
+            <h2 style="margin:0;">👥 รายชื่อ พขร. ทั้งหมด</h2>
             <button onclick="openAddDriverModal()" class="primary" style="width:auto; padding: 10px 20px; font-size:1rem; display:flex; align-items:center; gap:6px;">
                 <span>➕</span> เพิ่มคนใหม่
             </button>
@@ -477,7 +477,7 @@
 
     <section id="view-calc" class="view">
       <div class="card">
-        <h2>เครื่องคิดเลข</h2>
+        <h2>🧮 เครื่องคิดเลข</h2>
         <div class="calc">
           <input id="calcDisplay" class="calc-display" type="text" readonly value="0">
           <div class="keys">
@@ -604,17 +604,17 @@
         <h2 id="driverModalTitle" class="login-title">➕ เพิ่ม พขร. ใหม่เข้าสู่ระบบ</h2>
         <div class="add-driver-sub">กรอกข้อมูลให้ครบถ้วน (Admin เพิ่มเอง = อนุมัติทันที ไม่ต้องรอ)</div>
         <div class="add-driver-form">
-            <label>ชื่อ - นามสกุล <span style="color:var(--danger)">*</span></label>
+            <label>👤 ชื่อ - นามสกุล <span style="color:var(--danger)">*</span></label>
             <input type="text" id="dName" placeholder="เช่น นายสมชาย ใจดี">
-            <label>ชื่อเล่น <span style="color:var(--danger)">*</span></label>
+            <label>🏷️ ชื่อเล่น <span style="color:var(--danger)">*</span></label>
             <input type="text" id="dNick" placeholder="เช่น ชาย">
-            <label>เบอร์โทรศัพท์ <span style="color:var(--danger)">*</span></label>
+            <label>📞 เบอร์โทรศัพท์ <span style="color:var(--danger)">*</span></label>
             <input type="tel" id="dPhone" placeholder="08x-xxx-xxxx">
-            <label>สังกัด</label>
+            <label>🏢 สังกัด</label>
             <input type="text" id="dAff" placeholder="เช่น EGAT">
-            <label>แผนก</label>
+            <label>📑 แผนก</label>
             <input type="text" id="dDept" placeholder="เช่น แผนกธุรการและบริการ">
-            <label class="add-driver-pin">ตั้งรหัส PIN 4 หลัก <span style="color:var(--danger)">*</span></label>
+            <label class="add-driver-pin">🔑 ตั้งรหัส PIN 4 หลัก <span style="color:var(--danger)">*</span></label>
             <input type="password" id="dPin" class="pin-input pin-center" inputmode="numeric" maxlength="4"
                    pattern="[0-9]*" placeholder="0000" autocomplete="off">
         </div>
@@ -772,13 +772,13 @@
               <table class="qs-table">
                   <thead>
                       <tr>
-                          <th style="text-align:left; padding-left:20px;">วันที่</th>
-                          <th>ประเภท</th>
+                          <th style="text-align:left; padding-left:20px;">📅 วันที่</th>
+                          <th>🏢 ประเภท</th>
                           <th>x1.5</th>
                           <th>x1</th>
                           <th>x3</th>
-                          <th>ขอเบิก</th>
-                          <th>สถานะ</th>
+                          <th>📝 ขอเบิก</th>
+                          <th>📌 สถานะ</th>
                       </tr>
                   </thead>
                   <tbody id="quickSummaryList"></tbody>
@@ -794,15 +794,15 @@
       <h2 style="margin-bottom:4px;">👤 โปรไฟล์ / แก้ไข</h2>
       <div id="profileSubtitle" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:18px;"></div>
 
-      <label>ชื่อ-นามสกุล</label>
+      <label>👤 ชื่อ-นามสกุล</label>
       <input type="text" id="pfName" placeholder="ชื่อ-นามสกุล">
-      <label style="margin-top:10px;">ชื่อเล่น</label>
+      <label style="margin-top:10px;">🏷️ ชื่อเล่น</label>
       <input type="text" id="pfNickname" placeholder="ชื่อเล่น">
-      <label style="margin-top:10px;">เบอร์โทรศัพท์</label>
+      <label style="margin-top:10px;">📞 เบอร์โทรศัพท์</label>
       <input type="tel" id="pfPhone" placeholder="08x-xxx-xxxx">
-      <label style="margin-top:10px;">สังกัด</label>
+      <label style="margin-top:10px;">🏢 สังกัด</label>
       <input type="text" id="pfAffiliation" placeholder="เช่น EGAT">
-      <label style="margin-top:10px;">แผนก</label>
+      <label style="margin-top:10px;">📑 แผนก</label>
       <input type="text" id="pfDepartment" placeholder="เช่น แผนกธุรการและบริการ">
 
       <!-- ===== รหัส PIN ปัจจุบัน (ดู/ซ่อน + เปลี่ยน) ===== -->
