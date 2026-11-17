@@ -1,20 +1,50 @@
 
+const CACHE_NAME = "ot-calculator-v7.8.0";
+const ASSETS = [
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./css/styles.css",
+  "./js/app.js",
+  "./assets/icons/icon-192.png",
+  "./assets/icons/icon-512.png",
+  "./assets/icons/apple-touch-icon-180.png"
+];
+
 self.addEventListener("install", e => {
   e.waitUntil(
-    caches.open("ot-calculator").then(cache => {
-      return cache.addAll([
-        "./",
-        "./index.html",
-        "./manifest.json"
-      ]);
-    })
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(ASSETS);
+    }).then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener("activate", e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+      )
+    ).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener("fetch", e => {
+  if (e.request.method !== "GET") return;
+
   e.respondWith(
     caches.match(e.request).then(response => {
-      return response || fetch(e.request);
+      if (response) {
+        // โหลดจากแคช แล้วดึงของใหม่จากเซิร์ฟเวอร์ไปอัปเดตแคชเบื้องหลัง
+        fetch(e.request).then(res => {
+          if (res && res.status === 200) {
+            caches.open(CACHE_NAME).then(cache => cache.put(e.request, res));
+          }
+        }).catch(() => {});
+        return response;
+      }
+
+      return fetch(e.request).catch(() => caches.match("./index.html"));
     })
   );
 });

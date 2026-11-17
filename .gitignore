@@ -1,0 +1,17 @@
+# ===== ข้อมูลส่วนบุคคล / ไฟล์สำรอง =====
+# ไฟล์สำรองข้อมูลพนักงาน (มีชื่อ-นามสกุล และเบอร์โทรศัพท์) ห้ามหลุดเข้า Git
+egat_ot_backup_*.json
+
+# ===== ระบบ / เครื่องมือ =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== เครื่องมือพัฒนา =====
+.vscode/
+.idea/
+*.log
+npm-debug.log*
+
+backups/
+cloud_backup*.json

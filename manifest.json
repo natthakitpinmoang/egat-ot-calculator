@@ -1,20 +1,35 @@
 {
-  "name": "EGAT OT Calculator",
+  "name": "EGAT OT Calculator - ระบบคำนวณล่วงเวลา",
   "short_name": "OT EGAT",
+  "description": "ระบบคำนวณชั่วโมง OT และเบิกค่าล่วงเวลา สำหรับพนักงาน กฟผ.",
+  "id": "./",
   "start_url": "./index.html",
+  "scope": "./",
+  "lang": "th",
+  "dir": "ltr",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "any",
   "background_color": "#f9c419",
   "theme_color": "#f9c419",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "./assets/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "./assets/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
