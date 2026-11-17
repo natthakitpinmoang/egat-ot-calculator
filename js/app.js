@@ -2734,9 +2734,14 @@ window.saveProfile = function() {
           const isVerified = (state === ST_VERIFIED);
           const rowClass = isVerified ? 'verified-row' : (a.missing > 0 ? 'warning-row' : '');
 
+          const [mY, mM] = String(monthKey || '').split('-').map(Number);
+          const yearArg = mY || 'null';
+          const monthArg = mM || 'null';
+          const safeName = String(name).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
           return '<tr class="' + rowClass + '">'
               + '<td class="col-center" style="font-weight:700; color:#94a3b8; width:50px;">' + displayIndex + '</td>'
-              + '<td style="font-weight:700; color:var(--brand); text-align:left; cursor:pointer;" onclick="openQuickSummaryModal(\'' + name + '\', null, null)" title="คลิกดูประวัติรายวันของ ' + name + '">' + name + '</td>'
+              + '<td style="font-weight:700; color:var(--brand); text-align:left; cursor:pointer;" onclick="openQuickSummaryModal(\'' + safeName + '\', ' + yearArg + ', ' + monthArg + ')" title="คลิกดูประวัติรายวันของ ' + safeName + '">' + name + '</td>'
               + '<td class="col-center num-cell">' + (a.ot15/60).toFixed(1) + '</td>'
               + '<td class="col-center num-cell">' + (a.ot1/60).toFixed(1) + '</td>'
               + '<td class="col-center num-cell">' + (a.ot3/60).toFixed(1) + '</td>'
@@ -5325,26 +5330,56 @@ function closeIncompleteModal() {
           return;
       }
 
-      let targetYear, targetMonth;
-      if (overrideYear && overrideMonth) {
-          targetYear = parseInt(overrideYear);
-          targetMonth = parseInt(overrideMonth);
-      } else {
-          const dateVal = document.getElementById('workDate').value;
-          const monthVal = dateVal ? dateVal.substring(0, 7) : new Date().toISOString().substring(0, 7);
-          const parts = monthVal.split('-');
-          targetYear = parseInt(parts[0]);
-          targetMonth = parseInt(parts[1]);
-      }
-      
-      document.getElementById('quickSummaryTitle').innerHTML = `📊 สรุปรายการของ ${driverName}`;
-      
-      let total15 = 0, total1 = 0, total3 = 0, totalReq = 0;
-      const filteredHistory = otHistory.filter(item => {
-          if (getPlainName(item.driver) !== driverName) return false;
-          const d = new Date(item.date);
-          return d.getFullYear() === targetYear && (d.getMonth() + 1) === targetMonth;
-      });
+    let targetYear, targetMonth;
+    if (overrideYear && overrideMonth) {
+        targetYear = parseInt(overrideYear);
+        targetMonth = parseInt(overrideMonth);
+    } else {
+        const adminSec = document.getElementById('adminSection');
+        const isAdminVisible = adminSec && !adminSec.classList.contains('hidden') && adminSec.style.display !== 'none';
+        if (isAdminVisible && typeof getAdminMonthKey === 'function') {
+            const [ay, am] = getAdminMonthKey().split('-').map(Number);
+            targetYear = ay;
+            targetMonth = am;
+        } else {
+            const histPicker = document.getElementById('historyMonthPicker');
+            if (histPicker && histPicker.value && /^\d{4}-\d{2}$/.test(histPicker.value)) {
+                const [hy, hm] = histPicker.value.split('-').map(Number);
+                targetYear = hy;
+                targetMonth = hm;
+            } else {
+                const dateVal = document.getElementById('workDate').value;
+                const monthVal = dateVal ? dateVal.substring(0, 7) : new Date().toISOString().substring(0, 7);
+                const parts = monthVal.split('-');
+                targetYear = parseInt(parts[0]);
+                targetMonth = parseInt(parts[1]);
+            }
+        }
+    }
+    if (targetYear > 2400) targetYear -= 543;
+
+    const monthTh = (typeof THAI_MONTHS_FULL !== 'undefined' && THAI_MONTHS_FULL[targetMonth - 1])
+        ? THAI_MONTHS_FULL[targetMonth - 1]
+        : ((typeof THAI_MONTHS_SHORT !== 'undefined' && THAI_MONTHS_SHORT[targetMonth - 1]) || `เดือน ${targetMonth}`);
+    const yearTh = targetYear + 543;
+    document.getElementById('quickSummaryTitle').innerHTML = `📊 สรุปรายการของ ${driverName} <span style="font-size:0.92rem; font-weight:500; color:#64748b; margin-left:6px;">(${monthTh} ${yearTh})</span>`;
+
+    let total15 = 0, total1 = 0, total3 = 0, totalReq = 0;
+    const filteredHistory = otHistory.filter(item => {
+        if (!item || !item.date) return false;
+        if (getPlainName(item.driver) !== driverName) return false;
+        let y, m;
+        if (typeof item.date === 'string' && /^\d{4}-\d{2}/.test(item.date)) {
+            const parts = item.date.split('-');
+            y = parseInt(parts[0], 10);
+            m = parseInt(parts[1], 10);
+        } else {
+            const d = new Date(item.date);
+            y = d.getFullYear();
+            m = d.getMonth() + 1;
+        }
+        return y === targetYear && m === targetMonth;
+    });
 
       const listBody = document.getElementById('quickSummaryList');
       listBody.innerHTML = '';
