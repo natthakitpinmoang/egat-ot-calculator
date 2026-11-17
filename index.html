@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>EGAT OT Calculator (v7.8.4) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
+<title>EGAT OT Calculator (v7.8.5) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#f9c419" />
 
   <!-- Open Graph / Social Sharing -->
-  <meta property="og:title" content="EGAT OT Calculator (v7.8.4) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
+  <meta property="og:title" content="EGAT OT Calculator (v7.8.5) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
   <meta property="og:description" content="ระบบคำนวณชั่วโมง OT และเบิกค่าล่วงเวลา สำหรับพนักงาน กฟผ. รองรับมือถือและติดตั้งเป็น PWA" />
   <meta property="og:image" content="./assets/icons/icon-512.png" />
   <meta property="og:type" content="website" />
@@ -374,13 +374,28 @@
           </div>
         </div>
 
-        <!-- แถบปุ่มด่วน -->
+        <!-- แถบปุ่มด่วน (5 ปุ่ม สไตล์ Bento Grid สมดุล สบายตา) -->
         <div class="admin-quick-actions">
-          <button class="qa-btn qa-cyan" onclick="adminGoExport()">📥 ส่งออก Excel (CSV)</button>
-          <button class="qa-btn" onclick="adminGoDrivers()">👥 เพิ่ม/จัดการ รายชื่อ พขร.</button>
-          <button class="qa-btn qa-green" onclick="adminGoBackup()">💾 สำรอง/นำเข้าข้อมูล JSON</button>
-          <button class="qa-btn qa-purple" onclick="openAdvancedModal()" title="จัดการขั้นสูง (รีเซ็ตค่าเวลา / ลบข้อมูล / รหัส PIN แอดมิน)">⚙️ จัดการขั้นสูง</button>
-          <button class="qa-btn" onclick="renderAdminDashboard()">🔄 รีเฟรช</button>
+          <button type="button" class="qa-btn qa-cyan" onclick="adminGoExport()" title="ส่งออกข้อมูลสรุป OT รายเดือนเป็นไฟล์ Excel (CSV)">
+            <span class="qa-ico">📥</span>
+            <span class="qa-txt">ส่งออก Excel (CSV)</span>
+          </button>
+          <button type="button" class="qa-btn qa-blue" onclick="adminGoDrivers()" title="จัดการรายชื่อ พขร., เบอร์โทร, สังกัด และ PIN">
+            <span class="qa-ico">👥</span>
+            <span class="qa-txt">จัดการรายชื่อ พขร.</span>
+          </button>
+          <button type="button" class="qa-btn qa-green" onclick="adminGoBackup()" title="สำรองฐานข้อมูลและนำเข้าข้อมูล JSON">
+            <span class="qa-ico">💾</span>
+            <span class="qa-txt">สำรอง/นำเข้าข้อมูล</span>
+          </button>
+          <button type="button" class="qa-btn qa-purple" onclick="openAdvancedModal()" title="จัดการขั้นสูง (รีเซ็ตค่าเวลา / ลบข้อมูล / รหัส PIN แอดมิน)">
+            <span class="qa-ico">⚙️</span>
+            <span class="qa-txt">จัดการขั้นสูง</span>
+          </button>
+          <button type="button" class="qa-btn qa-slate" onclick="renderAdminDashboard()" title="รีเฟรชข้อมูลในหน้าแดชบอร์ด">
+            <span class="qa-ico">🔄</span>
+            <span class="qa-txt">รีเฟรชข้อมูล</span>
+          </button>
         </div>
 
         <!-- สถานะ 3 ระดับ (minimal) -->
