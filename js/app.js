@@ -1377,6 +1377,12 @@ function toggleSidebar(forceState) {
   window.applyAuthRestrictions = applyAuthRestrictions;
 
   window.openAdvancedModal = function() {
+      const isAdmin = (typeof Auth !== 'undefined' && Auth.isAdmin());
+      const isDriver = (typeof Auth !== 'undefined' && Auth.isDriver());
+      const btnAdminPin = document.getElementById('btnAdvAdminPin');
+      const btnDriverPin = document.getElementById('btnAdvDriverPin');
+      if (btnAdminPin) btnAdminPin.style.display = isAdmin ? 'block' : 'none';
+      if (btnDriverPin) btnDriverPin.style.display = isDriver ? 'block' : 'none';
       document.getElementById('advancedModal').classList.add('show');
   };
   window.closeAdvancedModal = function() {
@@ -2771,6 +2777,15 @@ function toggleVerification(driverName) {
   window.toggleVerification = toggleVerification;
 
   function toggleVerifyCurrentDriver() {
+      if (typeof Auth !== 'undefined' && !Auth.isAdmin()) {
+          const myName = Auth.currentName();
+          const hpVal = document.getElementById('historyMonthPicker') ? document.getElementById('historyMonthPicker').value : '';
+          const mk = hpVal || '';
+          const st = getVerifyState(myName, mk);
+          const meta = ST_LABEL[st] || ST_LABEL[ST_PENDING];
+          alert(`📋 สถานะรายงานเดือนนี้ของคุณคือ: "${meta.text}"\n(การตรวจสอบและเปลี่ยนสถานะดำเนินการโดยผู้ดูแลระบบครับ)`);
+          return;
+      }
       const currentDriver = document.getElementById('historyDriverFilter').value;
       if(!currentDriver) {
           alert('⚠️ กรุณาเลือก "ชื่อ พขร." ที่ช่องค้นหา (👀) ด้านบนก่อน\nจึงจะสามารถกดยืนยันการตรวจสอบแบบรายบุคคลได้ครับ');
@@ -4735,15 +4750,26 @@ function closeIncompleteModal() {
 
         // [FIX] เดิมเช็คแค่ truthiness ทำให้ "ได้รับเอกสาร" (truthy) ถูกแสดงเป็น "ตรวจสอบแล้ว"
         const meta = ST_LABEL[state] || ST_LABEL[ST_PENDING];
-        btnToolbarVerify.innerHTML = meta.icon + ' ' + meta.text;
+        const isAdmin = (typeof Auth !== 'undefined' && Auth.isAdmin());
 
         // ไฮไลต์สีให้ตรงกับสถานะจริง
-        btnToolbarVerify.classList.remove('active', 'st-pending', 'st-received', 'st-verified');
+        btnToolbarVerify.classList.remove('active', 'st-pending', 'st-received', 'st-verified', 'v-pending', 'v-received', 'v-verified', 'driver-view');
         btnToolbarVerify.classList.add('v-' + state);
-        btnToolbarVerify.title = 'สถานะ: ' + meta.text + ' (คลิกเพื่อเปลี่ยน)';
-        btnToolbarVerify.disabled = (typeof Auth !== 'undefined' && !Auth.isAdmin());
-        btnToolbarVerify.style.opacity = btnToolbarVerify.disabled ? '0.6' : '';
-        btnToolbarVerify.style.cursor = btnToolbarVerify.disabled ? 'not-allowed' : '';
+
+        if (isAdmin) {
+            btnToolbarVerify.innerHTML = meta.icon + ' ' + meta.text + ' ⟳';
+            btnToolbarVerify.title = 'สถานะ: ' + meta.text + ' (คลิกเพื่อเปลี่ยนสถานะ)';
+            btnToolbarVerify.style.cursor = 'pointer';
+            btnToolbarVerify.disabled = false;
+            btnToolbarVerify.style.opacity = '1';
+        } else {
+            // มุมมอง พขร.: แสดงเป็นป้ายสถานะ (Status Badge) ชัดเจน ไม่จางเป็นปุ่มเสีย
+            btnToolbarVerify.innerHTML = meta.icon + ' สถานะ: ' + meta.text;
+            btnToolbarVerify.title = 'สถานะการตรวจสอบเดือนนี้: ' + meta.text + ' (ผู้ดูแลระบบเป็นผู้ตรวจสอบ)';
+            btnToolbarVerify.classList.add('driver-view');
+            btnToolbarVerify.disabled = false;
+            btnToolbarVerify.style.opacity = '1';
+        }
     }
   }
 

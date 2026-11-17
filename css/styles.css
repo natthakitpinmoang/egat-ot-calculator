@@ -444,6 +444,8 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 .tool-btn.t-verify.v-received { background: #e0f2fe !important; border-color: #bae6fd !important; color: #0369a1 !important; }
 .tool-btn.t-verify.v-verified { background: #d1fae5 !important; border-color: #a7f3d0 !important; color: #047857 !important; }
 .tool-btn.t-verify:disabled { cursor: not-allowed; }
+.tool-btn.t-verify.driver-view { cursor: default !important; font-weight: 800; }
+.tool-btn.t-verify.driver-view:hover { transform: none !important; box-shadow: none !important; }
 
 .pill { display: inline-block; padding: 2px 6px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; white-space: nowrap; cursor: pointer; transition: all 0.2s; user-select: none; border: 1px solid transparent; margin-top: 2px; }
 .pill:hover { transform: scale(1.05); }

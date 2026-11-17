@@ -602,7 +602,8 @@
           <h2 style="color:var(--text-main); margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:8px;">⚙️ จัดการขั้นสูง</h2>
           <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">รวมเครื่องมือจัดการข้อมูล (โปรดใช้งานด้วยความระมัดระวัง)</p>
           <div style="display:flex; flex-direction:column; gap:12px;">
-              <button onclick="closeAdvancedModal(); openAdminPinModal();" class="primary" style="width:100%; background:linear-gradient(to bottom, #fff, #f0fdf4); color:#16a34a; border:1px solid #bbf7d0;">🔑 เปลี่ยนรหัส PIN แอดมิน</button>
+              <button id="btnAdvAdminPin" onclick="closeAdvancedModal(); openAdminPinModal();" class="primary" style="width:100%; background:linear-gradient(to bottom, #fff, #f0fdf4); color:#16a34a; border:1px solid #bbf7d0;">🔑 เปลี่ยนรหัส PIN แอดมิน</button>
+              <button id="btnAdvDriverPin" onclick="closeAdvancedModal(); openPinModal();" class="primary" style="width:100%; background:linear-gradient(to bottom, #fff, #eff6ff); color:#2563eb; border:1px solid #bfdbfe; display:none;">🔑 เปลี่ยนรหัส PIN ของฉัน</button>
               <button onclick="closeAdvancedModal(); openResetModal();" class="primary" style="width:100%; background:linear-gradient(to bottom, #fff, #fffbeb); color:#d97706; border:1px solid #fcd34d;">🧹 รีเซ็ตค่าเวลา</button>
               <button onclick="closeAdvancedModal(); openDeleteModal();" class="primary" style="width:100%; background:linear-gradient(to bottom, #fff, #fff1f2); color:#e11d48; border:1px solid #fecdd3;">🗑️ ลบข้อมูล</button>
           </div>
