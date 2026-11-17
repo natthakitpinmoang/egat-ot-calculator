@@ -1284,8 +1284,8 @@ function toggleSidebar(forceState) {
       if (tabDriverBtn) tabDriverBtn.style.display = admin ? 'inline-flex' : 'none';
 
       // [NEW] Guest: ซ่อนเมนู "สรุปรายเดือน" ทั้งหมด (เหลือคำนวณ OT + เครื่องคิดเลข)
-      const historyMenuGroup = document.querySelector('#menu .menu-item-group');
-      if (historyMenuGroup) historyMenuGroup.style.display = guest ? 'none' : '';
+      const menuHistory = document.getElementById('menuHistory') || document.querySelector('#menu .menu-item-group');
+      if (menuHistory) menuHistory.style.display = guest ? 'none' : '';
 
       // [NEW] เมนู Admin Dashboard เห็นเฉพาะแอดมิน
       const menuAdmin = document.getElementById('menuAdmin');
@@ -2671,8 +2671,8 @@ function toggleVerification(driverName) {
     }
     
     if(viewId === 'history') {
-        const historyGroupItem = document.querySelector('.menu-item-group .menu-item');
-        if(historyGroupItem) historyGroupItem.classList.add('active');
+        const historyItem = document.getElementById('menuHistory') || document.querySelector('.menu-item[onclick*="history"]');
+        if(historyItem) historyItem.classList.add('active');
     }
 
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));

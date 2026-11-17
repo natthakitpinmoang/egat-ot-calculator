@@ -46,20 +46,9 @@
       <div class="menu-item active" onclick="switchView('ot')">
         <span class="icon">⏱️</span><span class="label">คำนวณเวลา OT</span>
       </div>
-      <div class="menu-item-group" style="position:relative;">
-          <div class="menu-item" onclick="toggleSidebarSubmenu('history-submenu')">
-            <span class="icon">📊</span><span class="label">สรุปรายเดือน</span>
-            <span class="arrow-icon" style="margin-left:auto; font-size:0.7em; transition:0.2s;">▼</span>
-            <span class="badge" id="historyCount">0</span>
-          </div>
-          <div id="history-submenu" class="submenu">
-             <div class="submenu-item" onclick="switchView('history'); setHistoryMode('daily')">1. สรุปรายเดือน (ปกติ)</div>
-             <div class="submenu-item" onclick="switchView('history'); setHistoryMode('driver')">2. สรุป พขร. (ยอดรวม)</div>
-          </div>
-          <div id="summaryMenu" class="summary-dropdown-menu">
-             <div class="menu-opt" data-mode="daily">สรุปรายเดือน (ปกติ)</div>
-             <div class="menu-opt" data-mode="driver">สรุป พขร. (ยอดรวม)</div>
-          </div>
+      <div class="menu-item" onclick="switchView('history')" id="menuHistory">
+        <span class="icon">📊</span><span class="label">สรุปรายเดือน</span>
+        <span class="badge" id="historyCount">0</span>
       </div>
       <div class="menu-item" onclick="switchView('admin')" id="menuAdmin" style="display:none;">
         <span class="icon">🛡️</span><span class="label">Admin Dashboard</span>
