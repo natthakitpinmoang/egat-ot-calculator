@@ -149,10 +149,25 @@
       <div class="card">
         <div class="history-header-container">
             <div class="left-group">
-                <h2 id="historyTitleBtn" class="history-title" style="cursor: pointer;">สรุปรายเดือน</h2>
-                <div class="month-picker-inline" onclick="openCustomMonthPicker('historyMonthPicker', 'historyDateDisplay')">
-                    <span id="historyDateDisplay" class="month-text">...</span>
-                    <span style="font-size:0.8em; margin-left:4px; opacity:0.5;">▼</span>
+                <h2 id="historyTitleBtn" class="history-title">สรุปรายเดือน</h2>
+
+                <!-- แถบสลับโหมด 1. สรุปรายเดือน (ปกติ) / 2. สรุป พขร. (ยอดรวม) -->
+                <div class="history-mode-pill-bar">
+                    <button type="button" class="mode-pill-btn active" id="btnModeDaily" onclick="setHistoryMode('daily')">
+                        📅 1. สรุปรายเดือน (ปกติ)
+                    </button>
+                    <button type="button" class="mode-pill-btn" id="btnModeDriver" onclick="setHistoryMode('driver')">
+                        👥 2. สรุป พขร. (ยอดรวม)
+                    </button>
+                </div>
+
+                <div class="month-stepper-wrap">
+                    <button type="button" class="month-step-btn" onclick="stepMonth(-1)" title="เดือนก่อนหน้า">◀</button>
+                    <div class="month-picker-inline" onclick="openCustomMonthPicker('historyMonthPicker', 'historyDateDisplay')">
+                        <span id="historyDateDisplay" class="month-text">...</span>
+                        <span style="font-size:0.8em; margin-left:4px; opacity:0.5;">▼</span>
+                    </div>
+                    <button type="button" class="month-step-btn" onclick="stepMonth(1)" title="เดือนถัดไป">▶</button>
                 </div>
                 <input type="text" id="historyMonthPicker" class="history-date-input-hidden" onchange="renderHistory()">
                 

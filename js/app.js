@@ -1278,8 +1278,10 @@ function toggleSidebar(forceState) {
       // 2) "สรุป พขร. (ยอดรวม)" เห็นเฉพาะแอดมิน (ผู้ใช้ทั่วไปดูสรุปรายเดือนปกติแทน)
       const driverModeBtn = document.querySelector('#summaryMenu .menu-opt[data-mode="driver"]');
       const driverModeLink = document.querySelector('#history-submenu .submenu-item[onclick*="driver"]');
+      const tabDriverBtn = document.getElementById('btnModeDriver');
       if (driverModeBtn) driverModeBtn.style.display = admin ? '' : 'none';
       if (driverModeLink) driverModeLink.style.display = admin ? '' : 'none';
+      if (tabDriverBtn) tabDriverBtn.style.display = admin ? 'inline-flex' : 'none';
 
       // [NEW] Guest: ซ่อนเมนู "สรุปรายเดือน" ทั้งหมด (เหลือคำนวณ OT + เครื่องคิดเลข)
       const historyMenuGroup = document.querySelector('#menu .menu-item-group');
@@ -1488,6 +1490,30 @@ function toggleSidebar(forceState) {
     closeCustomMonthPicker();
   }
 
+  window.stepMonth = function(delta) {
+      const picker = document.getElementById('historyMonthPicker');
+      if (!picker) return;
+      let [y, m] = (picker.value || '').split('-').map(Number);
+      if (!y || !m) {
+          const d = new Date();
+          y = d.getFullYear();
+          m = d.getMonth() + 1;
+      }
+      m += delta;
+      if (m < 1) { m = 12; y--; }
+      else if (m > 12) { m = 1; y++; }
+      picker.value = `${y}-${String(m).padStart(2, '0')}`;
+      showAll = false;
+      const display = document.getElementById('historyDateDisplay');
+      if (display && typeof getThaiMonthYearFull === 'function') {
+          display.innerText = getThaiMonthYearFull(picker.value);
+      }
+      if (typeof updateThaiDateDisplay === 'function') {
+          try { updateThaiDateDisplay(); } catch(e) {}
+      }
+      renderHistory();
+  };
+
   function setHistoryMode(mode) {
       const dropdown = document.getElementById('historyDriverFilter');
       const monthPicker = document.getElementById('historyMonthPicker');
@@ -1500,6 +1526,12 @@ function toggleSidebar(forceState) {
       }
 
       currentHistoryMode = mode;
+
+      // อัปเดตไฮไลต์ปุ่ม Segmented Tabs
+      const btnDaily = document.getElementById('btnModeDaily');
+      const btnDriver = document.getElementById('btnModeDriver');
+      if (btnDaily) btnDaily.classList.toggle('active', mode === 'daily');
+      if (btnDriver) btnDriver.classList.toggle('active', mode === 'driver');
       
       const titleText = document.getElementById('historyTitleBtn');
       if(titleText) {
@@ -1539,6 +1571,7 @@ function toggleSidebar(forceState) {
 
       renderHistory();
   }
+  window.setHistoryMode = setHistoryMode;
 
   function handleFilterChange() {
       const dropdown = document.getElementById('historyDriverFilter');
