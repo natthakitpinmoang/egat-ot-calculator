@@ -1562,9 +1562,9 @@ function toggleSidebar(forceState) {
       const titleText = document.getElementById('historyTitleBtn');
       if(titleText) {
           if(mode === 'daily') {
-              titleText.innerText = "สรุปรายเดือน";
+              titleText.innerText = "📊 สรุปรายเดือน";
           } else {
-              titleText.innerText = "สรุปตามรายเดือน พขร.";
+              titleText.innerText = "👥 สรุปตามรายเดือน พขร.";
           }
       }
       
@@ -4510,14 +4510,14 @@ function closeIncompleteModal() {
         document.querySelector('#historyTable thead').innerHTML = `
             <tr>
                 <th class="col-center">#</th>
-                <th>ชื่อ พขร.</th>
+                <th style="text-align:left;">👤 ชื่อ พขร.</th>
                 <th class="col-center th-ot" style="background:#eff6ff; color:#1e3a8a;">x1.5</th>
                 <th class="col-center th-ot" style="background:#ecfeff; color:#0e7490;">x1</th>
                 <th class="col-center th-ot" style="background:#fff1f2; color:#be123c;">x3</th>
-                <th class="col-center th-ot">รวม(ชม.)</th>
-                <th class="col-center th-ot" style="background:#f0f9ff; color:#0284c7;">ขอเบิก(ชม.)</th>
-                <th class="col-center">ลา</th>
-                <th class="col-center sticky-col">สถานะ / การจัดการ</th>
+                <th class="col-center th-ot">⏱️ รวม</th>
+                <th class="col-center th-ot" style="background:#f0f9ff; color:#0284c7;">📝 ขอเบิก</th>
+                <th class="col-center">🏖️ ลา</th>
+                <th class="col-center sticky-col">🛡️ สถานะ / การจัดการ</th>
             </tr>
         `;
 
@@ -4628,16 +4628,16 @@ function closeIncompleteModal() {
     } else {
         document.querySelector('#historyTable thead').innerHTML = `
             <tr>
-                <th width="4%" class="col-center">ลา</th>
-                <th width="20%" style="text-align:left; padding-left:10px;">วันที่</th>
-                <th width="12%" class="col-center">ประเภท</th>
-                <th width="15%" class="col-center">ช่วงเวลา</th>
+                <th width="4%" class="col-center">🏖️ ลา</th>
+                <th width="20%" style="text-align:left; padding-left:10px;">📅 วันที่</th>
+                <th width="12%" class="col-center">🏢 ประเภท</th>
+                <th width="15%" class="col-center">⏰ ช่วงเวลา</th>
                 <th class="col-center th-ot" style="min-width:45px; background:#eff6ff; color:#1e3a8a; border-bottom-color:#bfdbfe;">x1.5</th>
                 <th class="col-center th-ot" style="min-width:45px; background:#ecfeff; color:#0e7490; border-bottom-color:#a5f3fc;">x1</th>
                 <th class="col-center th-ot" style="min-width:45px; background:#fff1f2; color:#be123c; border-bottom-color:#fecdd3;">x3</th>
-                <th width="8%" class="col-center th-ot">รวม(ชม.)</th>
-                <th width="8%" class="col-center th-ot" style="background:#f0f9ff; color:#0284c7;">ขอเบิก(ชม.)</th>
-                <th width="14%" class="col-center sticky-col">เครื่องมือ</th>
+                <th width="8%" class="col-center th-ot">⏱️ รวม</th>
+                <th width="8%" class="col-center th-ot" style="background:#f0f9ff; color:#0284c7;">📝 ขอเบิก</th>
+                <th width="14%" class="col-center sticky-col">⚙️ เครื่องมือ</th>
             </tr>
         `;
 
