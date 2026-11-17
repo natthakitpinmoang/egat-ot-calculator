@@ -266,11 +266,13 @@
         <div class="admin-head">
           <h2 style="margin:0;">🛡️ Admin Dashboard</h2>
           <button id="pendingBellBtn" class="pending-bell-btn" onclick="openApprovalModal()" style="display:none;">🔔 บัญชีรออนุมัติ <span id="pendingCountBadge" class="pending-count-badge">0</span></button>
-          <!-- [NEW] Dropdown เลือกเดือน + ไอคอนปฏิทิน -->
-          <div class="admin-month-select">
+          <!-- Dropdown เลือกเดือน พร้อมปุ่มเลื่อนเดือนด่วน -->
+          <div class="admin-month-select" style="display:inline-flex; align-items:center; gap:6px;">
+            <button type="button" class="month-step-btn" onclick="stepAdminMonth(-1)" title="เดือนก่อนหน้า">◀</button>
             <span class="cal-ico" aria-hidden="true">📅</span>
             <select id="adminMonthSelect" class="admin-month-input"
                     onchange="onAdminMonthChange()"></select>
+            <button type="button" class="month-step-btn" onclick="stepAdminMonth(1)" title="เดือนถัดไป">▶</button>
           </div>
         </div>
 

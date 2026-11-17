@@ -2275,6 +2275,18 @@ window.saveProfile = function() {
       sel.value = list.indexOf(prevValue) >= 0 ? prevValue : (list.indexOf(cur) >= 0 ? cur : list[0]);
   }
 
+  window.stepAdminMonth = function(delta) {
+      const sel = document.getElementById('adminMonthSelect') || document.getElementById('adminMonthPicker');
+      if (!sel) return;
+      let idx = sel.selectedIndex;
+      if (idx === -1) return;
+      idx += delta;
+      if (idx >= 0 && idx < sel.options.length) {
+          sel.selectedIndex = idx;
+          window.onAdminMonthChange();
+      }
+  };
+
   window.onAdminMonthChange = function() {
       const sel = document.getElementById('adminMonthSelect') || document.getElementById('adminMonthPicker');
       if (sel && sel.value) {
@@ -2354,6 +2366,17 @@ window.saveProfile = function() {
               names = Object.keys(agg);
           }
       }
+
+      // เรียงลำดับ พขร. ตามหมายเลขลำดับจริงในระบบ (# 1..51)
+      names.sort((a, b) => {
+          const indexA = (drivers || []).findIndex(d => getPlainName(d && d.name) === getPlainName(a));
+          const indexB = (drivers || []).findIndex(d => getPlainName(d && d.name) === getPlainName(b));
+          if (indexA === -1 && indexB === -1) return a.localeCompare(b, 'th');
+          if (indexA === -1) return 1;
+          if (indexB === -1) return -1;
+          return indexA - indexB;
+      });
+
       let s15 = 0, s1 = 0, s3 = 0, leaveSum = 0;
       let verifiedCnt = 0, receivedCnt = 0, stPendingCnt = 0, incompletePeople = 0;
       names.forEach(n => {
@@ -2438,12 +2461,31 @@ window.saveProfile = function() {
           box.innerHTML = '<div style="text-align:center; padding:40px 20px; color:#94a3b8;">🔍 ไม่พบข้อมูลที่ตรงกับเงื่อนไขค้นหา</div>';
           return;
       }
+      const statusData = buildAdminStatusRows(shown, agg, monthKey);
+
       box.innerHTML = '<div class="table-container"><table class="history-table"><thead><tr>'
+          + '<th class="col-center" style="width:50px;">#</th>'
           + '<th style="text-align:left;">ชื่อ พขร.</th>'
-          + '<th class="col-center">X1.5</th><th class="col-center">X1</th><th class="col-center">X3</th>'
-          + '<th class="col-center">รวม (ชม.)</th><th class="col-center">ลา</th>'
+          + '<th class="col-center th-ot" style="background:#eff6ff; color:#1e3a8a;">X1.5</th>'
+          + '<th class="col-center th-ot" style="background:#ecfeff; color:#0e7490;">X1</th>'
+          + '<th class="col-center th-ot" style="background:#fff1f2; color:#be123c;">X3</th>'
+          + '<th class="col-center th-ot">รวม (ชม.)</th>'
+          + '<th class="col-center" style="width:60px;">ลา</th>'
           + '<th class="col-center">สถานะ / การจัดการ</th>'
-          + '</tr></thead><tbody>' + buildAdminStatusRows(shown, agg, monthKey) + '</tbody></table></div>';
+          + '</tr></thead>'
+          + '<tbody>' + statusData.rows + '</tbody>'
+          + '<tfoot>'
+          + '<tr class="admin-total-row" style="background:linear-gradient(to right, #f8fafc, #f1f5f9); font-weight:800; border-top:2px solid #cbd5e1; border-bottom:2px solid #cbd5e1;">'
+          +   '<td class="col-center" colspan="2" style="text-align:right; padding-right:14px; color:var(--brand); font-size:0.95rem;">📊 รวมทั้งหมด (' + statusData.totals.count + ' คน):</td>'
+          +   '<td class="col-center num-cell" style="color:#1e3a8a; font-weight:800;">' + statusData.totals.tot15 + '</td>'
+          +   '<td class="col-center num-cell" style="color:#0e7490; font-weight:800;">' + statusData.totals.tot1 + '</td>'
+          +   '<td class="col-center num-cell" style="color:#be123c; font-weight:800;">' + statusData.totals.tot3 + '</td>'
+          +   '<td class="col-center num-cell" style="color:var(--brand); font-size:1.05rem; font-weight:900;">' + statusData.totals.totalHours + '</td>'
+          +   '<td class="col-center num-cell" style="color:#ef4444; font-weight:800;">' + statusData.totals.totLeave + '</td>'
+          +   '<td class="col-center" style="font-size:0.85rem; color:#047857; font-weight:700;">✅ อนุมัติแล้ว ' + statusData.totals.verified + ' / ' + statusData.totals.count + ' คน</td>'
+          + '</tr>'
+          + '</tfoot>'
+          + '</table></div>';
 
       try { applyMobileCardLabels(document.querySelector('#adminStatusTable .history-table')); } catch(e) {}
   }
@@ -2571,27 +2613,46 @@ window.saveProfile = function() {
       setTimeout(() => { try { openPinModal(); } catch(e) {} }, 150);
   };
 
-  // สร้างแถวตารางสถานะของหน้า Admin (ปุ่มเดียวคลิกวนลูป + ซิงค์ real-time)
+  // สร้างแถวตารางสถานะของหน้า Admin (ปุ่มเดียวคลิกวนลูป + ซิงค์ real-time) พร้อมคำนวณผลรวม
   function buildAdminStatusRows(names, agg, monthKey) {
-      return names.map(name => {
-          const a = agg[name];
+      let tot15 = 0, tot1 = 0, tot3 = 0, totLeave = 0;
+      let totVerified = 0, totReceived = 0, totPending = 0;
+
+      const rowsHtml = names.map(name => {
+          const a = agg[name] || { ot15: 0, ot1: 0, ot3: 0, leave: 0, missing: 0 };
           const state = getVerifyState(name, monthKey);
           const meta = ST_LABEL[state] || ST_LABEL[ST_PENDING];
           const nextState = (state === ST_PENDING) ? ST_RECEIVED : (state === ST_RECEIVED) ? ST_VERIFIED : ST_PENDING;
           const nextMeta = ST_LABEL[nextState];
           const total = (a.ot15 + a.ot1 + a.ot3) / 60;
 
+          tot15 += a.ot15;
+          tot1 += a.ot1;
+          tot3 += a.ot3;
+          totLeave += a.leave;
+          if (state === ST_VERIFIED) totVerified++;
+          else if (state === ST_RECEIVED) totReceived++;
+          else totPending++;
+
+          // ดึงลำดับจริงของ พขร. ในระบบ (# 1..51)
+          const realIndex = (typeof drivers !== 'undefined' ? drivers.findIndex(d => getPlainName(d && d.name) === getPlainName(name)) : -1) + 1;
+          const displayIndex = realIndex > 0 ? realIndex : '-';
+
           const warn = a.missing > 0
               ? `<button class="miss-btn" onclick="viewDriverMissing('${name}', '${monthKey}')" title="คลิกดูรายการที่เอกสารยังไม่ครบ">⚠️ ขาด ${a.missing}</button>`
               : '';
 
-          return '<tr>'
-              + '<td style="font-weight:700; color:var(--brand); text-align:left;">' + name + '</td>'
+          const isVerified = (state === ST_VERIFIED);
+          const rowClass = isVerified ? 'verified-row' : (a.missing > 0 ? 'warning-row' : '');
+
+          return '<tr class="' + rowClass + '">'
+              + '<td class="col-center" style="font-weight:700; color:#94a3b8; width:50px;">' + displayIndex + '</td>'
+              + '<td style="font-weight:700; color:var(--brand); text-align:left; cursor:pointer;" onclick="openQuickSummaryModal(\'' + name + '\', null, null)" title="คลิกดูประวัติรายวันของ ' + name + '">' + name + '</td>'
               + '<td class="col-center num-cell">' + (a.ot15/60).toFixed(1) + '</td>'
               + '<td class="col-center num-cell">' + (a.ot1/60).toFixed(1) + '</td>'
               + '<td class="col-center num-cell">' + (a.ot3/60).toFixed(1) + '</td>'
               + '<td class="col-center num-cell" style="font-weight:800;">' + total.toFixed(1) + '</td>'
-              + '<td class="col-center num-cell">' + a.leave + '</td>'
+              + '<td class="col-center num-cell" style="color:' + (a.leave > 0 ? '#ef4444' : '') + '; font-weight:' + (a.leave > 0 ? '700' : '') + ';">' + a.leave + '</td>'
               + '<td class="col-center"><div style="display:flex; flex-direction:column; gap:6px; align-items:center;">'
               +   '<button class="status-badge clickable ' + meta.cls + '" onclick="advanceVerifyState(\'' + name + '\', \'' + monthKey + '\')"'
               +     ' title="คลิกเพื่อเปลี่ยนเป็น ' + nextMeta.text + '">'
@@ -2600,6 +2661,23 @@ window.saveProfile = function() {
               + '</div></td>'
               + '</tr>';
       }).join('');
+
+      const totalAllHours = ((tot15 + tot1 + tot3) / 60).toFixed(1);
+
+      return {
+          rows: rowsHtml,
+          totals: {
+              tot15: (tot15 / 60).toFixed(1),
+              tot1: (tot1 / 60).toFixed(1),
+              tot3: (tot3 / 60).toFixed(1),
+              totalHours: totalAllHours,
+              totLeave: totLeave,
+              verified: totVerified,
+              received: totReceived,
+              pending: totPending,
+              count: names.length
+          }
+      };
   }
 
   // ปุ่มด่วนในหน้า Admin
