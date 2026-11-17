@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>EGAT OT Calculator (v7.8.5) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
+<title>EGAT OT Calculator (v7.8.6) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#f9c419" />
 
   <!-- Open Graph / Social Sharing -->
-  <meta property="og:title" content="EGAT OT Calculator (v7.8.5) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
+  <meta property="og:title" content="EGAT OT Calculator (v7.8.6) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
   <meta property="og:description" content="ระบบคำนวณชั่วโมง OT และเบิกค่าล่วงเวลา สำหรับพนักงาน กฟผ. รองรับมือถือและติดตั้งเป็น PWA" />
   <meta property="og:image" content="./assets/icons/icon-512.png" />
   <meta property="og:type" content="website" />
@@ -50,36 +50,84 @@
     <nav class="menu" id="menu">
       <!-- 1. Admin Dashboard (แสดงเฉพาะแอดมิน) -->
       <div class="menu-item" onclick="switchView('admin')" id="menuAdmin" style="display:none;">
-        <span class="icon">🛡️</span><span class="label">Admin Dashboard</span>
+        <span class="icon icon-badge badge-admin" title="Admin Dashboard">
+          <svg class="menu-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </span>
+        <span class="label">Admin Dashboard</span>
       </div>
 
       <!-- 2. คำนวณเวลา OT -->
       <div class="menu-item active" onclick="switchView('ot')">
-        <span class="icon">⏱️</span><span class="label">คำนวณเวลา OT</span>
+        <span class="icon icon-badge badge-ot" title="คำนวณเวลา OT">
+          <svg class="menu-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </span>
+        <span class="label">คำนวณเวลา OT</span>
       </div>
 
       <!-- 3. เครื่องคิดเลข -->
       <div class="menu-item" onclick="switchView('calc')">
-        <span class="icon">🧮</span><span class="label">เครื่องคิดเลข</span>
+        <span class="icon icon-badge badge-calc" title="เครื่องคิดเลข">
+          <svg class="menu-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="2" width="16" height="20" rx="2"/>
+            <line x1="8" y1="6" x2="16" y2="6"/>
+            <line x1="16" y1="14" x2="16" y2="18"/>
+            <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/>
+          </svg>
+        </span>
+        <span class="label">เครื่องคิดเลข</span>
       </div>
 
       <!-- 4. สรุปรายเดือน -->
       <div class="menu-item" onclick="switchView('history')" id="menuHistory">
-        <span class="icon">📊</span><span class="label">สรุปรายเดือน</span>
+        <span class="icon icon-badge badge-history" title="สรุปรายเดือน">
+          <svg class="menu-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+            <line x1="2" y1="20" x2="22" y2="20"/>
+          </svg>
+        </span>
+        <span class="label">สรุปรายเดือน</span>
       </div>
 
       <!-- 5. รายชื่อ พขร. ทั้งหมด -->
       <div class="menu-item" onclick="switchView('drivers')" id="menuDrivers">
-        <span class="icon">👥</span><span class="label">รายชื่อ พขร. ทั้งหมด</span>
+        <span class="icon icon-badge badge-drivers" title="รายชื่อ พขร. ทั้งหมด">
+          <svg class="menu-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </span>
+        <span class="label">รายชื่อ พขร. ทั้งหมด</span>
       </div>
 
       <!-- เมนูโปรไฟล์ของฉัน (แสดงเมื่อ พขร. ล็อกอิน) -->
       <div class="menu-item" onclick="openProfileModal()" id="menuProfile" style="display:none;">
-        <span class="icon">👤</span><span class="label">โปรไฟล์ของฉัน</span>
+        <span class="icon icon-badge badge-profile" title="โปรไฟล์ของฉัน">
+          <svg class="menu-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </span>
+        <span class="label">โปรไฟล์ของฉัน</span>
       </div>
 
       <div class="menu-item" onclick="openBackupModal()" id="menuBackup" style="margin-top:10px; border-top:1px dashed #e2e8f0; border-radius:0; padding-top:14px;">
-        <span class="icon" style="color:#10b981;">💾</span><span class="label">สำรอง/นำเข้าข้อมูล</span>
+        <span class="icon icon-badge badge-backup" title="สำรอง/นำเข้าข้อมูล">
+          <svg class="menu-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+          </svg>
+        </span>
+        <span class="label">สำรอง/นำเข้าข้อมูล</span>
       </div>
 
       <!-- ===== สถานะการเข้าสู่ระบบ ===== -->
