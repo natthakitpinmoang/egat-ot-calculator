@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>EGAT OT Calculator (v7.8.3) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
+<title>EGAT OT Calculator (v7.8.4) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#f9c419" />
 
   <!-- Open Graph / Social Sharing -->
-  <meta property="og:title" content="EGAT OT Calculator (v7.8.3) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
+  <meta property="og:title" content="EGAT OT Calculator (v7.8.4) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
   <meta property="og:description" content="ระบบคำนวณชั่วโมง OT และเบิกค่าล่วงเวลา สำหรับพนักงาน กฟผ. รองรับมือถือและติดตั้งเป็น PWA" />
   <meta property="og:image" content="./assets/icons/icon-512.png" />
   <meta property="og:type" content="website" />
@@ -39,28 +39,45 @@
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="left"><span class="dot"></span><span class="txt">EGAT Tools</span></div>
+      <div class="left">
+        <div class="brand-logo-wrap">
+          <img src="./assets/icons/icon-192.png" alt="โลโก้ กฟผ." class="brand-logo">
+        </div>
+        <span class="txt">EGAT Tools</span>
+      </div>
       <button class="collapse-btn" id="btnToggle" title="พับ/กาง แถบข้าง">≡</button>
     </div>
     <nav class="menu" id="menu">
-      <div class="menu-item active" onclick="switchView('ot')">
-        <span class="icon">⏱️</span><span class="label">คำนวณเวลา OT</span>
-      </div>
-      <div class="menu-item" onclick="switchView('history')" id="menuHistory">
-        <span class="icon">📊</span><span class="label">สรุปรายเดือน</span>
-      </div>
+      <!-- 1. Admin Dashboard (แสดงเฉพาะแอดมิน) -->
       <div class="menu-item" onclick="switchView('admin')" id="menuAdmin" style="display:none;">
         <span class="icon">🛡️</span><span class="label">Admin Dashboard</span>
       </div>
-      <div class="menu-item" onclick="switchView('drivers')" id="menuDrivers">
-        <span class="icon">👥</span><span class="label">รายชื่อ พขร.</span>
+
+      <!-- 2. คำนวณเวลา OT -->
+      <div class="menu-item active" onclick="switchView('ot')">
+        <span class="icon">⏱️</span><span class="label">คำนวณเวลา OT</span>
       </div>
-      <div class="menu-item" onclick="openProfileModal()" id="menuProfile" style="display:none;">
-        <span class="icon">👤</span><span class="label">โปรไฟล์ของฉัน</span>
-      </div>
+
+      <!-- 3. เครื่องคิดเลข -->
       <div class="menu-item" onclick="switchView('calc')">
         <span class="icon">🧮</span><span class="label">เครื่องคิดเลข</span>
       </div>
+
+      <!-- 4. สรุปรายเดือน -->
+      <div class="menu-item" onclick="switchView('history')" id="menuHistory">
+        <span class="icon">📊</span><span class="label">สรุปรายเดือน</span>
+      </div>
+
+      <!-- 5. รายชื่อ พขร. ทั้งหมด -->
+      <div class="menu-item" onclick="switchView('drivers')" id="menuDrivers">
+        <span class="icon">👥</span><span class="label">รายชื่อ พขร. ทั้งหมด</span>
+      </div>
+
+      <!-- เมนูโปรไฟล์ของฉัน (แสดงเมื่อ พขร. ล็อกอิน) -->
+      <div class="menu-item" onclick="openProfileModal()" id="menuProfile" style="display:none;">
+        <span class="icon">👤</span><span class="label">โปรไฟล์ของฉัน</span>
+      </div>
+
       <div class="menu-item" onclick="openBackupModal()" id="menuBackup" style="margin-top:10px; border-top:1px dashed #e2e8f0; border-radius:0; padding-top:14px;">
         <span class="icon" style="color:#10b981;">💾</span><span class="label">สำรอง/นำเข้าข้อมูล</span>
       </div>

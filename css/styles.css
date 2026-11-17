@@ -71,6 +71,7 @@ body {
     padding: 12px 8px !important;
 }
 .sidebar.collapsed .brand .left { justify-content: center; }
+.sidebar.collapsed .brand-logo-wrap { margin: 0 auto; }
 
 /* ปุ่ม toggle ต้องกดได้เสมอ แม้ตอนยุบ */
 .sidebar.collapsed .collapse-btn {
@@ -1195,7 +1196,26 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     height: 3px;
     background: linear-gradient(90deg, #fde68a, #fbbf24, #60a5fa);
 }
-.brand .left { position: relative; z-index: 1; }
+.brand .left { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; }
+.brand-logo-wrap {
+    width: 34px;
+    height: 34px;
+    background: #ffffff;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+    overflow: hidden;
+    padding: 2px;
+    flex-shrink: 0;
+}
+.brand-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
 .brand .dot {
     width: 14px !important;
     height: 14px !important;
