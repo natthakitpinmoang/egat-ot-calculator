@@ -290,7 +290,8 @@
               const fetchedHistory = safeParse(cloudData['egat_ot_history'], null);
               if (Array.isArray(fetchedHistory)) {
                   otHistory = fetchedHistory;
-                  try { localStorage.setItem('egat_ot_history', cloudData['egat_ot_history']); } catch(e){}
+                  try { sanitizeHistoryData(); } catch(e) {}
+                  try { localStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
               }
           }
           if (cloudData['egat_ot_verified_status'] && !localIsNewer) {
@@ -1817,6 +1818,45 @@ function toggleSidebar(forceState) {
   let filteredIds = []; 
   try { otHistory = JSON.parse(CloudStorage.getItem('egat_ot_history')) || []; } catch(e) {}
    
+  function sanitizeHistoryData() {
+      if (!Array.isArray(otHistory)) return;
+      let changed = false;
+      otHistory.forEach(item => {
+          if (!item || item.isLeave) return;
+          const isBadTimeRange = !item.timeRange || item.timeRange.includes('NaN') || item.timeRange === 'undefined';
+          const hasValidTimes = item.start && item.end && item.start !== '-' && item.end !== '-' && !item.start.includes('NaN') && !item.end.includes('NaN');
+
+          if (isBadTimeRange) {
+              if (hasValidTimes) {
+                  item.timeRange = `${item.start} - ${item.end}`;
+                  changed = true;
+              } else {
+                  if (item.timeRange) {
+                      delete item.timeRange;
+                      changed = true;
+                  }
+                  if (!item.isPending) {
+                      item.isPending = true;
+                      changed = true;
+                  }
+              }
+          } else if (item.isTemplate || item.start === '-' || item.end === '-') {
+              if (item.timeRange) {
+                  delete item.timeRange;
+                  changed = true;
+              }
+              if (!item.isPending) {
+                  item.isPending = true;
+                  changed = true;
+              }
+          }
+      });
+      if (changed) {
+          try { CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e) {}
+      }
+  }
+
+  sanitizeHistoryData();
   sortHistory();
 
   const WORKDAY_MINUTES = 8*60;
@@ -3084,7 +3124,15 @@ function renderDrivers() {
   }
 
   const MIN = (h,m)=>h*60+m;
-  const toMinutes = t => { if(!t) return 0; const [h,m]=t.split(':').map(Number); return h*60+m; };
+  const toMinutes = t => {
+      if(!t || typeof t !== 'string' || t.trim() === '-' || t.trim() === '') return NaN;
+      const parts = t.trim().split(':');
+      if(parts.length < 2) return NaN;
+      const h = Number(parts[0]);
+      const m = Number(parts[1]);
+      if(!isFinite(h) || !isFinite(m)) return NaN;
+      return h*60+m;
+  };
     
   function getEffectiveDriver() {
       const historyView = document.getElementById('view-history');
@@ -3130,7 +3178,13 @@ function renderDrivers() {
       return v.toString().replace(/\.0$/, '');
   };
 
-  const fmtTime = mins => { const h = Math.floor(mins/60)%24; const m = mins%60; return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; };
+  const fmtTime = mins => {
+      const num = Number(mins);
+      if(!isFinite(num)) return '--:--';
+      const h = Math.floor(num/60)%24;
+      const m = num%60;
+      return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  };
 
   window.handleAutoPilotOT = function(reqHoursStr) {
       if (!currentCalcResult) return;
@@ -3279,9 +3333,11 @@ function renderDrivers() {
 
   function calculateCore(start, end, dateVal, type) {
       if(!start || !end || !dateVal) return null;
+      if(start === '-' || end === '-') return null;
       let startMin = toMinutes(start);
       let endMin = toMinutes(end);
-      if (endMin < startMin || end.startsWith('00:')) endMin += 24 * 60; 
+      if(!isFinite(startMin) || !isFinite(endMin)) return null;
+      if (endMin < startMin || (typeof end === 'string' && end.startsWith('00:'))) endMin += 24 * 60; 
       if (startMin > 720 && startMin < 780) startMin = 780;
       if (endMin > 720 && endMin < 780) endMin = 720;
       
@@ -3451,13 +3507,17 @@ function renderDrivers() {
 
   function saveInline(id) { 
       const dateInp = document.getElementById('editDate').value;
-      const startInp = document.getElementById('editStart').value;
-      const endInp = document.getElementById('editEnd').value;
+      const startInp = (document.getElementById('editStart').value || '').trim();
+      const endInp = (document.getElementById('editEnd').value || '').trim();
       const originalIndex = otHistory.findIndex(x => x.id === id);
       if(originalIndex === -1) return;
       const originalItem = otHistory[originalIndex];
 
       if(!dateInp) { alert('กรุณาระบุวันที่'); return; }
+      if(!startInp || startInp === '-' || !endInp || endInp === '-') {
+          alert('กรุณาระบุเวลาเข้าและเวลาออกให้ถูกต้อง เช่น 08:00 - 17:00');
+          return;
+      }
 
       const d = new Date(dateInp);
       const day = d.getDay();
@@ -3470,6 +3530,7 @@ function renderDrivers() {
           newResult.id = originalItem.id;
           newResult.driver = getPlainName(originalItem.driver); 
           newResult.isPending = false; 
+          newResult.isTemplate = false; 
           
           if (originalItem.isIncomplete) {
               newResult.isIncomplete = true;
@@ -4636,17 +4697,26 @@ function closeIncompleteModal() {
                         requestHtml = `<td class="col-center" style="font-weight:800; color:#0284c7; font-size:0.95rem; vertical-align:middle;">${reqValDisplay}</td>`;
                     }
 
-                    if(item.isPending) {
+                    let displayTimeRange = '';
+                    if (item.timeRange && !item.timeRange.includes('NaN') && item.timeRange !== 'undefined') {
+                        displayTimeRange = item.timeRange;
+                    } else if (item.start && item.end && item.start !== '-' && item.end !== '-' && !item.start.includes('NaN') && !item.end.includes('NaN')) {
+                        displayTimeRange = `${item.start} - ${item.end}`;
+                    }
+
+                    const hasNoTime = !displayTimeRange || item.isPending || item.isTemplate || item.start === '-' || item.end === '-';
+
+                    if(hasNoTime) {
                          timeContent = `<span class="time-range pending" onclick="editInline(${id})" title="คลิกเพื่อระบุเวลา">➕ เพิ่ม</span>`;
                     } else {
-                         timeContent = `<span class="time-range" onclick="editInline(${id})" title="คลิกเพื่อแก้ไขเวลา">${item.timeRange}</span>`;
+                         timeContent = `<span class="time-range" onclick="editInline(${id})" title="คลิกเพื่อแก้ไขเวลา">${displayTimeRange}</span>`;
                     }
                     
                     if(item.isIncomplete && !item.isLeave) {
                         timeContent += `<div class="inc-box" style="margin:6px auto 0;"><i>📝</i><span>${item.incompleteReason || 'ขาดเอกสาร'}</span></div>`;
                     }
 
-                    if(item.isPending) {
+                    if(hasNoTime) {
                          otHtml = `<td class="col-center" style="color:#cbd5e1">-</td><td class="col-center" style="color:#cbd5e1">-</td><td class="col-center" style="color:#cbd5e1">-</td>`;
                          actionBtnHtml = `<button class="action-btn del-btn" onclick="deleteHistory(${id})" title="ลบ">🗑️</button>`;
                     } else {
@@ -4668,7 +4738,7 @@ function closeIncompleteModal() {
                             <td class="col-center" style="vertical-align:middle;">${pillHtml}</td>
                             <td class="col-center" colspan="4">
                                 <div class="edit-row-wrap" style="gap:4px;">
-                                    <input type="tel" id="editStart" value="${item.start || '08:00'}" class="mini-input" style="width:70px;"><span>-</span><input type="tel" id="editEnd" value="${item.end || '17:00'}" class="mini-input" style="width:70px;">
+                                    <input type="tel" id="editStart" value="${(item.start && item.start !== '-' && !item.start.includes('NaN')) ? item.start : '08:00'}" class="mini-input" style="width:70px;"><span>-</span><input type="tel" id="editEnd" value="${(item.end && item.end !== '-' && !item.end.includes('NaN')) ? item.end : '17:00'}" class="mini-input" style="width:70px;">
                                     <button onclick="saveInline(${id})" class="mini-btn ok">✔</button>
                                     <button onclick="cancelInline()" class="mini-btn cancel">✖</button>
                                 </div>
