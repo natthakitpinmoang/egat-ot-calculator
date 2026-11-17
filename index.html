@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>EGAT OT Calculator (v7.8.1) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
+<title>EGAT OT Calculator (v7.8.2) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#f9c419" />
 
   <!-- Open Graph / Social Sharing -->
-  <meta property="og:title" content="EGAT OT Calculator (v7.8.1) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
+  <meta property="og:title" content="EGAT OT Calculator (v7.8.2) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
   <meta property="og:description" content="ระบบคำนวณชั่วโมง OT และเบิกค่าล่วงเวลา สำหรับพนักงาน กฟผ. รองรับมือถือและติดตั้งเป็น PWA" />
   <meta property="og:image" content="./assets/icons/icon-512.png" />
   <meta property="og:type" content="website" />
@@ -137,32 +137,36 @@
       <div class="card">
         <div class="history-header-container">
             <div class="left-group">
-                <h2 id="historyTitleBtn" class="history-title">สรุปรายเดือน</h2>
+                <div class="history-title-group">
+                    <h2 id="historyTitleBtn" class="history-title">สรุปรายเดือน</h2>
 
-                <!-- แถบสลับโหมด 1. สรุปรายเดือน (ปกติ) / 2. สรุป พขร. (ยอดรวม) -->
-                <div class="history-mode-pill-bar">
-                    <button type="button" class="mode-pill-btn active" id="btnModeDaily" onclick="setHistoryMode('daily')">
-                        📅 1. สรุปรายเดือน (ปกติ)
-                    </button>
-                    <button type="button" class="mode-pill-btn" id="btnModeDriver" onclick="setHistoryMode('driver')">
-                        👥 2. สรุป พขร. (ยอดรวม)
-                    </button>
-                </div>
-
-                <div class="month-stepper-wrap">
-                    <button type="button" class="month-step-btn" onclick="stepMonth(-1)" title="เดือนก่อนหน้า">◀</button>
-                    <div class="month-picker-inline" onclick="openCustomMonthPicker('historyMonthPicker', 'historyDateDisplay')" title="คลิกเพื่อเลือกเดือน">
-                        <span class="cal-ico" aria-hidden="true" style="font-size:1.1rem; line-height:1; margin-right:6px;">📅</span>
-                        <span id="historyDateDisplay" class="month-text">...</span>
-                        <span style="font-size:0.8em; margin-left:6px; opacity:0.5;">▼</span>
+                    <!-- แถบสลับโหมด 1. สรุปรายเดือน (ปกติ) / 2. สรุป พขร. (ยอดรวม) -->
+                    <div class="history-mode-pill-bar">
+                        <button type="button" class="mode-pill-btn active" id="btnModeDaily" onclick="setHistoryMode('daily')">
+                            <span>📅</span> 1. สรุปรายเดือน (ปกติ)
+                        </button>
+                        <button type="button" class="mode-pill-btn" id="btnModeDriver" onclick="setHistoryMode('driver')">
+                            <span>👥</span> 2. สรุป พขร. (ยอดรวม)
+                        </button>
                     </div>
-                    <button type="button" class="month-step-btn" onclick="stepMonth(1)" title="เดือนถัดไป">▶</button>
                 </div>
-                <input type="text" id="historyMonthPicker" class="history-date-input-hidden" onchange="renderHistory()">
-                
-                <button id="btnExportCSV" onclick="exportSummaryToCSV()" class="action-btn-pill" style="margin-left: auto; align-self: center; background:linear-gradient(to bottom, #fff, #ecfeff); border: 1px solid #a5f3fc; color:#0891b2; display:none; box-shadow:0 2px 4px rgba(8, 145, 178, 0.1); padding: 8px 16px; font-size: 0.95rem; font-weight: 700; align-items: center; gap: 6px;" title="ส่งออกข้อมูลสรุปเป็นไฟล์ CSV">
-                    📥 ส่งออก Excel (CSV)
-                </button>
+
+                <div class="history-actions-group">
+                    <div class="month-stepper-wrap">
+                        <button type="button" class="month-step-btn" onclick="stepMonth(-1)" title="เดือนก่อนหน้า">◀</button>
+                        <div class="month-picker-inline" onclick="openCustomMonthPicker('historyMonthPicker', 'historyDateDisplay')" title="คลิกเพื่อเลือกเดือน">
+                            <span class="cal-ico" aria-hidden="true">📅</span>
+                            <span id="historyDateDisplay" class="month-text">...</span>
+                            <span class="month-caret">▼</span>
+                        </div>
+                        <button type="button" class="month-step-btn" onclick="stepMonth(1)" title="เดือนถัดไป">▶</button>
+                    </div>
+                    <input type="text" id="historyMonthPicker" class="history-date-input-hidden" onchange="renderHistory()">
+                    
+                    <button id="btnExportCSV" onclick="exportSummaryToCSV()" class="action-btn-pill btn-export-csv" style="display:none;" title="ส่งออกข้อมูลสรุปเป็นไฟล์ CSV">
+                        📥 ส่งออก Excel (CSV)
+                    </button>
+                </div>
             </div>
             <div class="right-group" id="historyDriverFilterGroup">
                 <div class="driver-filter-wrapper">
