@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>EGAT OT Calculator (v7.8.2) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
+<title>EGAT OT Calculator (v7.8.3) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#f9c419" />
 
   <!-- Open Graph / Social Sharing -->
-  <meta property="og:title" content="EGAT OT Calculator (v7.8.2) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
+  <meta property="og:title" content="EGAT OT Calculator (v7.8.3) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
   <meta property="og:description" content="ระบบคำนวณชั่วโมง OT และเบิกค่าล่วงเวลา สำหรับพนักงาน กฟผ. รองรับมือถือและติดตั้งเป็น PWA" />
   <meta property="og:image" content="./assets/icons/icon-512.png" />
   <meta property="og:type" content="website" />
@@ -186,7 +186,6 @@
              <button onclick="openIncompleteModal()" class="tool-btn" style="background:#f3e8ff; border-color:#d8b4fe; color:#7e22ce;" title="ระบุว่าส่งเอกสารมาไม่ครบ">⚠️ แจ้งขาด</button>
              <button onclick="openFollowUpSummary()" class="tool-btn" style="background:#fff7ed; border-color:#fed7aa; color:#ea580c;" title="สรุปรายการที่ต้องตาม">📋 สรุปตาม</button>
              <button id="btnToolbarVerify" onclick="toggleVerifyCurrentDriver()" class="tool-btn t-verify" title="ยืนยันตรวจสอบเอกสาร">⚪ รอตรวจสอบ</button>
-             <button onclick="openAdvancedModal()" class="tool-btn" style="background:#f8fafc; border-color:#cbd5e1; color:#475569;" title="การจัดการขั้นสูง (รีเซ็ต/ลบ)">⚙️ จัดการ</button>
         </div>
              
         <div class="summary-grid">
@@ -363,6 +362,7 @@
           <button class="qa-btn qa-cyan" onclick="adminGoExport()">📥 ส่งออก Excel (CSV)</button>
           <button class="qa-btn" onclick="adminGoDrivers()">👥 เพิ่ม/จัดการ รายชื่อ พขร.</button>
           <button class="qa-btn qa-green" onclick="adminGoBackup()">💾 สำรอง/นำเข้าข้อมูล JSON</button>
+          <button class="qa-btn qa-purple" onclick="openAdvancedModal()" title="จัดการขั้นสูง (รีเซ็ตค่าเวลา / ลบข้อมูล / รหัส PIN แอดมิน)">⚙️ จัดการขั้นสูง</button>
           <button class="qa-btn" onclick="renderAdminDashboard()">🔄 รีเฟรช</button>
         </div>
 

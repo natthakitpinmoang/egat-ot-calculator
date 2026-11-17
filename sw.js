@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "ot-calculator-v7.8.2";
+const CACHE_NAME = "ot-calculator-v7.8.3";
 const ASSETS = [
   "./",
   "./index.html",

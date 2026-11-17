@@ -3625,7 +3625,18 @@ function renderDrivers() {
   }
 
   function openResetModal() {
-      const driverFilterVal = document.getElementById('historyDriverFilter').value;
+      const adminSec = document.getElementById('view-admin');
+      const isAdminView = adminSec && !adminSec.classList.contains('hidden') && adminSec.style.display !== 'none';
+      let monthText = '';
+      if (isAdminView) {
+          const admDisplay = document.getElementById('adminMonthDisplay');
+          monthText = admDisplay ? admDisplay.innerText : '';
+      } else {
+          const histDisplay = document.getElementById('historyDateDisplay');
+          monthText = histDisplay ? histDisplay.innerText : '';
+      }
+
+      const driverFilterVal = isAdminView ? '' : (document.getElementById('historyDriverFilter') ? document.getElementById('historyDriverFilter').value : '');
       const btnResetMonth = document.getElementById('btnResetMonth');
       
       if (btnResetMonth) {
@@ -3633,7 +3644,7 @@ function renderDrivers() {
               let plainName = getPlainName(driverFilterVal);
               btnResetMonth.innerHTML = `📅 รีเซ็ตเฉพาะคนที่เลือกอยู่ (${plainName})`;
           } else {
-              btnResetMonth.innerHTML = `📅 รีเซ็ตเฉพาะเดือนนี้ (ทุกคน)`;
+              btnResetMonth.innerHTML = `📅 รีเซ็ตเฉพาะเดือนนี้ ${monthText ? '(' + monthText + ')' : ''} (ทุกคน)`;
           }
       }
 
@@ -3647,13 +3658,22 @@ function renderDrivers() {
   function resetCurrentMonth() {
       closeResetModal(); 
 
-      const driverFilterVal = document.getElementById('historyDriverFilter').value;
+      const adminSec = document.getElementById('view-admin');
+      const isAdminView = adminSec && !adminSec.classList.contains('hidden') && adminSec.style.display !== 'none';
+      const driverFilterVal = isAdminView ? '' : (document.getElementById('historyDriverFilter') ? document.getElementById('historyDriverFilter').value : '');
       let targetMonth = null;
       let targetYear = null;
       
-      const historyPickerVal = document.getElementById('historyMonthPicker').value;
-      if (!showAll && historyPickerVal) {
-          const [y, m] = historyPickerVal.split('-');
+      let monthPickerVal = '';
+      if (isAdminView && typeof getAdminMonthKey === 'function') {
+          monthPickerVal = getAdminMonthKey();
+      } else {
+          const hp = document.getElementById('historyMonthPicker');
+          monthPickerVal = hp ? hp.value : '';
+      }
+
+      if (!showAll && monthPickerVal) {
+          const [y, m] = monthPickerVal.split('-');
           targetMonth = parseInt(m) - 1;
           targetYear = parseInt(y);
       } else if (!showAll) {
@@ -3683,11 +3703,23 @@ function renderDrivers() {
       });
       CloudStorage.setItem('egat_ot_history', JSON.stringify(otHistory));
       renderHistory();
+      if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
       alert(`รีเซ็ตค่ากลับเป็นแบบร่างเรียบร้อย จำนวน ${count} รายการ`);
   }
 
   function openDeleteModal() {
-      const driverFilterVal = document.getElementById('historyDriverFilter').value;
+      const adminSec = document.getElementById('view-admin');
+      const isAdminView = adminSec && !adminSec.classList.contains('hidden') && adminSec.style.display !== 'none';
+      let monthText = '';
+      if (isAdminView) {
+          const admDisplay = document.getElementById('adminMonthDisplay');
+          monthText = admDisplay ? admDisplay.innerText : '';
+      } else {
+          const histDisplay = document.getElementById('historyDateDisplay');
+          monthText = histDisplay ? histDisplay.innerText : '';
+      }
+
+      const driverFilterVal = isAdminView ? '' : (document.getElementById('historyDriverFilter') ? document.getElementById('historyDriverFilter').value : '');
       const btnDeleteMonth = document.getElementById('btnDeleteMonth');
       
       if (btnDeleteMonth) {
@@ -3695,7 +3727,7 @@ function renderDrivers() {
               let plainName = getPlainName(driverFilterVal);
               btnDeleteMonth.innerHTML = `📅 ลบเฉพาะคนที่เลือกอยู่ (${plainName})`;
           } else {
-              btnDeleteMonth.innerHTML = `📅 ลบเฉพาะเดือนนี้ (ทุกคน)`;
+              btnDeleteMonth.innerHTML = `📅 ลบเฉพาะเดือนนี้ ${monthText ? '(' + monthText + ')' : ''} (ทุกคน)`;
           }
       }
 
@@ -3709,13 +3741,27 @@ function renderDrivers() {
   function deleteCurrentMonth() {
       closeDeleteModal();
 
-      const driverFilterVal = document.getElementById('historyDriverFilter').value;
+      const adminSec = document.getElementById('view-admin');
+      const isAdminView = adminSec && !adminSec.classList.contains('hidden') && adminSec.style.display !== 'none';
+      const driverFilterVal = isAdminView ? '' : (document.getElementById('historyDriverFilter') ? document.getElementById('historyDriverFilter').value : '');
       let targetMonth = null;
       let targetYear = null;
       
-      const historyPickerVal = document.getElementById('historyMonthPicker').value;
-      if (!showAll && historyPickerVal) {
-          const [y, m] = historyPickerVal.split('-');
+      let monthPickerVal = '';
+      let mText = '';
+      if (isAdminView && typeof getAdminMonthKey === 'function') {
+          monthPickerVal = getAdminMonthKey();
+          const admDisplay = document.getElementById('adminMonthDisplay');
+          mText = admDisplay ? admDisplay.innerText : monthPickerVal;
+      } else {
+          const hp = document.getElementById('historyMonthPicker');
+          monthPickerVal = hp ? hp.value : '';
+          const histDisplay = document.getElementById('historyDateDisplay');
+          mText = histDisplay ? histDisplay.innerText : monthPickerVal;
+      }
+
+      if (!showAll && monthPickerVal) {
+          const [y, m] = monthPickerVal.split('-');
           targetMonth = parseInt(m) - 1;
           targetYear = parseInt(y);
       } else if (!showAll) {
@@ -3728,7 +3774,6 @@ function renderDrivers() {
       if (showAll) {
           confirmMsg = `⚠️ อันตราย: ยืนยันลบรายการ "ทั้งหมด"?`;
       } else {
-          const mText = document.getElementById('historyDateDisplay').innerText;
           if (plainCurrentDriver) {
               confirmMsg = `⚠️ ยืนยันลบข้อมูลของ "${plainCurrentDriver}"\nประจำเดือน "${mText}" ใช่หรือไม่?`;
           } else {
@@ -3757,13 +3802,13 @@ function renderDrivers() {
       
       try { reloadVerifyStatus(); } catch(e) {}
       if(plainCurrentDriver && targetMonth !== null) {
-           const monthKey = historyPickerVal;
+           const monthKey = monthPickerVal;
            if(verifiedStatus[monthKey] && verifiedStatus[monthKey][plainCurrentDriver]) {
                delete verifiedStatus[monthKey][plainCurrentDriver];
                CloudStorage.setItem('egat_ot_verified_status', JSON.stringify(verifiedStatus));
            }
       } else if (!plainCurrentDriver && targetMonth !== null) {
-           const monthKey = historyPickerVal;
+           const monthKey = monthPickerVal;
            if(verifiedStatus[monthKey]) {
                delete verifiedStatus[monthKey];
                CloudStorage.setItem('egat_ot_verified_status', JSON.stringify(verifiedStatus));
@@ -3771,6 +3816,7 @@ function renderDrivers() {
       }
 
       renderHistory();
+      if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
       updateBadge();
       alert(`ลบเรียบร้อย จำนวน ${deletedCount} รายการ`);
   }
