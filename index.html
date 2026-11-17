@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>EGAT OT Calculator (v7.8.7) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
+<title>EGAT OT Calculator (v7.8.8) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#f9c419" />
 
   <!-- Open Graph / Social Sharing -->
-  <meta property="og:title" content="EGAT OT Calculator (v7.8.7) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
+  <meta property="og:title" content="EGAT OT Calculator (v7.8.8) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
   <meta property="og:description" content="ระบบคำนวณชั่วโมง OT และเบิกค่าล่วงเวลา สำหรับพนักงาน กฟผ. รองรับมือถือและติดตั้งเป็น PWA" />
   <meta property="og:image" content="./assets/icons/icon-512.png" />
   <meta property="og:type" content="website" />
@@ -376,10 +376,19 @@
               <div class="kpi-value" id="kpiTotalHours" style="color:#0284c7;">0.0</div>
               <span class="kpi-unit">ชม.</span>
             </div>
-            <div class="kpi-ot-pills">
-              <span class="pill-ot-item x15"><b>X1.5:</b> <span id="kpiOt15">0.0</span></span>
-              <span class="pill-ot-item x1"><b>X1:</b> <span id="kpiOt1">0.0</span></span>
-              <span class="pill-ot-item x3"><b>X3:</b> <span id="kpiOt3">0.0</span></span>
+            <div class="kpi-ot-breakdown">
+              <div class="kpi-ot-item x15">
+                <span class="lb">X1.5</span>
+                <span class="vl" id="kpiOt15">0.0</span>
+              </div>
+              <div class="kpi-ot-item x1">
+                <span class="lb">X1</span>
+                <span class="vl" id="kpiOt1">0.0</span>
+              </div>
+              <div class="kpi-ot-item x3">
+                <span class="lb">X3</span>
+                <span class="vl" id="kpiOt3">0.0</span>
+              </div>
             </div>
           </div>
 

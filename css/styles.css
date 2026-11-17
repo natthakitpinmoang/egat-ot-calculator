@@ -1453,25 +1453,57 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     margin-top: auto;
 }
 
-/* OT Rate Pills */
-.kpi-ot-pills {
-    display: flex;
+/* OT Rate Breakdown & Pills (3 Equal Columns Grid, Zero Overflow) */
+.kpi-ot-pills,
+.kpi-ot-breakdown {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 6px;
-    margin-top: 6px;
-    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: 10px;
+    width: 100%;
 }
+.kpi-ot-item,
 .pill-ot-item {
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 8px;
-    display: inline-flex;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    text-align: center;
+    border-radius: 10px;
+    padding: 6px 2px;
+    border: 1px solid transparent;
+    min-width: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    transition: transform 0.15s ease;
 }
-.pill-ot-item.x15 { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
-.pill-ot-item.x1  { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; }
-.pill-ot-item.x3  { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+.kpi-ot-item .lb,
+.pill-ot-item b {
+    font-size: 0.68rem;
+    font-weight: 800;
+    display: block;
+    letter-spacing: 0.2px;
+    margin-bottom: 2px;
+}
+.kpi-ot-item .vl,
+.pill-ot-item span {
+    font-size: 0.95rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    display: block;
+    line-height: 1.15;
+}
+.kpi-ot-item.x15, .pill-ot-item.x15 { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+.kpi-ot-item.x15 .lb, .pill-ot-item.x15 b { color: #1d4ed8; }
+.kpi-ot-item.x15 .vl, .pill-ot-item.x15 span { color: #1e40af; }
+
+.kpi-ot-item.x1, .pill-ot-item.x1   { background: #ecfeff; border-color: #a5f3fc; color: #0e7490; }
+.kpi-ot-item.x1 .lb, .pill-ot-item.x1 b   { color: #0891b2; }
+.kpi-ot-item.x1 .vl, .pill-ot-item.x1 span { color: #0e7490; }
+
+.kpi-ot-item.x3, .pill-ot-item.x3   { background: #fff1f2; border-color: #fecdd3; color: #be123c; }
+.kpi-ot-item.x3 .lb, .pill-ot-item.x3 b   { color: #e11d48; }
+.kpi-ot-item.x3 .vl, .pill-ot-item.x3 span { color: #be123c; }
 
 /* Progress Bar */
 .kpi-progress-bar {
@@ -1674,60 +1706,6 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 @media (max-width: 480px) {
     .admin-quick-actions { grid-template-columns: 1fr; }
 }
-/* ---------- [FIX] กล่อง Compact แยกเรต OT (กระชับ ไม่ดันการ์ดยาว) ---------- */
-.kpi-ot-breakdown {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
-    margin-top: 8px;
-}
-.kpi-ot-item {
-    text-align: center;
-    border-radius: 10px;
-    padding: 4px 2px;
-    border: 1px solid transparent;
-    min-width: 0;
-}
-.kpi-ot-item .lb {
-    font-size: 0.62rem;
-    font-weight: 800;
-    display: block;
-    letter-spacing: 0.3px;
-}
-.kpi-ot-item .vl {
-    font-size: 0.98rem;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    display: block;
-    margin-top: 1px;
-    line-height: 1.15;
-}
-/* โทนสีระบุเรต OT: X1.5 = ฟ้า/น้ำเงิน | X1 = เขียว | X3 = แดง */
-.kpi-ot-item.x15 { background: #eff6ff; border-color: #bfdbfe; }
-.kpi-ot-item.x15 .lb { color: #1d4ed8; }
-.kpi-ot-item.x15 .vl { color: #1e40af; }
-
-.kpi-ot-item.x1 { background: #ecfdf5; border-color: #a7f3d0; }
-.kpi-ot-item.x1 .lb { color: #047857; }
-.kpi-ot-item.x1 .vl { color: #065f46; }
-
-.kpi-ot-item.x3 { background: #fef2f2; border-color: #fecaca; }
-.kpi-ot-item.x3 .lb { color: #b91c1c; }
-.kpi-ot-item.x3 .vl { color: #991b1b; }
-
-.kpi-total-row {
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px dashed var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    font-size: 0.78rem;
-    font-weight: 800;
-    color: var(--text-muted);
-}
-.kpi-total-row .num { font-size: 1.05rem; font-variant-numeric: tabular-nums; color: var(--brand); }
-
 /* ---------- [FIX] แถบสถิติย่อย: ยอดวันลา (ไม่ดันการ์ดตกกรอบ) ---------- */
 .kpi-leave-row {
     display: flex; justify-content: space-between; align-items: center;
