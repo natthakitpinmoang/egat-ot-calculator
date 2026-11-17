@@ -151,9 +151,10 @@
 
                 <div class="month-stepper-wrap">
                     <button type="button" class="month-step-btn" onclick="stepMonth(-1)" title="เดือนก่อนหน้า">◀</button>
-                    <div class="month-picker-inline" onclick="openCustomMonthPicker('historyMonthPicker', 'historyDateDisplay')">
+                    <div class="month-picker-inline" onclick="openCustomMonthPicker('historyMonthPicker', 'historyDateDisplay')" title="คลิกเพื่อเลือกเดือน">
+                        <span class="cal-ico" aria-hidden="true" style="font-size:1.1rem; line-height:1; margin-right:6px;">📅</span>
                         <span id="historyDateDisplay" class="month-text">...</span>
-                        <span style="font-size:0.8em; margin-left:4px; opacity:0.5;">▼</span>
+                        <span style="font-size:0.8em; margin-left:6px; opacity:0.5;">▼</span>
                     </div>
                     <button type="button" class="month-step-btn" onclick="stepMonth(1)" title="เดือนถัดไป">▶</button>
                 </div>
@@ -266,11 +267,15 @@
           <h2 style="margin:0;">🛡️ Admin Dashboard</h2>
           <button id="pendingBellBtn" class="pending-bell-btn" onclick="openApprovalModal()" style="display:none;">🔔 บัญชีรออนุมัติ <span id="pendingCountBadge" class="pending-count-badge">0</span></button>
           <!-- Dropdown เลือกเดือน พร้อมปุ่มเลื่อนเดือนด่วน -->
+          <!-- ตัวเลือกเดือน สไตล์ Pill พร้อมปุ่มเลื่อนเดือนด่วน และเปิด Custom Month Picker Modal -->
           <div class="admin-month-select" style="display:inline-flex; align-items:center; gap:6px;">
             <button type="button" class="month-step-btn" onclick="stepAdminMonth(-1)" title="เดือนก่อนหน้า">◀</button>
-            <span class="cal-ico" aria-hidden="true">📅</span>
-            <select id="adminMonthSelect" class="admin-month-input"
-                    onchange="onAdminMonthChange()"></select>
+            <div id="adminMonthPickerWrap" class="month-picker-inline" onclick="openCustomMonthPicker('adminMonthPicker', 'adminMonthDisplay')" style="display:inline-flex; align-items:center; cursor:pointer; gap:4px; border-bottom:none; padding-bottom:0;" title="คลิกเพื่อเลือกเดือน">
+              <span class="cal-ico" aria-hidden="true">📅</span>
+              <span id="adminMonthDisplay" class="admin-month-input" style="pointer-events:none; min-width:auto; padding:4px 2px !important; display:inline-block;">...</span>
+              <span style="font-size:0.75em; opacity:0.6; color:var(--brand); margin-left:2px;">▼</span>
+            </div>
+            <input type="hidden" id="adminMonthPicker" onchange="onAdminMonthChange()">
             <button type="button" class="month-step-btn" onclick="stepAdminMonth(1)" title="เดือนถัดไป">▶</button>
           </div>
         </div>

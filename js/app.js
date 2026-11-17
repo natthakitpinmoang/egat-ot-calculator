@@ -1501,6 +1501,9 @@ function toggleSidebar(forceState) {
             renderHistory();
         } else if (pickerTargetId === 'createTargetMonth') {
             updateCreateMonthDisplay(val);
+        } else if (pickerTargetId === 'adminMonthPicker') {
+            try { CloudStorage.setItem('egat_admin_month', val); } catch(e) {}
+            renderAdminDashboard();
         }
     }
     
@@ -2286,58 +2289,50 @@ window.saveProfile = function() {
       return agg;
   }
 
-  // [NEW] เตรียม Dropdown เลือกเดือนสำหรับ Admin Dashboard
-  // สร้างครบ 12 เดือนของปี พ.ศ. ปัจจุบันเสมอ (ไม่ผูกกับว่ามีข้อมูลหรือไม่)
+  // [NEW] ซิงค์ตัวเลือกเดือนสำหรับ Admin Dashboard
   function populateAdminMonthSelect() {
-      const sel = document.getElementById('adminMonthSelect') || document.getElementById('adminMonthPicker');
-      if (!sel) return;
-
-      const now = new Date();
-      const curYear = now.getFullYear();
-      const thaiYear = curYear + 543;
-      const prevValue = sel.value || '';
-      const list = [];
-      for (let mm = 1; mm <= 12; mm++) {
-          const k = curYear + '-' + String(mm).padStart(2, '0');
-          list.push(k);
-      }
-      sel.innerHTML = list.map(k => {
-          const p = k.split('-').map(Number);
-          return '<option value="' + k + '">' + (THAI_MONTHS_FULL[p[1] - 1] || k) + ' ' + thaiYear + '</option>';
-      }).join('');
-
-      // คงค่าเดิมไว้ถ้ายังอยู่ในปีปัจจุบัน, ไม่งั้นเลือกเดือนปัจจุบัน
-      const cur = curYear + '-' + String(now.getMonth() + 1).padStart(2, '0');
-      sel.value = list.indexOf(prevValue) >= 0 ? prevValue : (list.indexOf(cur) >= 0 ? cur : list[0]);
+      const curKey = getAdminMonthKey();
+      const picker = document.getElementById('adminMonthPicker');
+      const display = document.getElementById('adminMonthDisplay');
+      if (picker && !picker.value) picker.value = curKey;
+      if (display) display.innerText = getThaiMonthYearFull(curKey);
   }
 
   window.stepAdminMonth = function(delta) {
-      const sel = document.getElementById('adminMonthSelect') || document.getElementById('adminMonthPicker');
-      if (!sel) return;
-      let idx = sel.selectedIndex;
-      if (idx === -1) return;
-      idx += delta;
-      if (idx >= 0 && idx < sel.options.length) {
-          sel.selectedIndex = idx;
-          window.onAdminMonthChange();
+      const curKey = getAdminMonthKey();
+      let [y, m] = String(curKey).split('-').map(Number);
+      if (!y || !m) {
+          const now = new Date();
+          y = now.getFullYear();
+          m = now.getMonth() + 1;
       }
+      m += delta;
+      if (m < 1) { m = 12; y--; }
+      else if (m > 12) { m = 1; y++; }
+      const newKey = `${y}-${String(m).padStart(2, '0')}`;
+      const picker = document.getElementById('adminMonthPicker');
+      if (picker) picker.value = newKey;
+      const display = document.getElementById('adminMonthDisplay');
+      if (display) display.innerText = getThaiMonthYearFull(newKey);
+      try { CloudStorage.setItem('egat_admin_month', newKey); } catch(e) {}
+      renderAdminDashboard();
   };
 
   window.onAdminMonthChange = function() {
-      const sel = document.getElementById('adminMonthSelect') || document.getElementById('adminMonthPicker');
-      if (sel && sel.value) {
-          try { CloudStorage.setItem('egat_admin_month', sel.value); } catch(e) {}
+      const picker = document.getElementById('adminMonthPicker');
+      if (picker && picker.value) {
+          try { CloudStorage.setItem('egat_admin_month', picker.value); } catch(e) {}
       }
       renderAdminDashboard();
   };
 
   // [NEW] เดือนที่แอดมินเลือก (ค่าเริ่มต้น = เดือนปัจจุบัน)
   function getAdminMonthKey() {
-      const sel = document.getElementById('adminMonthSelect') || document.getElementById('adminMonthPicker');
-      if (sel && sel.value) return sel.value;
+      const picker = document.getElementById('adminMonthPicker');
+      if (picker && picker.value && /^\d{4}-\d{2}$/.test(picker.value)) return picker.value;
       try {
           const saved = CloudStorage.getItem('egat_admin_month');
-          if (saved) return saved;
+          if (saved && /^\d{4}-\d{2}$/.test(saved)) return saved;
       } catch(e) {}
       const now = new Date();
       return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
@@ -2350,19 +2345,13 @@ window.saveProfile = function() {
       const m0 = getActiveMonthParts();
       let monthKey = m0.key;
 
-      // [NEW] สร้างตัวเลือก 12 เดือนทุกครั้ง (กัน option หาย/ค้างค่าปีเก่า)
-      const selEl = document.getElementById('adminMonthSelect') || document.getElementById('adminMonthPicker');
-      if (selEl) {
-          populateAdminMonthSelect();
-          let savedKey = '';
-          try { savedKey = CloudStorage.getItem('egat_admin_month') || ''; } catch(e) { savedKey = ''; }
-          if (savedKey) {
-              const p = String(savedKey).split('-').map(Number);
-              const nowY = new Date().getFullYear();
-              // ใช้ค่าที่บันทึกไว้เฉพาะเมื่อเป็นปีปัจจุบัน (กันหลงไปปีเก่า)
-              if (p[0] === nowY && p[1] >= 1 && p[1] <= 12) monthKey = savedKey;
-          }
-          if (selEl.value !== monthKey) selEl.value = monthKey;
+      const picker = document.getElementById('adminMonthPicker');
+      const display = document.getElementById('adminMonthDisplay');
+      if (picker) {
+          picker.value = monthKey;
+      }
+      if (display) {
+          display.innerText = getThaiMonthYearFull(monthKey);
       }
 
       const mparts = String(monthKey).split('-').map(Number);
