@@ -690,7 +690,25 @@ function toggleSidebar(forceState) {
   // =====================================================================
   const AUTH_KEY = 'egat_auth_user';
   const AUTH_ACCOUNTS_KEY = 'egat_auth_accounts';
-  const ADMIN_PIN = '1234';                 // PIN แอดมิน (ค่าเริ่มต้น — ควรเปลี่ยนก่อนใช้จริง)
+  const ADMIN_PIN_DEFAULT = '1234';                 // PIN แอดมิน (ค่าเริ่มต้น)
+  const ADMIN_PIN_KEY = 'egat_admin_pin';           // คีย์เก็บ PIN แอดมินใน LocalStorage
+
+  function getAdminPin() {
+      try {
+          return localStorage.getItem(ADMIN_PIN_KEY) || ADMIN_PIN_DEFAULT;
+      } catch(e) {
+          return ADMIN_PIN_DEFAULT;
+      }
+  }
+
+  function setAdminPin(newPin) {
+      try {
+          localStorage.setItem(ADMIN_PIN_KEY, String(newPin));
+          return true;
+      } catch(e) {
+          return false;
+      }
+  }
   const AUTH_SESSION_KEY = 'egat_auth_session';
   const AUTH_REGISTRY_KEY = 'egat_auth_registry';   // ทะเบียนบัญชี พขร. (เก็บ PIN แบบ hash)
 
@@ -732,7 +750,7 @@ function toggleSidebar(forceState) {
       },
 
       loginAdmin: function(pin) {
-          if (String(pin) === ADMIN_PIN) {
+          if (String(pin) === getAdminPin()) {
               this.user = { role: 'admin', name: 'ผู้ดูแลระบบ' };
               this.save();
               return true;
@@ -1369,6 +1387,9 @@ function toggleSidebar(forceState) {
 
       const pinModal = document.getElementById('pinModal');
       if (event.target == pinModal) { try { closePinModal(); } catch(e) {} }
+
+      const adminPinModal = document.getElementById('adminPinModal');
+      if (event.target == adminPinModal) { try { closeAdminPinModal(); } catch(e) {} }
 
       const approvalModal = document.getElementById('approvalModal');
       if (event.target == approvalModal) { try { closeApprovalModal(); } catch(e) {} }
@@ -2043,6 +2064,64 @@ window.confirmPinChange = function() {
       try { renderDrivers(); } catch(e) {}
       try { if (typeof renderDriverPageList === 'function') renderDriverPageList(); } catch(e) {}
       setTimeout(() => { window.closePinModal(); }, 700);
+  };
+
+  // ===== Modal เปลี่ยนรหัส PIN ผู้ดูแลระบบ (Admin) =====
+  window.openAdminPinModal = function() {
+      const modal = document.getElementById('adminPinModal');
+      if (modal) {
+          ['adminOldPin', 'adminNewPin', 'adminConfirmPin'].forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.value = '';
+          });
+          const msg = document.getElementById('adminPinMsg');
+          if (msg) msg.textContent = '';
+          modal.classList.add('show');
+          const first = document.getElementById('adminOldPin');
+          if (first) setTimeout(() => { try { first.focus(); } catch(e) {} }, 80);
+      }
+  };
+
+  window.closeAdminPinModal = function() {
+      const modal = document.getElementById('adminPinModal');
+      if (modal) modal.classList.remove('show');
+  };
+
+  window.confirmAdminPinChange = function() {
+      const get = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+      const oldPin = get('adminOldPin');
+      const newPin = get('adminNewPin');
+      const confirmPin = get('adminConfirmPin');
+      const pinMsg = document.getElementById('adminPinMsg');
+      const showPinMsg = (txt, color) => {
+          if (pinMsg) { pinMsg.textContent = txt; pinMsg.style.color = color; }
+      };
+
+      if (!oldPin || !newPin || !confirmPin) {
+          showPinMsg('⚠️ กรุณากรอกข้อมูลให้ครบทุกช่อง', '#b45309');
+          return;
+      }
+      if (oldPin !== getAdminPin()) {
+          showPinMsg('❌ รหัส PIN ปัจจุบันไม่ถูกต้อง', '#b91c1c');
+          const el = document.getElementById('adminOldPin');
+          if (el) { el.value = ''; el.focus(); }
+          return;
+      }
+      if (!/^\d{4}$/.test(newPin)) {
+          showPinMsg('❌ PIN ใหม่ต้องเป็นตัวเลข 4 หลัก', '#b91c1c');
+          return;
+      }
+      if (newPin !== confirmPin) {
+          showPinMsg('❌ PIN ใหม่กับยืนยัน PIN ไม่ตรงกัน', '#b91c1c');
+          return;
+      }
+      if (setAdminPin(newPin)) {
+          showPinMsg('✅ เปลี่ยน PIN แอดมินสำเร็จแล้ว', '#047857');
+          alert('✅ เปลี่ยนรหัส PIN ผู้ดูแลระบบเรียบร้อยแล้ว\nโปรดจำรหัสใหม่ (' + newPin + ') สำหรับการเข้าสู่ระบบครั้งต่อไป');
+          setTimeout(() => { window.closeAdminPinModal(); }, 600);
+      } else {
+          showPinMsg('❌ ไม่สามารถบันทึก PIN ใหม่ได้', '#b91c1c');
+      }
   };
 
 // บันทึกโปรไฟล์ — เขียนทับรายเดิมในฐานข้อมูล พขร. (เปลี่ยน PIN ทำผ่าน Modal แยก)
