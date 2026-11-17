@@ -1328,6 +1328,22 @@ function toggleSidebar(forceState) {
           }
       }
 
+      // 4.1) [NEW] หน้าสรุปรายเดือน (view-history):
+      // ถ้าไม่ใช่แอดมิน (พขร. ทั่วไป) -> ซ่อนช่องค้นหาชื่อ พขร. ทั้งกลุ่ม เพราะข้อมูลถูกล็อคตามชื่อตัวเองอยู่แล้ว
+      const historyDriverFilterGroup = document.getElementById('historyDriverFilterGroup');
+      if (historyDriverFilterGroup) {
+          historyDriverFilterGroup.style.display = admin ? 'flex' : 'none';
+      }
+      const historyDriverInput = document.getElementById('historyDriverFilter');
+      if (historyDriverInput) {
+          if (Auth.isDriver()) {
+              historyDriverInput.value = Auth.currentName();
+              if (historyFilters && historyFilters.daily) historyFilters.daily.driver = Auth.currentName();
+          } else if (guest) {
+              historyDriverInput.value = '';
+          }
+      }
+
       // 5) ปุ่มบันทึก: แจ้งว่าต้องล็อกอินก่อน
       const saveBtn = document.getElementById('btnSaveLog');
       if (saveBtn) {
@@ -1555,7 +1571,15 @@ function toggleSidebar(forceState) {
       }
 
       if(dropdown) {
-          dropdown.value = historyFilters[mode].driver || "";
+          if (typeof Auth !== 'undefined' && Auth.isDriver()) {
+              dropdown.value = Auth.currentName();
+          } else {
+              dropdown.value = historyFilters[mode].driver || "";
+          }
+      }
+      const filterGroup = document.getElementById('historyDriverFilterGroup');
+      if (filterGroup && typeof Auth !== 'undefined') {
+          filterGroup.style.display = Auth.isAdmin() ? 'flex' : 'none';
       }
       if(monthPicker) {
           if(historyFilters[mode].month) {
