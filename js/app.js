@@ -1589,16 +1589,18 @@ function toggleSidebar(forceState) {
       // อัปเดตไฮไลต์ปุ่ม Segmented Tabs
       const btnDaily = document.getElementById('btnModeDaily');
       const btnDriver = document.getElementById('btnModeDriver');
-      if (btnDaily) btnDaily.classList.toggle('active', mode === 'daily');
-      if (btnDriver) btnDriver.classList.toggle('active', mode === 'driver');
+      if (btnDaily) {
+          btnDaily.classList.toggle('active', mode === 'daily');
+          btnDaily.setAttribute('aria-selected', mode === 'daily');
+      }
+      if (btnDriver) {
+          btnDriver.classList.toggle('active', mode === 'driver');
+          btnDriver.setAttribute('aria-selected', mode === 'driver');
+      }
       
       const titleText = document.getElementById('historyTitleBtn');
       if(titleText) {
-          if(mode === 'daily') {
-              titleText.innerText = "📊 สรุปรายเดือน";
-          } else {
-              titleText.innerText = "👥 สรุปตามรายเดือน พขร.";
-          }
+          titleText.innerText = "📊 สรุปรายเดือน";
       }
       
       document.querySelectorAll('.submenu-item').forEach(el => el.classList.remove('active'));

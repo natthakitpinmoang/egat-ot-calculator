@@ -1,4 +1,4 @@
-// Emergency Cache Purge & Service Worker Reset (v7.8.15)
+// Emergency Cache Purge & Service Worker Reset (v7.8.16)
 self.addEventListener("install", e => {
   self.skipWaiting();
 });

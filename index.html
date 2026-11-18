@@ -26,7 +26,7 @@
       }
     }
   </script>
-<title>EGAT OT Calculator (v7.8.15) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
+<title>EGAT OT Calculator (v7.8.16) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -35,7 +35,7 @@
   <meta name="theme-color" content="#f9c419" />
 
   <!-- Open Graph / Social Sharing -->
-  <meta property="og:title" content="EGAT OT Calculator (v7.8.15) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
+  <meta property="og:title" content="EGAT OT Calculator (v7.8.16) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
   <meta property="og:description" content="ระบบคำนวณชั่วโมง OT และเบิกค่าล่วงเวลา สำหรับพนักงาน กฟผ. รองรับมือถือและติดตั้งเป็น PWA" />
   <meta property="og:image" content="./assets/icons/icon-512.png" />
   <meta property="og:type" content="website" />
@@ -54,7 +54,7 @@
 
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" href="./assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="./css/styles.css?v=7.8.15" />
+  <link rel="stylesheet" href="./css/styles.css?v=7.8.16" />
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* Critical Inline CSS: ป้องกัน FOUC / ไอคอนขยายล้นจอเด็ดขาดก่อน CSS ภายนอกโหลด */
@@ -254,13 +254,13 @@
                 <div class="history-title-group">
                     <h2 id="historyTitleBtn" class="history-title">📊 สรุปรายเดือน</h2>
 
-                    <!-- แถบสลับโหมด 1. สรุปรายเดือน (ปกติ) / 2. สรุป พขร. (ยอดรวม) -->
-                    <div class="history-mode-pill-bar">
-                        <button type="button" class="mode-pill-btn active" id="btnModeDaily" onclick="setHistoryMode('daily')">
-                            <span>📅</span> <span class="mode-text-full">1. สรุปรายเดือน (ปกติ)</span><span class="mode-text-mobile">1. สรุปรายเดือน</span>
+                    <!-- แถบสลับโหมด สรุปตามวัน / สรุปตาม พขร. -->
+                    <div class="history-mode-pill-bar" role="tablist" aria-label="โหมดการแสดงผล">
+                        <button type="button" class="mode-pill-btn active" id="btnModeDaily" onclick="setHistoryMode('daily')" role="tab" aria-selected="true">
+                            <span>📅</span> สรุปตามวัน
                         </button>
-                        <button type="button" class="mode-pill-btn" id="btnModeDriver" onclick="setHistoryMode('driver')">
-                            <span>👥</span> <span class="mode-text-full">2. สรุป พขร. (ยอดรวม)</span><span class="mode-text-mobile">2. สรุป พขร.</span>
+                        <button type="button" class="mode-pill-btn" id="btnModeDriver" onclick="setHistoryMode('driver')" role="tab" aria-selected="false">
+                            <span>👥</span> สรุปตาม พขร.
                         </button>
                     </div>
                 </div>
@@ -278,7 +278,7 @@
                     <input type="text" id="historyMonthPicker" class="history-date-input-hidden" onchange="renderHistory()">
                     
                     <button id="btnExportCSV" onclick="exportSummaryToCSV()" class="action-btn-pill btn-export-csv" style="display:none;" title="ส่งออกข้อมูลสรุปเป็นไฟล์ CSV">
-                        📥 ส่งออก Excel (CSV)
+                        📥 ส่งออก Excel
                     </button>
                 </div>
             </div>
@@ -946,6 +946,6 @@
 
 </div>
 
-<script src="./js/app.js?v=7.8.15"></script>
+<script src="./js/app.js?v=7.8.16"></script>
 </body>
 </html>
