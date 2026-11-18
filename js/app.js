@@ -565,7 +565,10 @@ function toggleSidebar(forceState) {
   // รวบรวมข้อมูลสรุปรายเดือน (โหมด สรุป พขร.) — ใช้ร่วมกันระหว่างหน้าจอกับ CSV
   function collectDriverSummary() {
       const monthPicker = document.getElementById('historyMonthPicker');
-      const rawVal = monthPicker ? monthPicker.value : '';
+      let rawVal = monthPicker ? monthPicker.value : '';
+      if (!rawVal || !/^\d{4}-\d{2}$/.test(rawVal)) {
+          rawVal = (typeof getGlobalSelectedMonth === 'function') ? getGlobalSelectedMonth() : '';
+      }
       let targetYear = new Date().getFullYear();
       let targetMonth = new Date().getMonth();
       if (rawVal && /^\d{4}-\d{2}$/.test(rawVal)) {
@@ -1445,8 +1448,9 @@ function toggleSidebar(forceState) {
     pickerDisplayId = displayId;
     
     const input = document.getElementById(inputId);
-    if(input && input.value) {
-        const [y, m] = input.value.split('-');
+    let initVal = (input && input.value && /^\d{4}-\d{2}$/.test(input.value)) ? input.value : getGlobalSelectedMonth();
+    if(initVal && /^\d{4}-\d{2}$/.test(initVal)) {
+        const [y, m] = initVal.split('-');
         pickerCurrentDate = new Date(parseInt(y), parseInt(m)-1, 1);
     } else {
         pickerCurrentDate = new Date();
@@ -1478,8 +1482,9 @@ function toggleSidebar(forceState) {
         btn.className = 'cmp-month-btn';
         btn.innerText = m;
         const input = document.getElementById(pickerTargetId);
-        if(input && input.value) {
-             const [y, mStr] = input.value.split('-');
+        let curVal = (input && input.value && /^\d{4}-\d{2}$/.test(input.value)) ? input.value : getGlobalSelectedMonth();
+        if(curVal) {
+             const [y, mStr] = curVal.split('-');
              if(parseInt(y) === year && (parseInt(mStr)-1) === idx) {
                  btn.classList.add('active');
              }
@@ -1495,31 +1500,25 @@ function toggleSidebar(forceState) {
     const month = String(mIndex + 1).padStart(2, '0');
     const val = `${year}-${month}`;
     
-    const input = document.getElementById(pickerTargetId);
-    if(input) {
-        input.value = val;
-        if(pickerTargetId === 'historyMonthPicker') {
+    if (pickerTargetId === 'createTargetMonth') {
+        const input = document.getElementById('createTargetMonth');
+        if (input) input.value = val;
+        updateCreateMonthDisplay(val);
+    } else {
+        setGlobalSelectedMonth(val);
+        if (pickerTargetId === 'historyMonthPicker') {
             renderHistory();
-        } else if (pickerTargetId === 'createTargetMonth') {
-            updateCreateMonthDisplay(val);
         } else if (pickerTargetId === 'adminMonthPicker') {
-            try { CloudStorage.setItem('egat_admin_month', val); } catch(e) {}
             renderAdminDashboard();
         }
-    }
-    
-    const display = document.getElementById(pickerDisplayId);
-    if(display) {
-        display.innerText = getThaiMonthYearFull(val);
     }
     
     closeCustomMonthPicker();
   }
 
   window.stepMonth = function(delta) {
-      const picker = document.getElementById('historyMonthPicker');
-      if (!picker) return;
-      let [y, m] = (picker.value || '').split('-').map(Number);
+      const curKey = getGlobalSelectedMonth();
+      let [y, m] = String(curKey).split('-').map(Number);
       if (!y || !m) {
           const d = new Date();
           y = d.getFullYear();
@@ -1528,15 +1527,9 @@ function toggleSidebar(forceState) {
       m += delta;
       if (m < 1) { m = 12; y--; }
       else if (m > 12) { m = 1; y++; }
-      picker.value = `${y}-${String(m).padStart(2, '0')}`;
+      const newKey = `${y}-${String(m).padStart(2, '0')}`;
       showAll = false;
-      const display = document.getElementById('historyDateDisplay');
-      if (display && typeof getThaiMonthYearFull === 'function') {
-          display.innerText = getThaiMonthYearFull(picker.value);
-      }
-      if (typeof updateThaiDateDisplay === 'function') {
-          try { updateThaiDateDisplay(); } catch(e) {}
-      }
+      setGlobalSelectedMonth(newKey);
       renderHistory();
   };
 
@@ -1592,15 +1585,10 @@ function toggleSidebar(forceState) {
           filterGroup.style.display = Auth.isAdmin() ? 'flex' : 'none';
       }
       if(monthPicker) {
-          if(historyFilters[mode].month) {
-               monthPicker.value = historyFilters[mode].month;
-          } else {
-               const now = new Date();
-               const mStr = String(now.getMonth() + 1).padStart(2, '0');
-               monthPicker.value = `${now.getFullYear()}-${mStr}`;
-          }
+          const currentMonth = getGlobalSelectedMonth();
+          monthPicker.value = currentMonth;
           const display = document.getElementById('historyDateDisplay');
-          if(display) display.innerText = getThaiMonthYearFull(monthPicker.value);
+          if(display) display.innerText = getThaiMonthYearFull(currentMonth);
       }
 
       renderHistory();
@@ -1635,6 +1623,57 @@ function toggleSidebar(forceState) {
       const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
       return `${months[parseInt(m)-1]} ${parseInt(y)+543}`;
   }
+
+  // [SINGLE SOURCE OF TRUTH] ซิงค์เดือนที่เลือกตรงกันทุกส่วน (Admin Dashboard, สรุปรายเดือน, Quick Summary)
+  function getGlobalSelectedMonth() {
+      try {
+          const saved = CloudStorage.getItem('egat_selected_month');
+          if (saved && /^\d{4}-\d{2}$/.test(saved)) return saved;
+      } catch(e) {}
+      try {
+          const adminSaved = CloudStorage.getItem('egat_admin_month');
+          if (adminSaved && /^\d{4}-\d{2}$/.test(adminSaved)) return adminSaved;
+      } catch(e) {}
+      // ถ้ายังไม่เคยเลือก ให้หาเดือนล่าสุดที่มีข้อมูลในประวัติ (เช่น 2026-10) แทนการเด้งไปเดือนปัจจุบันที่ไม่มีข้อมูล
+      if (Array.isArray(otHistory) && otHistory.length > 0) {
+          for (let i = otHistory.length - 1; i >= 0; i--) {
+              const it = otHistory[i];
+              if (it && it.date && /^\d{4}-\d{2}/.test(it.date)) {
+                  return it.date.substring(0, 7);
+              }
+          }
+      }
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  }
+  window.getGlobalSelectedMonth = getGlobalSelectedMonth;
+
+  function setGlobalSelectedMonth(monthKey) {
+      if (!monthKey || !/^\d{4}-\d{2}$/.test(monthKey)) return;
+      try {
+          CloudStorage.setItem('egat_selected_month', monthKey);
+          CloudStorage.setItem('egat_admin_month', monthKey);
+      } catch(e) {}
+      if (typeof historyFilters !== 'undefined') {
+          if (!historyFilters.daily) historyFilters.daily = {};
+          if (!historyFilters.driver) historyFilters.driver = {};
+          historyFilters.daily.month = monthKey;
+          historyFilters.driver.month = monthKey;
+      }
+      const histPicker = document.getElementById('historyMonthPicker');
+      if (histPicker) histPicker.value = monthKey;
+      const histDisplay = document.getElementById('historyDateDisplay');
+      if (histDisplay && typeof getThaiMonthYearFull === 'function') {
+          histDisplay.innerText = getThaiMonthYearFull(monthKey);
+      }
+      const adminPicker = document.getElementById('adminMonthPicker');
+      if (adminPicker) adminPicker.value = monthKey;
+      const adminDisplay = document.getElementById('adminMonthDisplay');
+      if (adminDisplay && typeof getThaiMonthYearFull === 'function') {
+          adminDisplay.innerText = getThaiMonthYearFull(monthKey);
+      }
+  }
+  window.setGlobalSelectedMonth = setGlobalSelectedMonth;
 
   function updateCreateMonthDisplay(val) {
       const display = document.getElementById('createMonthDisplay');
@@ -1880,7 +1919,8 @@ const ST_LABEL = {
 // อ่านคีย์เดือนปัจจุบัน (ใช้ร่วมกันหลายฟังก์ชัน)
 function currentMonthKey() {
     const input = document.getElementById('historyMonthPicker');
-    if (input && input.value) return input.value;
+    if (input && input.value && /^\d{4}-\d{2}$/.test(input.value)) return input.value;
+    if (typeof getGlobalSelectedMonth === 'function') return getGlobalSelectedMonth();
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
@@ -2339,7 +2379,7 @@ window.saveProfile = function() {
   }
 
   window.stepAdminMonth = function(delta) {
-      const curKey = getAdminMonthKey();
+      const curKey = getGlobalSelectedMonth();
       let [y, m] = String(curKey).split('-').map(Number);
       if (!y || !m) {
           const now = new Date();
@@ -2350,32 +2390,21 @@ window.saveProfile = function() {
       if (m < 1) { m = 12; y--; }
       else if (m > 12) { m = 1; y++; }
       const newKey = `${y}-${String(m).padStart(2, '0')}`;
-      const picker = document.getElementById('adminMonthPicker');
-      if (picker) picker.value = newKey;
-      const display = document.getElementById('adminMonthDisplay');
-      if (display) display.innerText = getThaiMonthYearFull(newKey);
-      try { CloudStorage.setItem('egat_admin_month', newKey); } catch(e) {}
+      setGlobalSelectedMonth(newKey);
       renderAdminDashboard();
   };
 
   window.onAdminMonthChange = function() {
       const picker = document.getElementById('adminMonthPicker');
       if (picker && picker.value) {
-          try { CloudStorage.setItem('egat_admin_month', picker.value); } catch(e) {}
+          setGlobalSelectedMonth(picker.value);
       }
       renderAdminDashboard();
   };
 
-  // [NEW] เดือนที่แอดมินเลือก (ค่าเริ่มต้น = เดือนปัจจุบัน)
+  // [NEW] เดือนที่แอดมินเลือก (ซิงค์ตรงกับระบบกลาง)
   function getAdminMonthKey() {
-      const picker = document.getElementById('adminMonthPicker');
-      if (picker && picker.value && /^\d{4}-\d{2}$/.test(picker.value)) return picker.value;
-      try {
-          const saved = CloudStorage.getItem('egat_admin_month');
-          if (saved && /^\d{4}-\d{2}$/.test(saved)) return saved;
-      } catch(e) {}
-      const now = new Date();
-      return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+      return getGlobalSelectedMonth();
   }
 
   function renderAdminDashboard() {
@@ -2861,18 +2890,32 @@ function toggleVerification(driverName) {
       
     if(viewId === 'history') {
         showAll = false;
+        const currentMonth = getGlobalSelectedMonth();
+        const monthPicker = document.getElementById('historyMonthPicker');
+        if (monthPicker) monthPicker.value = currentMonth;
+        const histDisplay = document.getElementById('historyDateDisplay');
+        if (histDisplay && typeof getThaiMonthYearFull === 'function') {
+            histDisplay.innerText = getThaiMonthYearFull(currentMonth);
+        }
         setHistoryMode(currentHistoryMode);
         
         const toolbar = document.getElementById('historyToolbar');
         if(toolbar) {
-            toolbar.style.display = 'flex'; 
+            toolbar.style.display = currentHistoryMode === 'daily' ? 'flex' : 'none'; 
         }
     }
     if(viewId === 'drivers') {
         renderDriverPageList();
     }
-    // [NEW] หน้า Admin Dashboard — คำนวณ KPI ใหม่ทุกครั้งที่เปิด
+    // [NEW] หน้า Admin Dashboard — ซิงค์เดือนและคำนวณ KPI ใหม่ทุกครั้งที่เปิด
     if(viewId === 'admin') {
+        const currentMonth = getGlobalSelectedMonth();
+        const adminPicker = document.getElementById('adminMonthPicker');
+        if (adminPicker) adminPicker.value = currentMonth;
+        const adminDisplay = document.getElementById('adminMonthDisplay');
+        if (adminDisplay && typeof getThaiMonthYearFull === 'function') {
+            adminDisplay.innerText = getThaiMonthYearFull(currentMonth);
+        }
         try { renderAdminDashboard(); } catch(e) { console.warn('renderAdminDashboard:', e); }
     }
   }
@@ -4464,19 +4507,14 @@ function closeIncompleteModal() {
     let targetYear = null;
       
     if (!showAll) {
-        const historyPickerVal = document.getElementById('historyMonthPicker').value;
-        if (historyPickerVal) {
-            const [y, m] = historyPickerVal.split('-');
-            targetMonth = parseInt(m) - 1;
-            targetYear = parseInt(y);
-        } else {
-            const defaultDate = new Date(); 
-            targetMonth = defaultDate.getMonth();
-            targetYear = defaultDate.getFullYear();
-            
-            const mStr = String(targetMonth + 1).padStart(2, '0');
-            document.getElementById('historyMonthPicker').value = `${targetYear}-${mStr}`;
+        let historyPickerVal = document.getElementById('historyMonthPicker').value;
+        if (!historyPickerVal || !/^\d{4}-\d{2}$/.test(historyPickerVal)) {
+            historyPickerVal = getGlobalSelectedMonth();
+            document.getElementById('historyMonthPicker').value = historyPickerVal;
         }
+        const [y, m] = historyPickerVal.split('-');
+        targetMonth = parseInt(m) - 1;
+        targetYear = parseInt(y);
     }
 
     const driverFilterVal = document.getElementById('historyDriverFilter').value;
@@ -5381,25 +5419,24 @@ function closeIncompleteModal() {
         targetYear = parseInt(overrideYear);
         targetMonth = parseInt(overrideMonth);
     } else {
-        const adminSec = document.getElementById('adminSection');
-        const isAdminVisible = adminSec && !adminSec.classList.contains('hidden') && adminSec.style.display !== 'none';
-        if (isAdminVisible && typeof getAdminMonthKey === 'function') {
-            const [ay, am] = getAdminMonthKey().split('-').map(Number);
-            targetYear = ay;
-            targetMonth = am;
-        } else {
-            const histPicker = document.getElementById('historyMonthPicker');
-            if (histPicker && histPicker.value && /^\d{4}-\d{2}$/.test(histPicker.value)) {
-                const [hy, hm] = histPicker.value.split('-').map(Number);
-                targetYear = hy;
-                targetMonth = hm;
-            } else {
-                const dateVal = document.getElementById('workDate').value;
-                const monthVal = dateVal ? dateVal.substring(0, 7) : new Date().toISOString().substring(0, 7);
-                const parts = monthVal.split('-');
+        const viewOt = document.getElementById('view-ot');
+        const isOtVisible = viewOt && viewOt.classList.contains('active');
+
+        if (isOtVisible) {
+            const dateVal = document.getElementById('workDate') ? document.getElementById('workDate').value : '';
+            if (dateVal && /^\d{4}-\d{2}/.test(dateVal)) {
+                const parts = dateVal.substring(0, 7).split('-');
                 targetYear = parseInt(parts[0]);
                 targetMonth = parseInt(parts[1]);
+            } else {
+                const [gy, gm] = getGlobalSelectedMonth().split('-').map(Number);
+                targetYear = gy;
+                targetMonth = gm;
             }
+        } else {
+            const [gy, gm] = getGlobalSelectedMonth().split('-').map(Number);
+            targetYear = gy;
+            targetMonth = gm;
         }
     }
     if (targetYear > 2400) targetYear -= 543;
