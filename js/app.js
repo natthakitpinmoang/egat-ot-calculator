@@ -1626,15 +1626,43 @@ function toggleSidebar(forceState) {
 
   // [SINGLE SOURCE OF TRUTH] ซิงค์เดือนที่เลือกตรงกันทุกส่วน (Admin Dashboard, สรุปรายเดือน, Quick Summary)
   function getGlobalSelectedMonth() {
+      let saved = null;
       try {
-          const saved = CloudStorage.getItem('egat_selected_month');
-          if (saved && /^\d{4}-\d{2}$/.test(saved)) return saved;
+          saved = CloudStorage.getItem('egat_selected_month');
+          if (!saved || !/^\d{4}-\d{2}$/.test(saved)) {
+              saved = CloudStorage.getItem('egat_admin_month');
+          }
       } catch(e) {}
-      try {
-          const adminSaved = CloudStorage.getItem('egat_admin_month');
-          if (adminSaved && /^\d{4}-\d{2}$/.test(adminSaved)) return adminSaved;
-      } catch(e) {}
-      // ถ้ายังไม่เคยเลือก ให้หาเดือนล่าสุดที่มีข้อมูลในประวัติ (เช่น 2026-10) แทนการเด้งไปเดือนปัจจุบันที่ไม่มีข้อมูล
+
+      // ฟังก์ชันหาเดือนล่าสุดที่มีข้อมูล OT จริง (ไม่นับแถวแม่แบบว่างเปล่า/แบบร่าง)
+      const findLatestActiveMonth = () => {
+          if (!Array.isArray(otHistory) || otHistory.length === 0) return null;
+          for (let i = otHistory.length - 1; i >= 0; i--) {
+              const it = otHistory[i];
+              if (it && it.date && /^\d{4}-\d{2}/.test(it.date)) {
+                  if (!it.isPending && (it.ot15 > 0 || it.ot1 > 0 || it.ot3 > 0 || it.isLeave || parseFloat(it.requestOT) > 0)) {
+                      return it.date.substring(0, 7);
+                  }
+              }
+          }
+          return null;
+      };
+
+      const latestActive = findLatestActiveMonth();
+
+      // ถ้าค่า saved ชี้ไปเดือนอนาคตที่ไม่มีข้อมูลจริงเลย แต่มีเดือนที่มีข้อมูลจริง ให้เลือกเดือนที่มีข้อมูลจริงก่อน
+      if (saved && /^\d{4}-\d{2}$/.test(saved)) {
+          if (latestActive && saved > latestActive) {
+              const hasActualData = otHistory.some(it => it && it.date && it.date.startsWith(saved) && !it.isPending && (it.ot15 > 0 || it.ot1 > 0 || it.ot3 > 0 || it.isLeave));
+              if (hasActualData) return saved;
+              return latestActive;
+          }
+          return saved;
+      }
+
+      if (latestActive) return latestActive;
+
+      // ถ้าไม่มีข้อมูลจริงเลย ให้หาเดือนของรายการล่าสุดในประวัติ
       if (Array.isArray(otHistory) && otHistory.length > 0) {
           for (let i = otHistory.length - 1; i >= 0; i--) {
               const it = otHistory[i];
@@ -1854,7 +1882,7 @@ function toggleSidebar(forceState) {
 
   function getPlainName(name) {
       if (!name) return "";
-      return name.replace(/^#\d+\s+/, "").trim();
+      return String(name).replace(/^#\d+\s+/, "").replace(/\s+/g, ' ').trim();
   }
 
   let currentCalcResult = null; 
@@ -5059,6 +5087,13 @@ function closeIncompleteModal() {
             window.resetOT();
         }
 
+        // [SYNC] ซิงค์เดือนเริ่มต้นตามวันที่ที่เลือกในแบบฟอร์มทันทีที่เปิดแอป
+        const wDateInit = getWorkDateSelectedMonth();
+        if (wDateInit) {
+            const mkInit = `${wDateInit.year}-${String(wDateInit.month).padStart(2, '0')}`;
+            setGlobalSelectedMonth(mkInit);
+        }
+
         renderDrivers();
         renderHistory(); 
 
@@ -5523,24 +5558,15 @@ function closeIncompleteModal() {
         targetYear = parseInt(overrideYear);
         targetMonth = parseInt(overrideMonth);
     } else {
-        const viewOt = document.getElementById('view-ot');
-        const isOtVisible = viewOt && viewOt.classList.contains('active');
-
-        if (isOtVisible) {
-            // [PRIORITY] ดึงเดือนจากวันที่ที่เลือกในหน้าคำนวณ OT ก่อนเสมอ
-            const wDate = getWorkDateSelectedMonth();
-            if (wDate) {
-                targetYear = wDate.year;
-                targetMonth = wDate.month;
-                try {
-                    const mk = `${targetYear}-${String(targetMonth).padStart(2, '0')}`;
-                    setGlobalSelectedMonth(mk);
-                } catch(e) {}
-            } else {
-                const [gy, gm] = getGlobalSelectedMonth().split('-').map(Number);
-                targetYear = gy;
-                targetMonth = gm;
-            }
+        // [PRIORITY] ดึงเดือนจากวันที่ที่เลือกในหน้าคำนวณ OT ก่อนเสมอ
+        const wDate = getWorkDateSelectedMonth();
+        if (wDate) {
+            targetYear = wDate.year;
+            targetMonth = wDate.month;
+            try {
+                const mk = `${targetYear}-${String(targetMonth).padStart(2, '0')}`;
+                setGlobalSelectedMonth(mk);
+            } catch(e) {}
         } else {
             const [gy, gm] = getGlobalSelectedMonth().split('-').map(Number);
             targetYear = gy;
@@ -5553,12 +5579,13 @@ function closeIncompleteModal() {
         ? THAI_MONTHS_FULL[targetMonth - 1]
         : ((typeof THAI_MONTHS_SHORT !== 'undefined' && THAI_MONTHS_SHORT[targetMonth - 1]) || `เดือน ${targetMonth}`);
     const yearTh = targetYear + 543;
-    document.getElementById('quickSummaryTitle').innerHTML = `📊 สรุปรายการของ ${driverName} <span style="font-size:0.92rem; font-weight:500; color:#64748b; margin-left:6px;">(${monthTh} ${yearTh})</span>`;
+    const cleanDriver = getPlainName(driverName);
+    document.getElementById('quickSummaryTitle').innerHTML = `📊 สรุปรายการของ ${cleanDriver} <span style="font-size:0.92rem; font-weight:500; color:#64748b; margin-left:6px;">(${monthTh} ${yearTh})</span>`;
 
     let total15 = 0, total1 = 0, total3 = 0, totalReq = 0;
     const filteredHistory = otHistory.filter(item => {
         if (!item || !item.date) return false;
-        if (getPlainName(item.driver) !== driverName) return false;
+        if (getPlainName(item.driver) !== cleanDriver) return false;
         let y, m;
         if (typeof item.date === 'string' && /^\d{4}-\d{2}/.test(item.date)) {
             const parts = item.date.split('-');

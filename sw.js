@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "ot-calculator-v7.8.10";
+const CACHE_NAME = "ot-calculator-v7.8.11";
 const ASSETS = [
   "./",
   "./index.html",
@@ -32,6 +32,21 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
 
+  // สำหรับการเปิดหน้าเว็บ (HTML Navigation): Network First เพื่อให้ผู้ใช้ได้เวอร์ชันล่าสุดเสมอเมื่อออนไลน์
+  if (e.request.mode === 'navigate' || e.request.destination === 'document') {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        if (res && res.status === 200) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(e.request, copy));
+        }
+        return res;
+      }).catch(() => caches.match("./index.html"))
+    );
+    return;
+  }
+
+  // สำหรับ static assets: Stale-While-Revalidate
   e.respondWith(
     caches.match(e.request).then(response => {
       if (response) {
