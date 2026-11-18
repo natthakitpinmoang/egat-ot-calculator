@@ -2,12 +2,17 @@
   let historyFilters = { daily: { month: null, driver: "" }, driver: { month: null, driver: "" } }; 
 
   // ===== Service Worker (PWA) =====
-  if ('serviceWorker' in navigator) {
+  if ('serviceWorker' in navigator && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
     window.addEventListener('load', function () {
       navigator.serviceWorker.register('./sw.js').catch(function (err) {
         console.warn('Service Worker registration failed:', err);
       });
     });
+  } else if ('serviceWorker' in navigator && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    // บน localhost ทำการ unregister เพื่อให้โหลดโค้ดและ CSS ล่าสุดเสมอ
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+      for (let r of regs) r.unregister();
+    }).catch(function() {});
   }
 
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwUpWVLQQ15Cpikdi-MgWiMb1RWRFv79lIXobeufSX4PosQpJpcEJcdI5ZPOziEEM1bFg/exec"; 
@@ -5491,9 +5496,6 @@ function closeIncompleteModal() {
             hSelect.addEventListener('search', function() { handleFilterChange(); });
         }
   });
-   
-  /* Service Worker Kill Switch */
-  if ('serviceWorker' in navigator) { try { navigator.serviceWorker.getRegistrations().then(function(registrations) { for(let registration of registrations) { registration.unregister(); } }).catch(function(err) {}); } catch(e) {} }
 
   /* Actions Trigger in main calculation UI */
   window.openLeaveModal = function() {

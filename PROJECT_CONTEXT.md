@@ -12,7 +12,7 @@
 * **ที่ตั้งโปรเจกต์ในเครื่อง:** `D:\EgatOtCalculator`
 * **GitHub Repository:** [https://github.com/natthakitpinmoang/egat-ot-calculator](https://github.com/natthakitpinmoang/egat-ot-calculator) (สาขา `main`)
 * **โฟลเดอร์สำรองข้อมูล:** `D:\backup คำนวณเวลาOT\` และ `D:\EgatOtCalculator\backups\`
-* **สถานะปัจจุบัน:** เวอร์ชัน v7.8.12 (Commit `cbb0c08`, Tag `v7.8.12`, สาขา `main`) — แก้ไขปัญหาการซิงค์ข้อมูลระหว่างแอดมินและ พขร. ให้เรียลไทม์ ปลดล็อก localIsNewer, ซิงค์สถานะ 3 ระดับและชื่อเว้นวรรคไม่เท่ากัน, ซ่อนปุ่มแอดมินและเพิ่มแบนเนอร์แจ้งเตือนเอกสารไม่ครบอัตโนมัติสำหรับ พขร. พร้อมระบบ Auto-Sync บนเบื้องหลังและรีเฟรชคลาวด์จริง ผ่านการทดสอบและยืนยันผลเรียบร้อยสมบูรณ์
+* **สถานะปัจจุบัน:** เวอร์ชัน v7.8.14 (สาขา `main`) — แก้ไขปัญหาไอคอนนาฬิกาขยายเต็มจอ (SVG Flash/Overflow) โดยเพิ่ม Critical Inline CSS และจำกัดขนาด SVG 18px พร้อมระบบ Self-Healing Purge แคช Service Worker สำหรับ localhost และเปิดเซิร์ฟเวอร์สำรอง Port 8080 ผ่านการทดสอบหน้าจอสวยงาม 100% เรียบร้อยสมบูรณ์
 
 ---
 
@@ -95,6 +95,12 @@
   - **ปุ่มรีเฟรชแดชบอร์ดซิงค์จากคลาวด์จริง (`syncCloudData(true)`)**: สั่งโหลดข้อมูลล่าสุดจาก Google Apps Script ทันที พร้อมแสดง Toast แจ้งเตือนเมื่อสำเร็จ
   - **ระบบ Auto-Sync ในเบื้องหลัง**: ดึงข้อมูลอัปเดตอัตโนมัติเมื่อผู้ใช้สลับแท็บกลับมา (`visibilitychange`), เมื่อโฟกัสหน้าต่าง (`focus`), และตรวจสอบทุก 60 วินาทีในเบื้องหลัง
   - อัปเดต PWA Service Worker Cache เป็น `ot-calculator-v7.8.12`
+
+* [x] **[v7.8.14: แก้ไขปัญหาไอคอนนาฬิกาขยายเต็มจอ (SVG Flash/Overflow) และแก้ Service Worker แคชค้าง]**:
+  - **Critical Inline CSS & SVG Hard Constraints**: ใส่สไตล์อินไลน์ `<style>` กำกับ `svg, svg.menu-svg, .menu-svg { width: 18px !important; height: 18px !important; max-width: 24px !important; max-height: 24px !important; display: inline-block !important; }` ใน `<head>` และระบุ `width="18" height="18"` กำกับทุกแท็ก SVG ป้องกันไม่ให้ไอคอน SVG ขยายขนาดจนล้นจอแม้ในสภาวะที่สไตล์ชีตยังโหลดไม่เสร็จ
+  - **Self-Healing Purge แคช Service Worker สำหรับ localhost**: ใส่สคริปต์ตรวจจับ `window.location.hostname === 'localhost'` ให้ทำการ Unregister Service Worker และล้าง CacheStorage ทั้งหมดอัตโนมัติ พร้อมทั้งปรับ `js/app.js` ให้ลงทะเบียน Service Worker เฉพาะบนโฮสต์จริงที่ไม่ใช่ localhost เพื่อไม่ให้เกิดปัญหาแคชแทรกแซงการพัฒนา
+  - **ปรับปรุง `sw.js` ปลดปล่อย Static Assets**: ยกเลิกการดักจับ Static Assets ที่เคย fallback เป็น `index.html` (ต้นเหตุที่ทำให้ CSS ถูกอ่านเป็น HTML และส่งผลให้หน้าเว็บกลายเป็นหน้าเปล่าไร้สไตล์) ให้ส่งคำขอตรงไปยังเซิร์ฟเวอร์แบบ 100%
+  - **เปิดเซิร์ฟเวอร์รองรับ 2 พอร์ต (Port 3000 และ Port 8080)**: สามารถเข้าใช้งานผ่าน `http://localhost:8080/` หรือ `http://localhost:3000/` ได้ทันที โดยผ่านการทดสอบบนเบราว์เซอร์จริงหน้าจอสวยงามคมชัด 100% เรียบร้อยสมบูรณ์
 
 ### ฟีเจอร์ที่ต้องทำต่อ (Current & Next):
 * [ ] **[UX พขร. ข้อ 4]** หน้าคำนวณเวลา OT (หน้าแรก):
