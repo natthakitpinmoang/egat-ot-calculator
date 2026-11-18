@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>EGAT OT Calculator (v7.8.11) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
+<title>EGAT OT Calculator (v7.8.12) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -12,7 +12,7 @@
   <meta name="theme-color" content="#f9c419" />
 
   <!-- Open Graph / Social Sharing -->
-  <meta property="og:title" content="EGAT OT Calculator (v7.8.11) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
+  <meta property="og:title" content="EGAT OT Calculator (v7.8.12) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
   <meta property="og:description" content="ระบบคำนวณชั่วโมง OT และเบิกค่าล่วงเวลา สำหรับพนักงาน กฟผ. รองรับมือถือและติดตั้งเป็น PWA" />
   <meta property="og:image" content="./assets/icons/icon-512.png" />
   <meta property="og:type" content="website" />
@@ -31,7 +31,7 @@
 
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" href="./assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="./css/styles.css?v=7.8.11" />
+  <link rel="stylesheet" href="./css/styles.css?v=7.8.12" />
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -247,9 +247,12 @@
         <!-- [AUTH] ป้ายแจ้งว่ากำลังดูข้อมูลของตัวเองเท่านั้น -->
         <div id="authScopeNotice" style="display:none; background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; padding:10px 14px; border-radius:12px; font-size:0.85rem; font-weight:700; margin-bottom:14px;">🔒 กำลังดูข้อมูลของคุณเท่านั้น</div>
 
+        <!-- [UX พขร. ข้อ 3] แถบแจ้งเตือนเอกสารไม่ครบสำหรับ พขร. อัตโนมัติ -->
+        <div id="driverIncompleteBanner" style="display:none; background:#fffbeb; border:1px solid #fde68a; color:#b45309; padding:10px 14px; border-radius:12px; font-size:0.88rem; font-weight:600; margin-bottom:12px; align-items:center; gap:8px;"></div>
+
         <div class="history-toolbar-container" id="historyToolbar">
-             <button onclick="openIncompleteModal()" class="tool-btn" style="background:#f3e8ff; border-color:#d8b4fe; color:#7e22ce;" title="ระบุว่าส่งเอกสารมาไม่ครบ">⚠️ แจ้งขาด</button>
-             <button onclick="openFollowUpSummary()" class="tool-btn" style="background:#fff7ed; border-color:#fed7aa; color:#ea580c;" title="สรุปรายการที่ต้องตาม">📋 สรุปตาม</button>
+             <button id="btnToolbarIncomplete" onclick="openIncompleteModal()" class="tool-btn" style="background:#f3e8ff; border-color:#d8b4fe; color:#7e22ce;" title="ระบุว่าส่งเอกสารมาไม่ครบ">⚠️ แจ้งขาด</button>
+             <button id="btnToolbarFollowUp" onclick="openFollowUpSummary()" class="tool-btn" style="background:#fff7ed; border-color:#fed7aa; color:#ea580c;" title="สรุปรายการที่ต้องตาม">📋 สรุปตาม</button>
              <button id="btnToolbarVerify" onclick="toggleVerifyCurrentDriver()" class="tool-btn t-verify" title="ยืนยันตรวจสอบเอกสาร">⚪ รอตรวจสอบ</button>
         </div>
              
@@ -449,7 +452,7 @@
             <span class="qa-ico">⚙️</span>
             <span class="qa-txt">จัดการขั้นสูง</span>
           </button>
-          <button type="button" class="qa-btn qa-slate" onclick="renderAdminDashboard()" title="รีเฟรชข้อมูลในหน้าแดชบอร์ด">
+          <button type="button" class="qa-btn qa-slate" onclick="if (typeof syncCloudData === 'function') syncCloudData(true); else renderAdminDashboard();" title="ดึงข้อมูลล่าสุดจากคลาวด์และรีเฟรชแดชบอร์ด">
             <span class="qa-ico">🔄</span>
             <span class="qa-txt">รีเฟรชข้อมูล</span>
           </button>
@@ -894,6 +897,6 @@
 
 </div>
 
-<script src="./js/app.js?v=7.8.11"></script>
+<script src="./js/app.js?v=7.8.12"></script>
 </body>
 </html>

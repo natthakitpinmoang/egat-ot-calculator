@@ -137,6 +137,12 @@
                       this.cloudReachable = true;
                       // [FIX] รีเซ็ตตัวนับเมื่อสำเร็จ กันงานที่เคยพลาดถูกทิ้งถาวรเพราะพลาดสะสมข้าม session
                       this.saveQueue();
+
+                      // [SYNC FIX] เมื่อส่งคิวครบทั้งหมดแล้ว ให้ล้างสถานะ dirty ในเครื่อง เพื่อให้เปิดรับข้อมูลใหม่จากคลาวด์ได้เสมอ
+                      if (this.syncQueue.length === 0) {
+                          try { localStorage.removeItem('egat_local_dirty'); } catch(e) {}
+                          try { localStorage.setItem('egat_cloud_synced_at', String(Date.now())); } catch(e) {}
+                      }
                   } catch (e) {
                       task.tries = (task.tries || 0) + 1;
                       console.warn('Cloud Sync ล้มเหลว (จะลองใหม่อัตโนมัติ):', e);
@@ -195,7 +201,7 @@
       }
   };
 
-  async function initCloudData() {
+  async function initCloudData(isManual = false) {
       const emptyMsg = document.getElementById('emptyMsg');
       const emptyMsgLoading = document.getElementById('emptyMsgLoading');
       const emptyMsgNoData = document.getElementById('emptyMsgNoData');
@@ -224,8 +230,24 @@
       };
       window.addEventListener('pagehide', flushNow);
       document.addEventListener('visibilitychange', () => {
-          if (document.visibilityState === 'hidden') flushNow();
+          if (document.visibilityState === 'hidden') {
+              flushNow();
+          } else if (document.visibilityState === 'visible' && navigator.onLine) {
+              // [AUTO-SYNC] สลับกลับมาที่แท็บ ให้ดึงข้อมูลล่าสุดจากคลาวด์อัตโนมัติ
+              initCloudData(false);
+          }
       });
+      window.addEventListener('focus', () => {
+          if (navigator.onLine) initCloudData(false);
+      });
+      // [AUTO-SYNC] ตรวจสอบและดึงข้อมูลอัปเดตจากคลาวด์ทุก 60 วินาทีเมื่อแท็บเปิดอยู่
+      if (!window._egatSyncInterval) {
+          window._egatSyncInterval = setInterval(() => {
+              if (navigator.onLine && CloudStorage.cloudReachable && document.visibilityState === 'visible') {
+                  initCloudData(false);
+              }
+          }, 60000);
+      }
 
       // กู้คิวที่ค้างจาก session ก่อนหน้า (เช่น ผู้ใช้รีเฟรชตอนออฟไลน์)
       CloudStorage.loadQueue();
@@ -236,8 +258,8 @@
           emptyMsg.style.display = 'block';
       }
 
-      // เวลาแก้ไขล่าสุดของข้อมูลในเครื่อง ใช้ตัดสินว่าข้อมูลไหน "ใหม่กว่า" ต้องไม่ถูกคลาวด์ทับ
-      const localDirtyAt = parseInt(CloudStorage.getItem('egat_local_dirty') || '0', 10) || 0;
+      // ตรวจสอบงานที่ค้างส่งในคิว
+      const hasPendingUpload = (k) => Array.isArray(CloudStorage.syncQueue) && CloudStorage.syncQueue.some(t => t.key === k);
 
       // [FIX] ตั้ง timeout ป้องกันค้างเมื่อเน็ตล่ม/ไฟร์วอลล์บล็อก
       const controller = new AbortController();
@@ -251,20 +273,9 @@
           if (!cloudData || typeof cloudData !== 'object') {
               throw new Error('รูปแบบข้อมูลจากคลาวด์ไม่ถูกต้อง');
           }
-          // เวลาที่ดึงข้อมูลจากคลาวด์สำเร็จล่าสุด ใช้เป็นเกณฑ์เปรียบเทียบ
-          const lastCloudSyncAt = parseInt(CloudStorage.getItem('egat_cloud_synced_at') || '0', 10) || 0;
+          
           try { CloudStorage.setItem('egat_cloud_synced_at', String(Date.now())); } catch(e) {}
 
-          // [FIX] เดิมเทียบกับ Date.now() ของตอน "ดึง" ข้อมูล ซึ่งใหม่กว่า localDirtyAt เสมอ
-          // ทำให้ localIsNewer เป็น false เกือบตลอด -> คลาวด์ทับข้อมูลที่ผู้ใช้เพิ่งแก้ตอนออฟไลน์
-          // ต้องเทียบกับเวลาที่ "ซิงค์ขึ้นคลาวด์สำเร็จ" ครั้งก่อนเท่านั้น
-          const localIsNewer = localDirtyAt > lastCloudSyncAt && lastCloudSyncAt > 0;
-          if (localIsNewer) {
-              console.info('ข้อมูลในเครื่องใหม่กว่าคลาวด์ — เก็บของในเครื่องและจะส่งขึ้นคลาวด์แทน');
-          }
-
-          // [FIX] JSON.parse เดิมไม่มี try/catch — ค่าใดค่าหนึ่งเสียทำให้ทั้ง init ล้ม
-          // และข้อมูลที่เหลือไม่ถูกโหลดเลย
           const safeParse = (raw, fallback) => {
               if (raw === undefined || raw === null || raw === '') return fallback;
               try {
@@ -276,7 +287,8 @@
               }
           };
 
-          if (cloudData['egat_drivers'] && !localIsNewer) {
+          // ซิงค์รายชื่อ พขร. จากคลาวด์ (ถ้าไม่มีงานค้างส่งคีย์นี้)
+          if (cloudData['egat_drivers'] && !hasPendingUpload('egat_drivers')) {
               let fetchedDrivers = safeParse(cloudData['egat_drivers'], null);
               if (fetchedDrivers && fetchedDrivers.length > 0 && typeof fetchedDrivers[0] === 'string') {
                   drivers = fetchedDrivers.map(d => ({ id: Date.now() + Math.random(), name: d, nickname: '', phone: '', affiliation: '', department: '' }));
@@ -286,7 +298,9 @@
                   try { localStorage.setItem('egat_drivers', cloudData['egat_drivers']); } catch(e){}
               }
           }
-          if (cloudData['egat_ot_history'] && !localIsNewer) {
+
+          // ซิงค์ประวัติ OT จากคลาวด์ (ถ้าไม่มีงานค้างส่งคีย์นี้)
+          if (cloudData['egat_ot_history'] && !hasPendingUpload('egat_ot_history')) {
               const fetchedHistory = safeParse(cloudData['egat_ot_history'], null);
               if (Array.isArray(fetchedHistory)) {
                   otHistory = fetchedHistory;
@@ -294,7 +308,9 @@
                   try { localStorage.setItem('egat_ot_history', JSON.stringify(otHistory)); } catch(e){}
               }
           }
-          if (cloudData['egat_ot_verified_status'] && !localIsNewer) {
+
+          // ซิงค์สถานะการตรวจสอบ 3 ระดับ จากคลาวด์ (ถ้าไม่มีงานค้างส่งคีย์นี้)
+          if (cloudData['egat_ot_verified_status'] && !hasPendingUpload('egat_ot_verified_status')) {
               const fetchedVerified = safeParse(cloudData['egat_ot_verified_status'], null);
               if (fetchedVerified && typeof fetchedVerified === 'object' && !Array.isArray(fetchedVerified)) {
                   verifiedStatus = fetchedVerified;
@@ -302,7 +318,12 @@
               }
           }
 
-          // [FIX] กู้รายการที่เคยส่งไม่สำเร็จกลับเข้าคิวอัตโนมัติ
+          // ถ้าไม่มีคิวค้างส่งเลย ให้ล้างสถานะ dirty ในเครื่องทันที
+          if (CloudStorage.syncQueue.length === 0) {
+              try { localStorage.removeItem('egat_local_dirty'); } catch(e) {}
+          }
+
+          // กู้รายการที่เคยส่งไม่สำเร็จกลับเข้าคิวอัตโนมัติ
           try {
               const restored = CloudStorage.restoreFailedSyncs();
               if (restored > 0) {
@@ -322,7 +343,12 @@
           renderDrivers();
           sortHistory();
           renderHistory();
+          try { if (typeof renderAdminDashboard === 'function') renderAdminDashboard(); } catch(e) {}
           updateBadge();
+
+          if (isManual) {
+              CloudStorage.showSyncToast('✅ ซิงค์ข้อมูลล่าสุดจากคลาวด์เรียบร้อยแล้ว');
+          }
       } catch (error) {
           console.warn('โหลดข้อมูลคลาวด์ไม่สำเร็จ (ใช้ข้อมูลในเครื่องแทน):', error);
           CloudStorage.cloudReachable = false;
@@ -336,11 +362,14 @@
           }
           if (!navigator.onLine) {
               CloudStorage.showSyncToast('📴 ออฟไลน์ — ใช้ข้อมูลจากเครื่อง', true);
+          } else if (isManual) {
+              CloudStorage.showSyncToast('⚠️ เชื่อมต่อคลาวด์ไม่สำเร็จ — ใช้ข้อมูลในเครื่องแทน', true);
           }
       } finally {
           clearTimeout(timeoutId);
       }
   }
+  window.syncCloudData = initCloudData;
     
   let pickerTargetId = null;
   let pickerDisplayId = null;
@@ -1348,6 +1377,12 @@ function toggleSidebar(forceState) {
           }
       }
 
+      // 4.2) [AUTH] แถบเครื่องมือสรุปรายเดือน: ปุ่มแจ้งขาดและสรุปตาม เฉพาะแอดมินเท่านั้น
+      const btnTbInc = document.getElementById('btnToolbarIncomplete');
+      if (btnTbInc) btnTbInc.style.display = admin ? '' : 'none';
+      const btnTbFol = document.getElementById('btnToolbarFollowUp');
+      if (btnTbFol) btnTbFol.style.display = admin ? '' : 'none';
+
       // 5) ปุ่มบันทึก: แจ้งว่าต้องล็อกอินก่อน
       const saveBtn = document.getElementById('btnSaveLog');
       if (saveBtn) {
@@ -2063,7 +2098,15 @@ function getVerifyState(driverName, monthKey) {
     if (!clean) return ST_PENDING;
     const bucket = verifiedStatus[mk];
     if (!bucket) return ST_PENDING;
-    return normalizeStatusValue(bucket[clean]);
+    if (bucket[clean] !== undefined) return normalizeStatusValue(bucket[clean]);
+
+    // [SYNC FIX] ตรวจจับชื่อที่มีการเคาะเว้นวรรคไม่เท่ากัน (เช่น 1 ช่อง vs 2 ช่อง)
+    for (const key of Object.keys(bucket)) {
+        if (getPlainName(key) === clean) {
+            return normalizeStatusValue(bucket[key]);
+        }
+    }
+    return ST_PENDING;
 }
 
 // เขียนสถานะลง verifiedStatus + localStorage (ทุกครั้ง)
@@ -2075,12 +2118,14 @@ function setVerifyState(driverName, state, monthKey) {
     if (!clean) return false;
     if (!verifiedStatus[mk]) verifiedStatus[mk] = {};
 
-    // ลบคีย์เก่าแบบ boolean ทิ้ง เพื่อไม่ให้คีย์ซ้ำชื่อกำกวม
-    delete verifiedStatus[mk][clean];
+    // ลบคีย์เดิมทั้งหมดที่ตรงกับชื่อนี้ (รวมทั้งแบบมีเว้นวรรค 2 ช่อง หรือติด #ลำดับ)
+    for (const key of Object.keys(verifiedStatus[mk])) {
+        if (getPlainName(key) === clean) {
+            delete verifiedStatus[mk][key];
+        }
+    }
 
-    if (state === ST_PENDING) {
-        delete verifiedStatus[mk][clean];
-    } else {
+    if (state !== ST_PENDING) {
         verifiedStatus[mk][clean] = state;
     }
 
@@ -2967,7 +3012,12 @@ function toggleVerification(driverName) {
       }
       
       let plainName = getPlainName(currentDriver);
-      toggleVerification(plainName);
+      const hpVal = document.getElementById('historyMonthPicker') ? document.getElementById('historyMonthPicker').value : '';
+      if (hpVal && typeof advanceVerifyState === 'function') {
+          advanceVerifyState(plainName, hpVal);
+      } else {
+          toggleVerification(plainName);
+      }
   }
 
   function switchView(viewId) {
@@ -5017,7 +5067,12 @@ function closeIncompleteModal() {
     
     const btnToolbarVerify = document.getElementById('btnToolbarVerify');
     if(btnToolbarVerify && currentHistoryMode === 'daily') {
-        let plainName = driverFilterVal ? getPlainName(driverFilterVal) : '';
+        let plainName = '';
+        if (typeof Auth !== 'undefined' && Auth.isDriver()) {
+            plainName = getPlainName(Auth.currentName());
+        } else {
+            plainName = driverFilterVal ? getPlainName(driverFilterVal) : '';
+        }
         let state = (plainName && targetMonth !== null)
             ? getVerifyState(plainName, `${targetYear}-${String(targetMonth+1).padStart(2,'0')}`)
             : ST_PENDING;
@@ -5043,6 +5098,22 @@ function closeIncompleteModal() {
             btnToolbarVerify.classList.add('driver-view');
             btnToolbarVerify.disabled = false;
             btnToolbarVerify.style.opacity = '1';
+        }
+
+        // [UX พขร. ข้อ 3] แถบแจ้งเตือนเอกสารไม่ครบสำหรับ พขร. อัตโนมัติ
+        const driverIncBanner = document.getElementById('driverIncompleteBanner');
+        if (driverIncBanner) {
+            if (typeof Auth !== 'undefined' && Auth.isDriver() && plainName) {
+                const incCount = otHistory.filter(it => it && !it.isLeave && it.isIncomplete && getPlainName(it.driver) === plainName && (targetMonth === null || (new Date(it.date).getMonth() === targetMonth && new Date(it.date).getFullYear() === targetYear))).length;
+                if (incCount > 0) {
+                    driverIncBanner.style.display = 'flex';
+                    driverIncBanner.innerHTML = `⚠️ <span>ผู้ดูแลระบบแจ้งเอกสารไม่ครบ <b>${incCount} วัน</b> ในเดือนนี้ กรุณาตรวจสอบรายการในตารางและส่งเอกสารเพิ่มเติมครับ</span>`;
+                } else {
+                    driverIncBanner.style.display = 'none';
+                }
+            } else {
+                driverIncBanner.style.display = 'none';
+            }
         }
     }
   }
