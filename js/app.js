@@ -1675,6 +1675,89 @@ function toggleSidebar(forceState) {
   }
   window.setGlobalSelectedMonth = setGlobalSelectedMonth;
 
+  // ฟังก์ชันแยกปี-เดือน จากสตริงวันที่ทุกรูปแบบ (ISO, พ.ศ., DD/MM/YYYY, ข้อความภาษาไทย)
+  function extractYearMonthFromDate(val) {
+      if (!val) return null;
+      if (typeof val !== 'string') {
+          if (val instanceof Date && !isNaN(val.getTime())) {
+              let y = val.getFullYear();
+              if (y > 2400) y -= 543;
+              return { year: y, month: val.getMonth() + 1 };
+          }
+          val = String(val);
+      }
+      val = val.trim();
+      if (!val) return null;
+
+      // 1. รูปแบบ YYYY-MM-DD หรือ YYYY/MM/DD หรือ YYYY-MM
+      let mIso = val.match(/^(\d{4})[-\/](\d{1,2})/);
+      if (mIso) {
+          let y = parseInt(mIso[1], 10);
+          let m = parseInt(mIso[2], 10);
+          if (y > 2400) y -= 543;
+          if (m >= 1 && m <= 12) return { year: y, month: m };
+      }
+
+      // 2. รูปแบบ DD/MM/YYYY หรือ DD-MM-YYYY
+      let mDmy = val.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
+      if (mDmy) {
+          let m = parseInt(mDmy[2], 10);
+          let y = parseInt(mDmy[3], 10);
+          if (y > 2400) y -= 543;
+          if (m >= 1 && m <= 12) return { year: y, month: m };
+      }
+
+      // 3. รูปแบบชื่อเดือนภาษาไทย เช่น "16 ต.ค. 69" หรือ "ตุลาคม 2569"
+      const thShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+      const thFull = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+      for (let i = 0; i < 12; i++) {
+          if (val.includes(thShort[i]) || val.includes(thFull[i])) {
+              const m = i + 1;
+              const yMatch = val.match(/\d{2,4}/g);
+              let y = new Date().getFullYear();
+              if (yMatch && yMatch.length > 0) {
+                  const lastNum = parseInt(yMatch[yMatch.length - 1], 10);
+                  if (lastNum > 2400) y = lastNum - 543;
+                  else if (lastNum >= 1900 && lastNum < 2200) y = lastNum;
+                  else if (lastNum < 100) y = (lastNum + 2500) - 543;
+              }
+              return { year: y, month: m };
+          }
+      }
+
+      // 4. Fallback: new Date(val)
+      const d = new Date(val);
+      if (!isNaN(d.getTime())) {
+          let y = d.getFullYear();
+          if (y > 2400) y -= 543;
+          return { year: y, month: d.getMonth() + 1 };
+      }
+
+      return null;
+  }
+  window.extractYearMonthFromDate = extractYearMonthFromDate;
+
+  // อ่านปี-เดือน จากช่องวันที่ของหน้าคำนวณ OT (รองรับทั้ง input, แสดงผล, และป้ายกำกับ)
+  function getWorkDateSelectedMonth() {
+      const dateInput = document.getElementById('workDate');
+      if (dateInput && dateInput.value) {
+          const res = extractYearMonthFromDate(dateInput.value);
+          if (res) return res;
+      }
+      const showEl = document.getElementById('workDateShow');
+      if (showEl && showEl.textContent) {
+          const res = extractYearMonthFromDate(showEl.textContent);
+          if (res) return res;
+      }
+      const labelEl = document.getElementById('dateLabel');
+      if (labelEl && labelEl.textContent) {
+          const res = extractYearMonthFromDate(labelEl.textContent);
+          if (res) return res;
+      }
+      return null;
+  }
+  window.getWorkDateSelectedMonth = getWorkDateSelectedMonth;
+
   function updateCreateMonthDisplay(val) {
       const display = document.getElementById('createMonthDisplay');
       if(display) display.innerText = val ? getThaiMonthYearFull(val) : 'เลือกเดือน...';
@@ -2890,6 +2973,12 @@ function toggleVerification(driverName) {
       
     if(viewId === 'history') {
         showAll = false;
+        // [SYNC] ถ้าในหน้าคำนวณ OT มีการเลือกวันที่ไว้ ให้ซิงค์สรุปรายเดือนตามวันที่นั้น
+        const wDate = getWorkDateSelectedMonth();
+        if (wDate) {
+            const mk = `${wDate.year}-${String(wDate.month).padStart(2, '0')}`;
+            setGlobalSelectedMonth(mk);
+        }
         const currentMonth = getGlobalSelectedMonth();
         const monthPicker = document.getElementById('historyMonthPicker');
         if (monthPicker) monthPicker.value = currentMonth;
@@ -3890,12 +3979,21 @@ function openIncompleteModal() {
       return;
   }
 
-  let monthVal = document.getElementById('historyMonthPicker').value; 
-  if (!monthVal) {
-      const workDateVal = document.getElementById('workDate').value;
-      if (workDateVal) {
-          monthVal = workDateVal.substring(0, 7);
+  let monthVal = '';
+  const viewOt = document.getElementById('view-ot');
+  const isOtVisible = viewOt && viewOt.classList.contains('active');
+  if (isOtVisible) {
+      const wDate = getWorkDateSelectedMonth();
+      if (wDate) {
+          monthVal = `${wDate.year}-${String(wDate.month).padStart(2, '0')}`;
       }
+  }
+  if (!monthVal) {
+      const hp = document.getElementById('historyMonthPicker');
+      if (hp && hp.value) monthVal = hp.value;
+  }
+  if (!monthVal) {
+      monthVal = getGlobalSelectedMonth();
   }
   
   if (!monthVal) {
@@ -5027,10 +5125,16 @@ function closeIncompleteModal() {
 
         const workDateInput = document.getElementById('workDate');
         if(workDateInput) {
-            workDateInput.addEventListener('change', () => {
+            const onWorkDateUserChange = () => {
                 updateThaiDateDisplay();
-            });
-            workDateInput.addEventListener('input', updateThaiDateDisplay);
+                const wDate = getWorkDateSelectedMonth();
+                if (wDate) {
+                    const mk = `${wDate.year}-${String(wDate.month).padStart(2, '0')}`;
+                    setGlobalSelectedMonth(mk);
+                }
+            };
+            workDateInput.addEventListener('change', onWorkDateUserChange);
+            workDateInput.addEventListener('input', onWorkDateUserChange);
         }
 
         const btnSaveLog = document.getElementById('btnSaveLog');
@@ -5423,11 +5527,15 @@ function closeIncompleteModal() {
         const isOtVisible = viewOt && viewOt.classList.contains('active');
 
         if (isOtVisible) {
-            const dateVal = document.getElementById('workDate') ? document.getElementById('workDate').value : '';
-            if (dateVal && /^\d{4}-\d{2}/.test(dateVal)) {
-                const parts = dateVal.substring(0, 7).split('-');
-                targetYear = parseInt(parts[0]);
-                targetMonth = parseInt(parts[1]);
+            // [PRIORITY] ดึงเดือนจากวันที่ที่เลือกในหน้าคำนวณ OT ก่อนเสมอ
+            const wDate = getWorkDateSelectedMonth();
+            if (wDate) {
+                targetYear = wDate.year;
+                targetMonth = wDate.month;
+                try {
+                    const mk = `${targetYear}-${String(targetMonth).padStart(2, '0')}`;
+                    setGlobalSelectedMonth(mk);
+                } catch(e) {}
             } else {
                 const [gy, gm] = getGlobalSelectedMonth().split('-').map(Number);
                 targetYear = gy;
@@ -5461,6 +5569,7 @@ function closeIncompleteModal() {
             y = d.getFullYear();
             m = d.getMonth() + 1;
         }
+        if (y > 2400) y -= 543;
         return y === targetYear && m === targetMonth;
     });
 
