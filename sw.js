@@ -1,4 +1,4 @@
-const CACHE_NAME = "egat-ot-v7.4.4";
+const CACHE_NAME = "egat-ot-v7.4.5";
 
 self.addEventListener("install", e => {
   self.skipWaiting();
