@@ -12,7 +12,7 @@
 * **ที่ตั้งโปรเจกต์ในเครื่อง:** `D:\EgatOtCalculator`
 * **GitHub Repository:** [https://github.com/natthakitpinmoang/egat-ot-calculator](https://github.com/natthakitpinmoang/egat-ot-calculator) (สาขา `main`)
 * **โฟลเดอร์สำรองข้อมูล:** `D:\backup คำนวณเวลาOT\` และ `D:\EgatOtCalculator\backups\`
-* **สถานะปัจจุบัน:** เวอร์ชัน v7.8.11 — แก้ไขบั๊กการตรวจจับเดือนว่างเปล่าในอนาคต, Normalise การเว้นวรรคชื่อ พขร., ซิงค์เดือนตอนเริ่มแอปทันที, และอัปเกรด PWA Network-First ผ่านการทดสอบบนเบราว์เซอร์จริงเรียบร้อยแล้ว
+* **สถานะปัจจุบัน:** เวอร์ชัน v7.8.11 (Commit `a011110`, Tag `v7.8.11`) — แก้ไขบั๊กการตรวจจับเดือนว่างเปล่าในอนาคต, Normalise การเว้นวรรคชื่อ พขร., ซิงค์เดือนตอนเริ่มแอปทันที, และอัปเกรด PWA Network-First ผ่านการทดสอบบนเบราว์เซอร์จริงเรียบร้อยแล้ว
 
 ---
 
