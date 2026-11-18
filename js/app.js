@@ -1610,7 +1610,7 @@ function toggleSidebar(forceState) {
       
       const toolbar = document.getElementById('historyToolbar');
       if(toolbar) {
-          toolbar.style.display = mode === 'daily' ? 'flex' : 'none';
+          toolbar.style.display = mode === 'daily' ? '' : 'none';
       }
 
       if(dropdown) {
@@ -3073,7 +3073,7 @@ function toggleVerification(driverName) {
         
         const toolbar = document.getElementById('historyToolbar');
         if(toolbar) {
-            toolbar.style.display = currentHistoryMode === 'daily' ? 'flex' : 'none'; 
+            toolbar.style.display = currentHistoryMode === 'daily' ? '' : 'none'; 
         }
     }
     if(viewId === 'drivers') {

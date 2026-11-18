@@ -411,6 +411,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     color: #fff;
     box-shadow: 0 2px 6px rgba(0, 47, 108, 0.25);
 }
+.mode-text-mobile { display: none; }
 
 /* Month Stepper Capsule Pill */
 .month-stepper-wrap {
@@ -1037,7 +1038,7 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
         font-size: 1rem;
     }
 
-    .tool-btn { min-width: auto; min-height: 44px; padding: 10px 14px !important; }
+    .tool-btn { min-width: auto; min-height: 40px; }
     .action-btn, .cmp-nav-btn, .mini-btn { min-width: 44px; min-height: 44px; }
     .close-modal { min-height: 44px; }
 }
@@ -2070,9 +2071,128 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
 /* ---------- มือถือ ---------- */
 @media (max-width: 560px) {
     .left-group { flex-direction: column; align-items: stretch; gap: 10px; }
-    .history-title-group { justify-content: space-between; width: 100%; }
+    .history-title-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        width: 100%;
+    }
+    .history-title {
+        text-align: left;
+        font-size: 1.15rem;
+    }
+    .history-mode-pill-bar {
+        display: flex;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        justify-content: space-between;
+        padding: 3px;
+        gap: 4px;
+    }
+    .mode-text-full { display: none; }
+    .mode-text-mobile { display: inline; }
+    .mode-pill-btn {
+        flex: 1;
+        min-width: 0;
+        font-size: 0.8rem;
+        padding: 7px 6px;
+        justify-content: center;
+        text-align: center;
+        white-space: nowrap;
+        gap: 4px;
+    }
     .history-actions-group { width: 100%; justify-content: center; margin-left: 0; }
-    .mode-pill-btn { font-size: 0.8rem; padding: 5px 10px; }
+
+    /* [FIX v7.8.15] Toolbar บนมือถือ: เรียง 3 ปุ่มใน Grid สัดส่วนเท่ากัน ไม่ล้น ไม่ตกขอบ */
+    .history-toolbar-container {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 6px;
+        padding: 4px;
+        border-radius: 14px;
+        margin-top: 12px;
+        margin-bottom: 14px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .history-toolbar-container .tool-btn {
+        flex: 1;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        padding: 8px 2px !important;
+        font-size: 0.74rem;
+        gap: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        justify-content: center;
+        min-height: 40px;
+    }
+
+    /* [FIX v7.8.15] Summary Grid บนมือถือ: ปรับขนาดฟอนต์และการ์ดให้พอดี ไม่เบียด */
+    .summary-grid {
+        gap: 6px;
+        margin-bottom: 14px;
+    }
+    .sum-card {
+        padding: 8px 3px;
+        min-height: 72px;
+        border-radius: 12px;
+    }
+    .sum-card .lbl {
+        font-size: 0.7rem;
+        letter-spacing: 0;
+        line-height: 1.2;
+    }
+    .sum-card .unit {
+        font-size: 0.62rem;
+    }
+    .sum-card .val {
+        font-size: 1.35rem;
+        line-height: 1.1;
+        margin: 2px 0;
+    }
+
+    /* [FIX v7.8.15] Total Summary Section บนมือถือ: เปลี่ยนเป็น Grid 3 คอลัมน์สมดุล ลด Padding จบปัญหาการ์ดที่ 3 หลุดขอบ */
+    .total-summary-section {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-radius: 14px;
+        margin-top: 14px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .summary-half {
+        padding: 10px 4px;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+    .summary-half .lbl {
+        font-size: 0.72rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        margin-bottom: 3px;
+        text-align: center;
+    }
+    .summary-half .val-group {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 3px;
+        flex-wrap: wrap;
+    }
+    .summary-half .val {
+        font-size: 1.25rem;
+        line-height: 1.1;
+    }
+    .summary-half .unit {
+        font-size: 0.68rem;
+    }
+
     .admin-head { flex-direction: column; align-items: stretch; }
     .admin-month-select { justify-content: center; }
     .admin-month-input { min-width: 0; width: 100%; }
@@ -2083,4 +2203,22 @@ input.time-manual:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba
     .status-filter-select { width: 100%; }
     .seg-btn { font-size: 0.78rem; padding: 10px 4px; }
     .pin-modal-actions { flex-direction: column; }
+}
+
+@media (max-width: 380px) {
+    .mode-pill-btn {
+        font-size: 0.7rem;
+        padding: 5px 2px;
+        gap: 2px;
+    }
+    .history-toolbar-container .tool-btn {
+        font-size: 0.7rem;
+        padding: 6px 1px !important;
+    }
+    .summary-half .val {
+        font-size: 1.1rem;
+    }
+    .sum-card .val {
+        font-size: 1.15rem;
+    }
 }

@@ -12,7 +12,7 @@
 * **ที่ตั้งโปรเจกต์ในเครื่อง:** `D:\EgatOtCalculator`
 * **GitHub Repository:** [https://github.com/natthakitpinmoang/egat-ot-calculator](https://github.com/natthakitpinmoang/egat-ot-calculator) (สาขา `main`)
 * **โฟลเดอร์สำรองข้อมูล:** `D:\backup คำนวณเวลาOT\` และ `D:\EgatOtCalculator\backups\`
-* **สถานะปัจจุบัน:** เวอร์ชัน v7.8.14 (Commit `edcf223`, Tag `v7.8.14`, สาขา `main`) — แก้ไขปัญหาไอคอนนาฬิกาขยายเต็มจอ (SVG Flash/Overflow) โดยเพิ่ม Critical Inline CSS และจำกัดขนาด SVG 18px พร้อมระบบ Self-Healing Purge แคช Service Worker สำหรับ localhost และเปิดเซิร์ฟเวอร์สำรอง Port 8080 ผ่านการทดสอบหน้าจอสวยงาม 100% เรียบร้อยสมบูรณ์
+* **สถานะปัจจุบัน:** เวอร์ชัน v7.8.15 (สาขา `main`) — แก้ไขปัญหาหน้าจอเพี้ยนตกขอบบนมือถือ (Mobile Responsive Overflow Fix) ในหน้าสรุปรายเดือน ปรับแถบสลับโหมด, แถบเครื่องมือ 3 ปุ่ม (Grid 3 คอลัมน์สมดุล), การ์ดสรุปยอด OT 3 เรต และแถบสรุปยอดรวม (Total Summary Bar) ให้แสดงผลครบถ้วน 100% ไม่หลุดขอบ ไม่ถูกตัดตอน และรองรับมือถือจอแคบทุกขนาด
 
 ---
 
@@ -101,6 +101,13 @@
   - **Self-Healing Purge แคช Service Worker สำหรับ localhost**: ใส่สคริปต์ตรวจจับ `window.location.hostname === 'localhost'` ให้ทำการ Unregister Service Worker และล้าง CacheStorage ทั้งหมดอัตโนมัติ พร้อมทั้งปรับ `js/app.js` ให้ลงทะเบียน Service Worker เฉพาะบนโฮสต์จริงที่ไม่ใช่ localhost เพื่อไม่ให้เกิดปัญหาแคชแทรกแซงการพัฒนา
   - **ปรับปรุง `sw.js` ปลดปล่อย Static Assets**: ยกเลิกการดักจับ Static Assets ที่เคย fallback เป็น `index.html` (ต้นเหตุที่ทำให้ CSS ถูกอ่านเป็น HTML และส่งผลให้หน้าเว็บกลายเป็นหน้าเปล่าไร้สไตล์) ให้ส่งคำขอตรงไปยังเซิร์ฟเวอร์แบบ 100%
   - **เปิดเซิร์ฟเวอร์รองรับ 2 พอร์ต (Port 3000 และ Port 8080)**: สามารถเข้าใช้งานผ่าน `http://localhost:8080/` หรือ `http://localhost:3000/` ได้ทันที โดยผ่านการทดสอบบนเบราว์เซอร์จริงหน้าจอสวยงามคมชัด 100% เรียบร้อยสมบูรณ์
+
+* [x] **[v7.8.15: ปรับปรุงการแสดงผลหน้าสรุปรายเดือนบนมือถือ (Mobile Responsive Overflow Fix)]**:
+  - **แก้ปัญหาแถบสลับโหมด (`.history-mode-pill-bar`) ล้นขอบ**: ปรับ `.history-title-group` บนมือถือ (< 560px) ให้เรียงแบบคอลัมน์ และให้ `.history-mode-pill-bar` กว้าง 100% พร้อมแบ่งปุ่ม 2 ฝั่งเท่ากัน (`flex: 1`, `font-size: 0.76rem`, `padding: 6px 4px`) พร้อม `text-overflow: ellipsis`
+  - **แก้ปัญหาแถบเครื่องมือ 3 ปุ่ม (`.history-toolbar-container`) หลุดขอบ**: เปลี่ยนจาก Flexbox แนวนอนที่ทำให้ปุ่มที่ 3 ถูกดันตกขอบ เป็น `display: grid; grid-template-columns: repeat(3, 1fr)` ทำให้ปุ่ม `⚠️ แจ้งขาด`, `📋 สรุปตาม`, และ `⚪ รอตรวจสอบ` เรียงตัวสวยงามพอดี 100% ภายในหน้าจอ
+  - **แก้ปัญหาการ์ดสรุปยอดรวม 3 ช่อง (`.total-summary-section`) ใบที่ 3 ถูกตัด**: ปรับเป็น `display: grid; grid-template-columns: repeat(3, 1fr)` ลด padding เหลือ `10px 4px` และปรับขนาดตัวเลข/ข้อความให้กะทัดรัด ทำให้ `🏖️ รวมวันลา`, `⏱️ รวมชั่วโมง OT`, และ `📝 รวมขอเบิก OT` แสดงผลครบถ้วนสมบูรณ์ ไม่มีช่องใดตกขอบ
+  - **ปรับปรุงการ์ดเรต OT 3 ใบ (`.summary-grid`)**: ปรับ padding และ font-size ให้โปร่งสบายตา ไม่เบียดอัดแน่น
+  - **รองรับจอมือถือขนาดเล็กพิเศษ (< 380px)**: เพิ่ม Breakpoint ย่อย ปรับขนาดตัวอักษรและ padding ให้ไม่แตก ไม่ล้น แม้บนหน้าจอขนาด 320px - 360px
 
 ### ฟีเจอร์ที่ต้องทำต่อ (Current & Next):
 * [ ] **[UX พขร. ข้อ 4]** หน้าคำนวณเวลา OT (หน้าแรก):

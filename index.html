@@ -26,7 +26,7 @@
       }
     }
   </script>
-<title>EGAT OT Calculator (v7.8.14) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
+<title>EGAT OT Calculator (v7.8.15) - ระบบคำนวณเวลาล่วงเวลา กฟผ.</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -35,7 +35,7 @@
   <meta name="theme-color" content="#f9c419" />
 
   <!-- Open Graph / Social Sharing -->
-  <meta property="og:title" content="EGAT OT Calculator (v7.8.14) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
+  <meta property="og:title" content="EGAT OT Calculator (v7.8.15) - ระบบคำนวณเวลาล่วงเวลา กฟผ." />
   <meta property="og:description" content="ระบบคำนวณชั่วโมง OT และเบิกค่าล่วงเวลา สำหรับพนักงาน กฟผ. รองรับมือถือและติดตั้งเป็น PWA" />
   <meta property="og:image" content="./assets/icons/icon-512.png" />
   <meta property="og:type" content="website" />
@@ -54,7 +54,7 @@
 
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" href="./assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="./css/styles.css?v=7.8.14" />
+  <link rel="stylesheet" href="./css/styles.css?v=7.8.15" />
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* Critical Inline CSS: ป้องกัน FOUC / ไอคอนขยายล้นจอเด็ดขาดก่อน CSS ภายนอกโหลด */
@@ -257,10 +257,10 @@
                     <!-- แถบสลับโหมด 1. สรุปรายเดือน (ปกติ) / 2. สรุป พขร. (ยอดรวม) -->
                     <div class="history-mode-pill-bar">
                         <button type="button" class="mode-pill-btn active" id="btnModeDaily" onclick="setHistoryMode('daily')">
-                            <span>📅</span> 1. สรุปรายเดือน (ปกติ)
+                            <span>📅</span> <span class="mode-text-full">1. สรุปรายเดือน (ปกติ)</span><span class="mode-text-mobile">1. สรุปรายเดือน</span>
                         </button>
                         <button type="button" class="mode-pill-btn" id="btnModeDriver" onclick="setHistoryMode('driver')">
-                            <span>👥</span> 2. สรุป พขร. (ยอดรวม)
+                            <span>👥</span> <span class="mode-text-full">2. สรุป พขร. (ยอดรวม)</span><span class="mode-text-mobile">2. สรุป พขร.</span>
                         </button>
                     </div>
                 </div>
@@ -946,6 +946,6 @@
 
 </div>
 
-<script src="./js/app.js?v=7.8.14"></script>
+<script src="./js/app.js?v=7.8.15"></script>
 </body>
 </html>
