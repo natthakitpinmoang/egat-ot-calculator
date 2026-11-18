@@ -1,7 +1,9 @@
+const CACHE_NAME = "egat-ot-v7.4.4";
 
 self.addEventListener("install", e => {
+  self.skipWaiting();
   e.waitUntil(
-    caches.open("ot-calculator").then(cache => {
+    caches.open(CACHE_NAME).then(cache => {
       return cache.addAll([
         "./",
         "./index.html",
@@ -9,6 +11,17 @@ self.addEventListener("install", e => {
       ]);
     })
   );
+});
+
+self.addEventListener("activate", e => {
+  e.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      );
+    })
+  );
+  return self.clients.claim();
 });
 
 self.addEventListener("fetch", e => {

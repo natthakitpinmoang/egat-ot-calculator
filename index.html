@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<title>EGAT OT (v7.4.3 Data Sync & Bug Fixes)</title>
+<title>EGAT OT (v7.4.4 Break Logic Fix & Stability)</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -1238,9 +1238,12 @@ const CloudStorage = {
       let data = {};
       let filenameSuffix = "";
 
-      const allDrivers = JSON.parse(CloudStorage.getItem('egat_drivers')) || [];
-      let allHistory = JSON.parse(CloudStorage.getItem('egat_ot_history')) || [];
-      const allVerified = JSON.parse(CloudStorage.getItem('egat_ot_verified_status')) || {};
+      let allDrivers = [];
+      try { allDrivers = JSON.parse(CloudStorage.getItem('egat_drivers')) || []; } catch(e) { allDrivers = drivers || []; }
+      let allHistory = [];
+      try { allHistory = JSON.parse(CloudStorage.getItem('egat_ot_history')) || []; } catch(e) { allHistory = otHistory || []; }
+      let allVerified = {};
+      try { allVerified = JSON.parse(CloudStorage.getItem('egat_ot_verified_status')) || {}; } catch(e) { allVerified = verifiedStatus || {}; }
 
       if (type === 'all') {
           data = { drivers: allDrivers, history: allHistory, verified: allVerified };
@@ -1334,7 +1337,9 @@ const CloudStorage = {
                   if (text.includes("ตรวจสอบแล้ว")) text = "ตรวจสอบแล้ว";
                   else if (text.includes("รอตรวจสอบ")) text = "รอตรวจสอบ";
               }
-              if (text.includes(",")) text = `"${text}"`;
+              if (text.includes(",") || text.includes('"')) {
+                  text = `"${text.replace(/"/g, '""')}"`;
+              }
               rowData.push(text);
           });
           csvContent += rowData.join(",") + "\n";
@@ -1650,9 +1655,11 @@ const CloudStorage = {
 
   let currentCalcResult = null; 
   let otHistory = [];
-  let rawDrivers = JSON.parse(CloudStorage.getItem('egat_drivers'));
+  let rawDrivers = null;
+  try { rawDrivers = JSON.parse(CloudStorage.getItem('egat_drivers')); } catch(e) { rawDrivers = null; }
   let drivers = [];
-  let verifiedStatus = JSON.parse(CloudStorage.getItem('egat_ot_verified_status')) || {};
+  let verifiedStatus = {};
+  try { verifiedStatus = JSON.parse(CloudStorage.getItem('egat_ot_verified_status')) || {}; } catch(e) { verifiedStatus = {}; }
 
   if (rawDrivers && rawDrivers.length > 0) {
       if (typeof rawDrivers[0] === 'string') {
@@ -2211,7 +2218,7 @@ function renderDrivers() {
 
       let totalMinutes = endMin - startMin;
       if(Math.max(0,Math.min(endMin,MIN(13,0))-Math.max(startMin,MIN(12,0)))>0) totalMinutes-=LUNCH_BREAK_MIN;
-      if(endMin>=MIN(19,30)) totalMinutes-=DINNER_BREAK_MIN;
+      if(startMin<MIN(20,0) && endMin>=MIN(19,30)) totalMinutes-=DINNER_BREAK_MIN;
 
       const timeRange = `${fmtTime(startMin)} - ${fmtTime(endMin)}`;
       let ot15=0, ot1=0, ot3=0, html = '', maxOTMinutes = 0, dispTotalMinutes = 0;
@@ -2244,7 +2251,7 @@ function renderDrivers() {
         total15 += ov;
       }
     }
-    if(endMin>=MIN(19,30)){ total15=Math.max(0,total15-DINNER_BREAK_MIN); breaks.push('หักพัก 30 นาที (19:30–20:00)'); }
+    if(startMin<MIN(20,0) && endMin>=MIN(19,30)){ total15=Math.max(0,total15-DINNER_BREAK_MIN); breaks.push('หักพัก 30 นาที (19:30–20:00)'); }
     return { rowsHTML, breaks, total15 };
   }
 
@@ -2263,7 +2270,7 @@ function renderDrivers() {
     if(Math.max(0,Math.min(endMin,L2)-Math.max(startMin,L1))>0){
       totals[1]=Math.max(0,(totals[1]||0)-LUNCH_BREAK_MIN); breaks.push('หักพัก 1 ชม. (12:00–13:00)');
     }
-    if(endMin>=MIN(19,30)){ totals[3]=Math.max(0,(totals[3]||0)-DINNER_BREAK_MIN); breaks.push('หักพัก 30 น. (19:30–20:00)'); }
+    if(startMin<MIN(20,0) && endMin>=MIN(19,30)){ totals[3]=Math.max(0,(totals[3]||0)-DINNER_BREAK_MIN); breaks.push('หักพัก 30 น. (19:30–20:00)'); }
     const totalCalc = (totals[1]||0) + (totals[3]||0);
     return { rowsHTML, breaks, totals, totalMinutes: totalCalc };
   }
