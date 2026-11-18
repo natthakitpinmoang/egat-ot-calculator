@@ -12,7 +12,7 @@
 * **ที่ตั้งโปรเจกต์ในเครื่อง:** `D:\EgatOtCalculator`
 * **GitHub Repository:** [https://github.com/natthakitpinmoang/egat-ot-calculator](https://github.com/natthakitpinmoang/egat-ot-calculator) (สาขา `main`)
 * **โฟลเดอร์สำรองข้อมูล:** `D:\backup คำนวณเวลาOT\` และ `D:\EgatOtCalculator\backups\`
-* **สถานะปัจจุบัน:** เวอร์ชัน v7.8.14 (สาขา `main`) — แก้ไขปัญหาไอคอนนาฬิกาขยายเต็มจอ (SVG Flash/Overflow) โดยเพิ่ม Critical Inline CSS และจำกัดขนาด SVG 18px พร้อมระบบ Self-Healing Purge แคช Service Worker สำหรับ localhost และเปิดเซิร์ฟเวอร์สำรอง Port 8080 ผ่านการทดสอบหน้าจอสวยงาม 100% เรียบร้อยสมบูรณ์
+* **สถานะปัจจุบัน:** เวอร์ชัน v7.8.14 (Commit `edcf223`, Tag `v7.8.14`, สาขา `main`) — แก้ไขปัญหาไอคอนนาฬิกาขยายเต็มจอ (SVG Flash/Overflow) โดยเพิ่ม Critical Inline CSS และจำกัดขนาด SVG 18px พร้อมระบบ Self-Healing Purge แคช Service Worker สำหรับ localhost และเปิดเซิร์ฟเวอร์สำรอง Port 8080 ผ่านการทดสอบหน้าจอสวยงาม 100% เรียบร้อยสมบูรณ์
 
 ---
 
